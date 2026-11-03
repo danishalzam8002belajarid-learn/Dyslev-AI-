@@ -214,21 +214,23 @@ st.markdown("""
         object-fit: contain !important;
     }
     [data-testid="stCameraInputButton"] {
-        width: 3.25rem !important;
-        min-width: 3.25rem !important;
+        width: fit-content !important;
+        min-width: 0 !important;
         height: 3.25rem !important;
         min-height: 3.25rem !important;
-        padding: 0 !important;
-        border-radius: 50% !important;
-        display: inline-flex !important;
+        padding: 0 1.25rem !important;
+        border-radius: 999px !important;
+        display: flex !important;
         align-items: center;
         justify-content: center;
         font-size: 0 !important;
+        margin: 0 auto !important;
     }
     [data-testid="stCameraInputButton"]::before {
-        content: "📷";
-        font-size: 1.5rem;
+        content: "📷  Ambil Gambar";
+        font-size: 1rem;
         line-height: 1;
+        white-space: nowrap;
     }
     div[data-testid="stPopover"] {
         position: fixed;
@@ -901,7 +903,7 @@ with st.container():
                 "mengambil foto berikutnya."
             )
             camera_file = st.camera_input(
-                "Ambil foto tulisan tangan (bisa berulang)",
+                "Ambil Gambar",
                 key=(
                     f"camera_capture_{st.session_state['upload_generation']}_"
                     f"{st.session_state['camera_capture_generation']}"
