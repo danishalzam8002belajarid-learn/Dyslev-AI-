@@ -216,6 +216,12 @@ st.markdown("""
         width: auto;
     }
     @media (max-width: 640px) {
+        div[data-testid="stCameraInput"] video {
+            width: 100% !important;
+            height: min(125vw, 70vh) !important;
+            object-fit: cover !important;
+            border-radius: 12px;
+        }
         .hero-container {
             padding: 4.5rem 1rem 1.5rem;
             border-radius: 16px;
@@ -283,6 +289,14 @@ st.markdown("""
 
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = APP_DIR
+
+
+class CameraImageUpload(io.BytesIO):
+    def __init__(self, filename: str, image_bytes: bytes) -> None:
+        super().__init__(image_bytes)
+        self.name = filename
+
+
 TFLITE_CANDIDATES = [
     os.path.join(BASE_DIR, "dyslexia_model_v2.tflite"),
     os.path.join(BASE_DIR, "dyslexia_model.tflite"),
@@ -445,6 +459,10 @@ for obsolete_key in (
     st.session_state.pop(obsolete_key, None)
 if "upload_generation" not in st.session_state:
     st.session_state["upload_generation"] = 0
+if "camera_capture_generation" not in st.session_state:
+    st.session_state["camera_capture_generation"] = 0
+if "camera_images" not in st.session_state:
+    st.session_state["camera_images"] = []
 if "reload_dialog_open" not in st.session_state:
     st.session_state["reload_dialog_open"] = False
 
@@ -491,6 +509,8 @@ def cancel_reload():
 
 def clear_uploaded_data():
     st.session_state["upload_generation"] += 1
+    st.session_state["camera_capture_generation"] += 1
+    st.session_state["camera_images"] = []
     st.session_state["reload_dialog_open"] = False
 
 
@@ -859,30 +879,64 @@ with st.container():
             )
         else:
             st.caption(
-                "Arahkan kamera ke tulisan tangan dan pastikan pencahayaan cukup."
+                "Arahkan kamera dalam posisi potret ke tulisan tangan. "
+                "Setiap foto tersimpan dan kamera siap untuk mengambil foto berikutnya."
             )
             camera_file = st.camera_input(
-                "Ambil foto tulisan tangan",
+                "Ambil foto tulisan tangan (bisa berulang)",
                 resolution="720p",
-                key=f"camera_capture_{st.session_state['upload_generation']}",
-            )
-            camera_fallback = st.file_uploader(
-                "Atau pilih foto dari perangkat",
-                type=["jpg", "jpeg", "png"],
-                key=f"camera_fallback_{st.session_state['upload_generation']}",
-                help=(
-                    "Gunakan ini jika kamera langsung tidak tersedia di browser "
-                    "atau perangkat Anda."
+                key=(
+                    f"camera_capture_{st.session_state['upload_generation']}_"
+                    f"{st.session_state['camera_capture_generation']}"
                 ),
             )
-            selected_camera_file = (
-                camera_file if camera_file is not None else camera_fallback
+            if camera_file is not None:
+                camera_images = st.session_state["camera_images"]
+                camera_images.append(
+                    (
+                        f"kamera_{len(camera_images) + 1}.jpg",
+                        camera_file.getvalue(),
+                    )
+                )
+                st.session_state["camera_capture_generation"] += 1
+                st.rerun()
+
+            camera_images = st.session_state["camera_images"]
+            if camera_images:
+                st.caption(f"Foto kamera siap dianalisis: {len(camera_images)}")
+                with st.expander("Lihat foto yang sudah diambil"):
+                    preview_columns = st.columns(min(len(camera_images), 4))
+                    for image_index, (image_name, image_bytes) in enumerate(
+                        camera_images
+                    ):
+                        with preview_columns[image_index % len(preview_columns)]:
+                            st.image(
+                                image_bytes,
+                                caption=image_name,
+                                use_container_width=True,
+                            )
+                if st.button(
+                    "Hapus semua foto kamera",
+                    key="clear_camera_images",
+                ):
+                    st.session_state["camera_images"] = []
+                    st.session_state["camera_capture_generation"] += 1
+                    st.rerun()
+
+            camera_fallback = st.file_uploader(
+                "Atau tambahkan beberapa foto dari perangkat",
+                type=["jpg", "jpeg", "png"],
+                accept_multiple_files=True,
+                key=f"camera_fallback_{st.session_state['upload_generation']}",
+                help=(
+                    "Pilih satu atau beberapa foto jika kamera langsung tidak "
+                    "tersedia, atau untuk menambahkan foto lain."
+                ),
             )
-            batch_files = (
-                [selected_camera_file]
-                if selected_camera_file is not None
-                else []
-            )
+            batch_files = [
+                CameraImageUpload(image_name, image_bytes)
+                for image_name, image_bytes in camera_images
+            ] + list(camera_fallback or [])
 
         if st.session_state.get("batch_mode") in {
             "Statistik Variasi Tinggi (CV)",
