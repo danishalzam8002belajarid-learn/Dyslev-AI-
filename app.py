@@ -207,6 +207,29 @@ st.markdown("""
     [data-testid="stExpandSidebarButton"] {
         display: none !important;
     }
+    [data-testid="stCameraInputWebcamStyledBox"] video {
+        width: 100% !important;
+        height: auto !important;
+        aspect-ratio: auto !important;
+        object-fit: contain !important;
+    }
+    [data-testid="stCameraInputButton"] {
+        width: 3.25rem !important;
+        min-width: 3.25rem !important;
+        height: 3.25rem !important;
+        min-height: 3.25rem !important;
+        padding: 0 !important;
+        border-radius: 50% !important;
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        font-size: 0 !important;
+    }
+    [data-testid="stCameraInputButton"]::before {
+        content: "📷";
+        font-size: 1.5rem;
+        line-height: 1;
+    }
     div[data-testid="stPopover"] {
         position: fixed;
         top: 4rem;
@@ -216,12 +239,6 @@ st.markdown("""
         width: auto;
     }
     @media (max-width: 640px) {
-        div[data-testid="stCameraInput"] video {
-            width: 100% !important;
-            height: min(125vw, 70vh) !important;
-            object-fit: cover !important;
-            border-radius: 12px;
-        }
         .hero-container {
             padding: 4.5rem 1rem 1.5rem;
             border-radius: 16px;
@@ -879,12 +896,12 @@ with st.container():
             )
         else:
             st.caption(
-                "Arahkan kamera dalam posisi potret ke tulisan tangan. "
-                "Setiap foto tersimpan dan kamera siap untuk mengambil foto berikutnya."
+                "Pratinjau mengikuti rasio kamera perangkat. Pada HP, pegang kamera "
+                "dalam posisi potret. Setiap foto tersimpan dan kamera siap untuk "
+                "mengambil foto berikutnya."
             )
             camera_file = st.camera_input(
                 "Ambil foto tulisan tangan (bisa berulang)",
-                resolution="720p",
                 key=(
                     f"camera_capture_{st.session_state['upload_generation']}_"
                     f"{st.session_state['camera_capture_generation']}"
