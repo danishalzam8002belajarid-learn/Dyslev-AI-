@@ -238,7 +238,7 @@ st.markdown("""
         margin: 0 auto !important;
     }
     [data-testid="stCameraInputButton"]::before {
-        content: "📷  Ambil Gambar";
+        content: "Ambil Gambar";
         font-size: 1rem;
         line-height: 1;
         white-space: nowrap;
@@ -915,8 +915,7 @@ with st.container():
                 "gambar akan tampak lebih kecil di tengah tanpa terpotong. "
                 "Resolusi diminta hingga 1080p sesuai dukungan perangkat; aplikasi "
                 "tidak mengubah ukuran atau mengompresi ulang foto. Streamlit "
-                "menyimpan hasil kamera dalam JPEG kualitas maksimum. Fokus "
-                "otomatis tersedia jika didukung kamera dan browser."
+                "menyimpan hasil kamera dalam JPEG kualitas maksimum."
             )
             camera_file = st.camera_input(
                 "Ambil Gambar",
@@ -925,91 +924,6 @@ with st.container():
                     f"{st.session_state['camera_capture_generation']}"
                 ),
                 resolution="1080p",
-            )
-            st.html(
-                """
-                <script>
-                (() => {
-                    if (window.__dyslevFocusObserver) {
-                        window.__dyslevFocusObserver.disconnect();
-                    }
-
-                    const addFocusControl = () => {
-                        const camera = document.querySelector(
-                            '[data-testid="stCameraInputWebcamComponent"]'
-                        );
-                        const capture = camera?.querySelector(
-                            '[data-testid="stCameraInputButton"]'
-                        );
-                        if (!camera || !capture ||
-                            camera.querySelector('[data-testid="dyslevFocusButton"]')) {
-                            return;
-                        }
-
-                        const focus = document.createElement('button');
-                        focus.type = 'button';
-                        focus.dataset.testid = 'dyslevFocusButton';
-                        focus.textContent = '🔍 Fokus Otomatis';
-                        focus.setAttribute('aria-label', 'Fokus otomatis kamera');
-                        focus.style.cssText = [
-                            'display:block',
-                            'margin:0.65rem auto',
-                            'padding:0.55rem 1rem',
-                            'border:1px solid #64748b',
-                            'border-radius:999px',
-                            'background:#fff',
-                            'color:#172b2a',
-                            'font:inherit',
-                            'cursor:pointer'
-                        ].join(';');
-
-                        focus.addEventListener('click', async () => {
-                            const video = camera.querySelector('video');
-                            const track = video?.srcObject?.getVideoTracks?.()[0];
-                            const modes = track?.getCapabilities?.().focusMode || [];
-                            const mode = ['single-shot', 'continuous'].find(
-                                value => modes.includes(value)
-                            );
-                            if (!track || !mode) {
-                                focus.textContent =
-                                    'Auto focus tidak didukung kamera ini';
-                                return;
-                            }
-
-                            focus.disabled = true;
-                            focus.textContent = 'Memfokuskan...';
-                            try {
-                                await track.applyConstraints({
-                                    advanced: [{focusMode: mode}]
-                                });
-                                focus.textContent = '✓ Fokus otomatis aktif';
-                            } catch (error) {
-                                console.warn('Autofocus request failed:', error);
-                                focus.textContent =
-                                    'Auto focus tidak didukung kamera ini';
-                            } finally {
-                                focus.disabled = false;
-                                window.setTimeout(() => {
-                                    if (focus.isConnected) {
-                                        focus.textContent = '🔍 Fokus Otomatis';
-                                    }
-                                }, 2500);
-                            }
-                        });
-
-                        camera.insertBefore(focus, capture);
-                    };
-
-                    window.__dyslevFocusObserver = new MutationObserver(addFocusControl);
-                    window.__dyslevFocusObserver.observe(document.body, {
-                        childList: true,
-                        subtree: true
-                    });
-                    addFocusControl();
-                })();
-                </script>
-                """,
-                unsafe_allow_javascript=True,
             )
             if camera_file is not None:
                 camera_images = st.session_state["camera_images"]
