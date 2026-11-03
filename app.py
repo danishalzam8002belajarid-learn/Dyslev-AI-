@@ -1150,6 +1150,7 @@ with st.container():
 
     batch_result = st.session_state.get("batch_analysis_result")
     if batch_files and batch_result and batch_result["signature"] == batch_signature:
+        show_batch_comparison = len(batch_files) > 1
         comparison_df = build_comparison_summary(
             batch_result["results"],
             batch_result["opencv_crop_summaries"],
@@ -1180,14 +1181,18 @@ with st.container():
         effnet_results_df = pd.DataFrame(batch_result["results"])
         opencv_summary_df = pd.DataFrame(batch_result["opencv_results"])
         crop_summary_df = pd.DataFrame(batch_result["opencv_crop_summaries"])
-        if batch_result["grid_png"] is not None and batch_mode == BATCH_FULL:
+        if (
+            show_batch_comparison
+            and batch_result["grid_png"] is not None
+            and batch_mode == BATCH_FULL
+        ):
             st.markdown("#### Grid panel hasil gabungan")
             st.image(
                 batch_result["grid_png"],
                 caption="Panel gabungan hasil EfficientNet dan Grad-CAM",
                 use_container_width=True,
             )
-        if analysis_mode == ANALYSIS_BOTH:
+        if analysis_mode == ANALYSIS_BOTH and show_batch_comparison:
             st.markdown("## Hasil Perbandingan Model EfficientNet dan OpenCV")
             st.dataframe(comparison_df, use_container_width=True, hide_index=True)
             st.caption(
