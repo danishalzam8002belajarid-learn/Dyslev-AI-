@@ -207,10 +207,21 @@ st.markdown("""
     [data-testid="stExpandSidebarButton"] {
         display: none !important;
     }
+    [data-testid="stCameraInputWebcamStyledBox"] {
+        width: min(100%, 26.25rem) !important;
+        height: auto !important;
+        aspect-ratio: 3 / 4 !important;
+        margin: 0 auto !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        background: #111827;
+        border-radius: 0.5rem 0.5rem 0 0;
+    }
     [data-testid="stCameraInputWebcamStyledBox"] video {
         width: 100% !important;
-        height: auto !important;
-        aspect-ratio: auto !important;
+        height: 100% !important;
         object-fit: contain !important;
     }
     [data-testid="stCameraInputButton"] {
@@ -898,9 +909,9 @@ with st.container():
             )
         else:
             st.caption(
-                "Pratinjau mengikuti rasio kamera perangkat. Pada HP, pegang kamera "
-                "dalam posisi potret. Setiap foto tersimpan dan kamera siap untuk "
-                "mengambil foto berikutnya."
+                "Pratinjau berbentuk potret. Jika kamera menampilkan lanskap, "
+                "gambar akan tampak lebih kecil di tengah tanpa terpotong. Setiap "
+                "foto tersimpan dan kamera siap untuk mengambil foto berikutnya."
             )
             camera_file = st.camera_input(
                 "Ambil Gambar",
