@@ -640,6 +640,25 @@ def preprocess_effnet(image: Image.Image):
     return img_resized, np.expand_dims(arr, axis=0) / 255.0
 
 
+def standardize_handwriting_image(image: Image.Image) -> Image.Image:
+    gray = np.asarray(image.convert("L"))
+    threshold, binary = cv2.threshold(
+        gray,
+        0,
+        255,
+        cv2.THRESH_BINARY + cv2.THRESH_OTSU,
+    )
+    border_pixels = np.concatenate(
+        (gray[0, :], gray[-1, :], gray[:, 0], gray[:, -1])
+    )
+    if (
+        float(np.median(border_pixels)) <= threshold
+        and np.any(gray > threshold)
+    ):
+        binary = cv2.bitwise_not(binary)
+    return Image.fromarray(cv2.cvtColor(binary, cv2.COLOR_GRAY2RGB))
+
+
 def predict_efficientnet(interpreter, image: Image.Image, threshold: float):
     start = time.time()
     img_resized, input_data = preprocess_effnet(image)
@@ -896,6 +915,16 @@ with st.container():
             "**Eksperimen 1:** EfficientNet-B0 pada gambar utuh  \n"
             "**Eksperimen 2:** OpenCV crop → EfficientNet-B0 pada tiap komponen"
         )
+        standardize_black_white = st.checkbox(
+            "Standarisasi gambar menjadi hitam-putih",
+            value=True,
+            help=(
+                "Mengubah foto kamera dan unggahan dengan cara yang sama menjadi "
+                "tinta hitam dan latar putih menggunakan ambang Otsu. File asli "
+                "tidak diubah. Hasilnya bersifat eksperimental dan dapat mengubah "
+                "detail tulisan."
+            ),
+        )
         source_choice = st.radio(
             "Sumber gambar",
             ["Upload file", "Kamera langsung"],
@@ -1002,6 +1031,7 @@ with st.container():
             batch_mode,
             threshold,
             min_component_area,
+            standardize_black_white,
             CROP_AGGREGATION_VERSION,
         )
         if batch_files
@@ -1026,6 +1056,11 @@ with st.container():
 
             for i, bf in enumerate(batch_files):
                 image = Image.open(bf).convert('RGB')
+                analysis_image = (
+                    standardize_handwriting_image(image)
+                    if standardize_black_white
+                    else image
+                )
                 w, h = image.size
                 now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 for model_name, model in active_models.items():
@@ -1033,14 +1068,14 @@ with st.container():
                         continue
                     if model_name == MODEL_MEASUREMENT and not run_opencv:
                         continue
-                    batch_visual = np.array(image)
+                    batch_visual = np.array(analysis_image)
                     component_measurements = None
                     component_predictions = []
                     crop_previews = []
                     crop_summary = None
                     crop_error = None
                     if model_name == MODEL_EFFNET:
-                        r = predict_efficientnet(model, image, threshold)
+                        r = predict_efficientnet(model, analysis_image, threshold)
                         lvl, _ = confidence_level(r["confidence"])
                         results.append({
                             "Nama File": bf.name,
@@ -1067,14 +1102,14 @@ with st.container():
                             if keras_model is not None:
                                 try:
                                     batch_visual = heat_row_for(
-                                        image, r, keras_model, bf.name
+                                        analysis_image, r, keras_model, bf.name
                                     )
                                     tiles.append(batch_visual)
                                 except Exception as e:
                                     st.warning(f"Heatmap gagal untuk {bf.name}: {e}")
                     else:
                         _, overlay, measurements = measure_connected_regions(
-                            image,
+                            analysis_image,
                             min_area=min_component_area,
                         )
                         line_variability = summarize_line_variability(measurements)
@@ -1093,7 +1128,7 @@ with st.container():
                             component_predictions, crop_previews, crop_summary = (
                                 predict_component_crops(
                                     crop_model,
-                                    image,
+                                    analysis_image,
                                     measurements,
                                     threshold,
                                 )
