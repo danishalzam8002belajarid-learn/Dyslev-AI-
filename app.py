@@ -640,23 +640,19 @@ def preprocess_effnet(image: Image.Image):
     return img_resized, np.expand_dims(arr, axis=0) / 255.0
 
 
-def standardize_handwriting_image(image: Image.Image) -> Image.Image:
+def enhance_handwriting_contrast(image: Image.Image) -> Image.Image:
     gray = np.asarray(image.convert("L"))
-    threshold, binary = cv2.threshold(
-        gray,
-        0,
-        255,
-        cv2.THRESH_BINARY + cv2.THRESH_OTSU,
-    )
-    border_pixels = np.concatenate(
-        (gray[0, :], gray[-1, :], gray[:, 0], gray[:, -1])
-    )
-    if (
-        float(np.median(border_pixels)) <= threshold
-        and np.any(gray > threshold)
-    ):
-        binary = cv2.bitwise_not(binary)
-    return Image.fromarray(cv2.cvtColor(binary, cv2.COLOR_GRAY2RGB))
+    black_level, white_level = np.percentile(gray, (2, 98))
+    if white_level <= black_level:
+        enhanced = gray
+    else:
+        enhanced = np.clip(
+            (gray.astype(np.float32) - black_level)
+            * (255.0 / (white_level - black_level)),
+            0,
+            255,
+        ).astype(np.uint8)
+    return Image.fromarray(cv2.cvtColor(enhanced, cv2.COLOR_GRAY2RGB))
 
 
 def predict_efficientnet(interpreter, image: Image.Image, threshold: float):
@@ -915,14 +911,13 @@ with st.container():
             "**Eksperimen 1:** EfficientNet-B0 pada gambar utuh  \n"
             "**Eksperimen 2:** OpenCV crop → EfficientNet-B0 pada tiap komponen"
         )
-        standardize_black_white = st.checkbox(
-            "Standarisasi gambar menjadi hitam-putih",
+        enhance_image_contrast = st.checkbox(
+            "Perjelas kontras tulisan",
             value=True,
             help=(
-                "Mengubah foto kamera dan unggahan dengan cara yang sama menjadi "
-                "tinta hitam dan latar putih menggunakan ambang Otsu. File asli "
-                "tidak diubah. Hasilnya bersifat eksperimental dan dapat mengubah "
-                "detail tulisan."
+                "Memekatkan bagian gelap dan mencerahkan bagian terang dengan "
+                "peregangan kontras, sambil mempertahankan tingkat abu-abu. Tidak "
+                "membalik atau membinarisasi warna. File asli tidak diubah."
             ),
         )
         source_choice = st.radio(
@@ -1031,7 +1026,7 @@ with st.container():
             batch_mode,
             threshold,
             min_component_area,
-            standardize_black_white,
+            enhance_image_contrast,
             CROP_AGGREGATION_VERSION,
         )
         if batch_files
@@ -1057,8 +1052,8 @@ with st.container():
             for i, bf in enumerate(batch_files):
                 image = Image.open(bf).convert('RGB')
                 analysis_image = (
-                    standardize_handwriting_image(image)
-                    if standardize_black_white
+                    enhance_handwriting_contrast(image)
+                    if enhance_image_contrast
                     else image
                 )
                 w, h = image.size
