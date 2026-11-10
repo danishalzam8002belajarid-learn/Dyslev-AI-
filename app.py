@@ -18,6 +18,279 @@ from handwriting_measurement import (
     summarize_line_variability,
 )
 
+ENGLISH_TRANSLATIONS = {
+    "Alat Deteksi Dysgraphia & Dyseleksia": "Dysgraphia & Dyslexia Detection Tool",
+    "Model EfficientNet-B0 & OpenCV": "EfficientNet-B0 & OpenCV Models",
+    "EfficientNet-B0 (Klasifikasi)": "EfficientNet-B0 (Classification)",
+    "Aktif": "Active",
+    "Visualisasi Grad-CAM": "Grad-CAM Visualization",
+    "Format output": "Output format",
+    "Model .h5 tidak tersedia, heatmap dilewati.": "The .h5 model is unavailable; heatmap skipped.",
+    "{filename} — EfficientNet: {label} ({confidence:.1f}%)": (
+        "{filename} — EfficientNet: {label} ({confidence:.1f}%)"
+    ),
+    "{filename} — {count} komponen tinta terukur": (
+        "{filename} — {count} measured ink components"
+    ),
+    "Memulai analisis...": "Starting analysis...",
+    "Gagal menyiapkan hasil gambar: {filename}": "Failed to prepare result image: {filename}",
+    "Gagal menyiapkan grid heatmap untuk diunduh.": "Failed to prepare the heatmap grid for download.",
+    "Heatmap gagal untuk {filename}: {error}": "Heatmap failed for {filename}: {error}",
+    "TensorFlow belum terpasang ({error})": "TensorFlow is not installed ({error})",
+    "File .tflite EfficientNet tidak ditemukan": "EfficientNet .tflite file not found",
+    "Gambar Asli": "Original Image",
+    "Grid with Heatmap": "Grid with Heatmap",
+    "Heatmap + Gambar": "Heatmap + Image",
+    "Heatmap Murni": "Heatmap Only",
+    "Prediksi EfficientNet (gambar utuh)": "EfficientNet Prediction (full image)",
+    "Confidence EfficientNet": "EfficientNet Confidence",
+    "Jenis Analisis Model": "Analysis Model Type",
+    "Status": "Status",
+    "Model": "Model",
+    "Komponen diprediksi Disleksia (%)": "Components Predicted as Dyslexia (%)",
+    "Jumlah crop dianalisis": "Crops Analyzed",
+    "Jumlah Komponen": "Component Count",
+    "Jumlah Baris": "Line Count",
+    "Jumlah komponen": "Component Count",
+    "Nama File": "File Name",
+    "File Name": "File Name",
+    "Prediksi": "Prediction",
+    "Tingkat Kepercayaan": "Confidence",
+    "Level Confidence": "Confidence Level",
+    "Raw Score (Disleksia)": "Raw Score (Dyslexia)",
+    "Ukuran Gambar": "Image Dimensions",
+    "Waktu Analisis": "Analysis Time",
+    "Komponen diprediksi Normal (%)": "Components Predicted as Normal (%)",
+    "Komponen": "Component",
+    "Baris": "Line",
+    "Prediksi eksperimen": "Experimental Prediction",
+    "Skor Disleksia (%)": "Dyslexia Score (%)",
+    "Skor Normal (%)": "Normal Score (%)",
+    "Skor kelas terpilih (%)": "Selected Class Score (%)",
+    "Variasi tinggi (%)": "Height Variation (%)",
+    "Variasi lebar (%)": "Width Variation (%)",
+    "Indeks variasi ukuran (%)": "Size Variation Index (%)",
+    "rasio tinggi/lebar": "Height/Width Ratio",
+    "lebar (px)": "Width (px)",
+    "tinggi (px)": "Height (px)",
+    "luas tinta (px)": "Ink Area (px)",
+    "Rata-rata indeks variasi ukuran (%)": "Average Size Variation Index (%)",
+    "Rendah": "Low",
+    "Tinggi": "High",
+    "Data kurang": "Insufficient data",
+    "Model tidak tersedia": "Model unavailable",
+    "Grid panel hasil gabungan": "Combined Results Grid",
+    "Grid heatmap dan panel hasil": "Heatmap and Results Panel Grid",
+    "Gambar perbandingan": "Comparison images",
+    "Panel gabungan hasil EfficientNet dan Grad-CAM": "Combined EfficientNet and Grad-CAM panels",
+    "Unduh hasil EfficientNet — {filename} (CSV)": "Download EfficientNet results — {filename} (CSV)",
+    "Unduh grid panel — {filename} (PNG)": "Download panel grid — {filename} (PNG)",
+    "Unduh ringkasan perbandingan (CSV)": "Download comparison summary (CSV)",
+    "Unduh gambar kedua alur (ZIP)": "Download images from both workflows (ZIP)",
+    "Rincian crop (CSV)": "Crop Details (CSV)",
+    "Skala komponen (CSV)": "Component Scale (CSV)",
+    "Variasi per baris (CSV)": "Variation by Line (CSV)",
+    "Pengukuran gambar (CSV)": "Image Measurements (CSV)",
+    "Ringkasan crop (CSV)": "Crop Summary (CSV)",
+    "Gambar komponen (PNG)": "Component Image (PNG)",
+    "Komponen terdeteksi": "Detected Components",
+    "Rincian prediksi per huruf": "Per-Component Prediction Details",
+    "Skala Komponen & Variasi Huruf": "Component Scale & Letter Variation",
+    "Hasil pengukuran gambar": "Image Measurement Results",
+    "Variasi per baris": "Variation by Line",
+    "Analisis Tulisan Tangan": "Handwriting Analysis",
+    "Unduh semua crop — {filename} (ZIP)": "Download all crops — {filename} (ZIP)",
+    "Analisis pola gambar tulisan tangan tanpa ribet teknis. Cocok untuk guru, orang tua, hingga terapis. Dilengkapi berbagai fitur pendukung:": (
+        "Analyze handwriting patterns without technical complexity. Suitable for "
+        "teachers, parents, and therapists, with the following features:"
+    ),
+    "Ekspor Hasil CSV": "Export Results to CSV",
+    "Eksperimen Crop OpenCV": "OpenCV Crop Experiment",
+    "Eksperimen Crop OpenCV + EfficientNet": "OpenCV Crop Experiment + EfficientNet",
+    "Eksperimen Crop OpenCV + EfficientNet.": "OpenCV Crop Experiment + EfficientNet.",
+    "EfficientNet saja": "EfficientNet only",
+    "OpenCV saja (crop + EfficientNet)": "OpenCV only (crop + EfficientNet)",
+    "Keduanya": "Both",
+    "Pengaturan": "Settings",
+    "Atur model dan parameter analisis.": "Configure analysis models and parameters.",
+    "Bahasa / Language": "Language / Bahasa",
+    "Pengaturan Analisis": "Analysis Settings",
+    "Pilih alur analisis": "Choose an analysis workflow",
+    "OpenCV menggunakan EfficientNet untuk mengklasifikasikan setiap crop; mode ini tidak menjalankan klasifikasi gambar utuh.": (
+        "OpenCV uses EfficientNet to classify each crop; this mode does not "
+        "classify the full image."
+    ),
+    "OpenCV saja berarti deteksi/crop OpenCV lalu EfficientNet mengklasifikasikan crop; EfficientNet gambar utuh hanya berjalan pada mode yang menyertakannya.": (
+        "OpenCV only runs component detection/cropping, then EfficientNet classifies "
+        "the crops. Full-image EfficientNet classification runs only in workflows "
+        "that include it."
+    ),
+    "Threshold Disleksia": "Dyslexia Threshold",
+    "Gambar diprediksi Disleksia jika skor kelas Disleksia > {threshold:.2f}. Ambang ini bukan standar klinis.": (
+        "An image is predicted as Dyslexia if its Dyslexia class score is > "
+        "{threshold:.2f}. This threshold is not a clinical standard."
+    ),
+    "OpenCV: Pengukuran & Crop Eksperimental": "OpenCV: Experimental Measurement & Cropping",
+    "Mengukur dan memotong komponen tinta; crop diproses dengan EfficientNet yang sama. Satu komponen belum tentu satu huruf.": (
+        "Measures and crops ink components; crops are processed by the same "
+        "EfficientNet model. A component may not represent a single letter."
+    ),
+    "Luas minimum komponen (piksel)": "Minimum component area (pixels)",
+    "Komponen yang lebih kecil dari nilai ini akan diabaikan.": (
+        "Components smaller than this value will be ignored."
+    ),
+    "Status Komponen": "Model Status",
+    "Klasifikasi EfficientNet-B0": "EfficientNet-B0 Classification",
+    "Mendukung Analisis Awal Disleksia Berbasis AI": "Supporting Preliminary AI-Based Dyslexia Analysis",
+    "Diwujudkan melalui berbagai fitur unggulan untuk membantu analisis Anda. Hasil merupakan prototipe awal, bukan diagnosis.": (
+        "Explore features designed to support your analysis. Results are from an "
+        "early prototype and are not a diagnosis."
+    ),
+    "Menganalisis gambar tulisan tangan dan memprediksi kategori Disleksia atau Normal. Visualisasi Grad-CAM menunjukkan area gambar yang memengaruhi prediksi. Hasil merupakan prediksi prototipe, bukan bukti klinis atau diagnosis.": (
+        "Analyzes handwriting images and predicts Dyslexia or Normal. Grad-CAM "
+        "visualizes image regions that influenced the prediction. This prototype "
+        "prediction is not clinical evidence or a diagnosis."
+    ),
+    "OpenCV memotong komponen tinta, lalu EfficientNet-B0 yang sama memberi skor kelas pada setiap crop. Crop belum tentu satu huruf dan hasilnya masih eksperimen, bukan diagnosis.": (
+        "OpenCV crops ink components, then the same EfficientNet-B0 model scores "
+        "each crop. A crop may not be a single letter; results are experimental, "
+        "not a diagnosis."
+    ),
+    "Pemrosesan Banyak Gambar": "Batch Processing",
+    "Mendukung pemrosesan puluhan gambar sekaligus dalam satu waktu, mempermudah pengujian data dan riset dalam skala besar secara instan.": (
+        "Process dozens of images at once to streamline large-scale data testing "
+        "and research."
+    ),
+    "Laporan & Ekspor Data": "Reports & Data Export",
+    "Dapatkan hasil analisis lengkap beserta metrik raw score dan confidence level yang siap diekspor ke format CSV untuk kebutuhan riset lanjutan.": (
+        "Get complete analysis results, including raw scores and confidence levels, "
+        "ready to export as CSV for further research."
+    ),
+    "Eksperimen 1:** EfficientNet-B0 pada gambar utuh": "Experiment 1:** EfficientNet-B0 on the full image",
+    "Eksperimen 2:** OpenCV crop → EfficientNet-B0 pada tiap komponen": "Experiment 2:** OpenCV crops → EfficientNet-B0 on each component",
+    "**Eksperimen 1:** EfficientNet-B0 pada gambar utuh  \n**Eksperimen 2:** OpenCV crop → EfficientNet-B0 pada tiap komponen": (
+        "**Experiment 1:** EfficientNet-B0 on the full image  \n"
+        "**Experiment 2:** OpenCV crops → EfficientNet-B0 on each component"
+    ),
+    "Perjelas kontras tulisan": "Enhance handwriting contrast",
+    "Memekatkan bagian gelap dan mencerahkan bagian terang dengan peregangan kontras, sambil mempertahankan tingkat abu-abu. Tidak membalik atau membinarisasi warna. File asli tidak diubah.": (
+        "Darkens dark areas and brightens light areas using contrast stretching "
+        "while preserving grayscale levels. Does not invert or binarize the image. "
+        "The original file remains unchanged."
+    ),
+    "Sumber gambar": "Image source",
+    "Upload file": "Upload files",
+    "Kamera langsung": "Live camera",
+    "Pilih satu atau beberapa gambar": "Select one or more images",
+    "Pratinjau berbentuk potret. Jika kamera menampilkan lanskap, gambar akan tampak lebih kecil di tengah tanpa terpotong. Resolusi diminta hingga 1080p sesuai dukungan perangkat; aplikasi tidak mengubah ukuran atau mengompresi ulang foto. Streamlit menyimpan hasil kamera dalam JPEG kualitas maksimum.": (
+        "The preview uses a portrait frame. Landscape camera feeds appear smaller "
+        "in the center without cropping. Up to 1080p is requested, depending on "
+        "device support. The app does not resize or recompress photos. Streamlit "
+        "stores camera captures as maximum-quality JPEG."
+    ),
+    "Ambil Gambar": "Take Picture",
+    "Foto kamera siap dianalisis: {count}": "Camera photos ready for analysis: {count}",
+    "Lihat foto yang sudah diambil": "View captured photos",
+    "Hapus semua foto kamera": "Remove all camera photos",
+    "Atau tambahkan beberapa foto dari perangkat": "Or add multiple photos from your device",
+    "Pilih satu atau beberapa foto jika kamera langsung tidak tersedia, atau untuk menambahkan foto lain.": (
+        "Select one or more photos if the live camera is unavailable or to add "
+        "more photos."
+    ),
+    "Analisis Lengkap": "Full Analysis",
+    "Hanya Tabel Ringkasan": "Summary Table Only",
+    "Mulai Analisis": "Start Analysis",
+    "Hasil Perbandingan Model EfficientNet dan OpenCV": "EfficientNet and OpenCV Model Comparison",
+    "Perbandingan ini menampilkan klasifikasi EfficientNet pada gambar utuh dan proporsi label Disleksia/Normal dari crop OpenCV yang diklasifikasikan EfficientNet. Persentase crop adalah proporsi label komponen, bukan kemungkinan diagnosis; segmentasi komponen belum tentu memotong huruf secara tepat.": (
+        "This comparison shows EfficientNet classification of the full image and "
+        "the proportion of Dyslexia/Normal labels among OpenCV crops classified "
+        "by EfficientNet. Crop percentages are component-label proportions, not "
+        "diagnostic probabilities; component segmentation may not isolate "
+        "individual letters."
+    ),
+    "Hasil gambar — {filename}": "Image results — {filename}",
+    "Model EfficientNet-B0": "EfficientNet-B0 Model",
+    "Deteksi OpenCV": "OpenCV Detection",
+    "Model Crop Komponen + EfficientNet": "Component Crop Model + EfficientNet",
+    "Persentase merupakan proporsi crop yang diprediksi Disleksia atau Normal pada gambar ini, bukan peluang diagnosis. Crop belum tentu satu huruf; model EfficientNet dilatih untuk gambar utuh sehingga hasil crop masih eksperimen.": (
+        "Percentages are the proportions of crops predicted as Dyslexia or Normal "
+        "in this image, not diagnostic probabilities. A crop may not be a single "
+        "letter; EfficientNet was trained on full images, so crop results are "
+        "experimental."
+    ),
+    "Jenis Analisis": "Analysis Model Type",
+    "Inference Time (s)": "Inference Time (s)",
+    "x (px)": "x (px)",
+    "y (px)": "y (px)",
+    "Disleksia": "Dyslexia",
+    "EfficientNet tidak tersedia; crop tidak dapat diklasifikasikan.": (
+        "EfficientNet is unavailable; crops cannot be classified."
+    ),
+    "Gagal memuat model": "Failed to load model",
+    "Lanjut ke Analisis": "Continue to Analysis",
+    "Informasi Analisis": "Analysis Information",
+    "Aplikasi memiliki dua alur eksperimen: EfficientNet-B0 mengklasifikasikan gambar utuh, sedangkan OpenCV memotong komponen tinta lalu mengirim setiap crop ke EfficientNet-B0 yang sama. OpenCV bukan model AI terpisah.": (
+        "The app offers two experimental workflows: EfficientNet-B0 classifies "
+        "the full image, while OpenCV crops ink components and sends each crop to "
+        "the same EfficientNet-B0 model. OpenCV is not a separate AI model."
+    ),
+    "- **EfficientNet saja:** klasifikasi gambar tulisan secara utuh.\n- **OpenCV saja:** deteksi komponen, crop, lalu klasifikasi crop dengan EfficientNet.\n- **Keduanya:** jalankan dua alur dan bandingkan hasilnya.\n- Skor pada crop bersifat eksperimen dan bukan peluang diagnosis; komponen tinta belum tentu satu huruf.": (
+        "- **EfficientNet only:** classify the full handwriting image.\n"
+        "- **OpenCV only:** detect components, crop them, then classify crops "
+        "with EfficientNet.\n"
+        "- **Both:** run and compare both workflows.\n"
+        "- Crop scores are experimental, not diagnostic probabilities; an ink "
+        "component may not be a single letter."
+    ),
+    "Muat Ulang Aplikasi": "Reload Application",
+    "Pilih tindakan. Refresh data akan menghapus gambar yang diunggah, tetapi mempertahankan pengaturan analisis. Muat ulang akan mengembalikan aplikasi ke halaman awal.": (
+        "Choose an action. Refreshing data removes uploaded and captured images "
+        "but keeps analysis settings. Reloading returns the app to the home page."
+    ),
+    "Batal": "Cancel",
+    "Refresh data aja": "Clear Images",
+    "Muat Ulang": "Reload",
+    "Kosongkan gambar yang diunggah atau mulai kembali dari awal.": (
+        "Clear uploaded images or restart the app."
+    ),
+    "Selesai": "Complete",
+}
+
+st.session_state.setdefault("ui_language", "Indonesia")
+UI_LANGUAGE = st.session_state["ui_language"]
+
+
+def tr(text: str) -> str:
+    if UI_LANGUAGE == "English":
+        return ENGLISH_TRANSLATIONS.get(text, text)
+    return text
+
+
+def translate_dataframe(frame: pd.DataFrame) -> pd.DataFrame:
+    if UI_LANGUAGE != "English":
+        return frame
+    translated = frame.rename(columns=lambda column: tr(str(column))).copy()
+    return translated.apply(
+        lambda column: column.map(
+            lambda value: tr(value) if isinstance(value, str) else value
+        )
+    )
+
+
+def localized_result_caption(output: dict[str, Any]) -> str:
+    if "caption_data" not in output:
+        return tr(output.get("caption", ""))
+    if output["analysis"] == MODEL_EFFNET:
+        return tr("{filename} — EfficientNet: {label} ({confidence:.1f}%)").format(
+            filename=output["filename"],
+            label=tr(output["caption_data"]["label"]),
+            confidence=output["caption_data"]["confidence"] * 100,
+        )
+    return tr("{filename} — {count} komponen tinta terukur").format(
+        filename=output["filename"],
+        count=output["caption_data"]["component_count"],
+    )
+
 
 # Setup Halaman
 st.set_page_config(
@@ -319,6 +592,17 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+st.markdown(
+    f"""
+    <style>
+    [data-testid="stCameraInputButton"]::before {{
+        content: "{tr("Ambil Gambar")}";
+    }}
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = APP_DIR
 
@@ -343,27 +627,38 @@ ANALYSIS_OPENCV_ONLY = "OpenCV saja (crop + EfficientNet)"
 ANALYSIS_BOTH = "Keduanya"
 
 with st.popover(
-    "⚙️ Pengaturan",
+    f"⚙️ {tr('Pengaturan')}",
     use_container_width=False,
-    help="Atur model dan parameter analisis.",
+    help=tr("Atur model dan parameter analisis."),
 ):
-    st.markdown("### Pengaturan Analisis")
+    st.radio(
+        tr("Bahasa / Language"),
+        ["Indonesia", "English"],
+        horizontal=True,
+        key="ui_language",
+    )
+    st.markdown(f"### {tr('Pengaturan Analisis')}")
     analysis_mode = st.radio(
-        "Pilih alur analisis",
+        tr("Pilih alur analisis"),
         [ANALYSIS_EFFNET_ONLY, ANALYSIS_OPENCV_ONLY, ANALYSIS_BOTH],
         index=2,
         key="analysis_mode",
         help=(
-            "OpenCV menggunakan EfficientNet untuk mengklasifikasikan setiap crop; "
-            "mode ini tidak menjalankan klasifikasi gambar utuh."
+            tr(
+                "OpenCV menggunakan EfficientNet untuk mengklasifikasikan setiap crop; "
+                "mode ini tidak menjalankan klasifikasi gambar utuh."
+            )
         ),
+        format_func=tr,
     )
     st.caption(
-        "OpenCV saja berarti deteksi/crop OpenCV lalu EfficientNet mengklasifikasikan "
-        "crop; EfficientNet gambar utuh hanya berjalan pada mode yang menyertakannya."
+        tr(
+            "OpenCV saja berarti deteksi/crop OpenCV lalu EfficientNet mengklasifikasikan "
+            "crop; EfficientNet gambar utuh hanya berjalan pada mode yang menyertakannya."
+        )
     )
     threshold = st.slider(
-        "Threshold Disleksia",
+        tr("Threshold Disleksia"),
         0.30,
         0.90,
         0.60,
@@ -371,27 +666,33 @@ with st.popover(
         key="threshold_dislexia",
     )
     st.caption(
-        f"Gambar diprediksi Disleksia jika skor kelas Disleksia > {threshold:.2f}. "
-        "Ambang ini bukan standar klinis."
+        tr(
+            "Gambar diprediksi Disleksia jika skor kelas Disleksia > {threshold:.2f}. "
+            "Ambang ini bukan standar klinis."
+        ).format(threshold=threshold)
     )
-    st.markdown("**OpenCV: Pengukuran & Crop Eksperimental**")
+    st.markdown(
+        f"**{tr('OpenCV: Pengukuran & Crop Eksperimental')}**"
+    )
     st.caption(
-        "Mengukur dan memotong komponen tinta; crop diproses dengan EfficientNet "
-        "yang sama. Satu komponen belum tentu satu huruf."
+        tr(
+            "Mengukur dan memotong komponen tinta; crop diproses dengan EfficientNet "
+            "yang sama. Satu komponen belum tentu satu huruf."
+        )
     )
     min_component_area = st.slider(
-        "Luas minimum komponen (piksel)",
+        tr("Luas minimum komponen (piksel)"),
         min_value=1,
         max_value=500,
         value=12,
         key="measurement_min_area",
-        help="Komponen yang lebih kecil dari nilai ini akan diabaikan.",
+        help=tr("Komponen yang lebih kecil dari nilai ini akan diabaikan."),
     )
     st.markdown("---")
-    st.markdown("**Status Komponen**")
+    st.markdown(f"**{tr('Status Komponen')}**")
     eff_ok = any(os.path.exists(path) for path in TFLITE_CANDIDATES)
-    st.markdown(f"{'🟢' if eff_ok else '🔴'} EfficientNet-B0 (.tflite)")
-    st.markdown("🟢 OpenCV: Pengukuran & Crop Eksperimental")
+    st.markdown(f"{'🟢' if eff_ok else '🔴'} {tr('EfficientNet-B0 (Klasifikasi)')} (.tflite)")
+    st.markdown(f"🟢 {tr(MODEL_MEASUREMENT)}")
 
 run_effnet = analysis_mode in {ANALYSIS_EFFNET_ONLY, ANALYSIS_BOTH}
 run_opencv = analysis_mode in {ANALYSIS_OPENCV_ONLY, ANALYSIS_BOTH}
@@ -439,38 +740,38 @@ st.markdown(f"""
 <div class="hero-container">
 {logo_container}
 <div class="hero-title">
-Alat Deteksi Dyseleksia &amp; Dysgraphia <br>
-<span>Model EfficientNet-B0 &amp; OpenCV</span>
+{tr("Alat Deteksi Dysgraphia & Dyseleksia")} <br>
+<span>{tr("Model EfficientNet-B0 & OpenCV")}</span>
 </div>
 <div class="hero-subtitle">
-Analisis pola gambar tulisan tangan tanpa ribet teknis. Cocok untuk guru, orang tua, hingga terapis. Dilengkapi berbagai fitur pendukung:
+{tr("Analisis pola gambar tulisan tangan tanpa ribet teknis. Cocok untuk guru, orang tua, hingga terapis. Dilengkapi berbagai fitur pendukung:")}
 </div>
 <div class="hero-features">
-<span class="feature-pill">✓ Multiple Processing</span>
-<span class="feature-pill">✓ Ekspor Hasil CSV</span>
-<span class="feature-pill">✓ Grad-CAM Visualizer</span>
-<span class="feature-pill">✓ Eksperimen Crop OpenCV</span>
+<span class="feature-pill">✓ {tr("Pemrosesan Banyak Gambar")}</span>
+<span class="feature-pill">✓ {tr("Ekspor Hasil CSV")}</span>
+<span class="feature-pill">✓ {tr("Visualisasi Grad-CAM")}</span>
+<span class="feature-pill">✓ {tr("Eksperimen Crop OpenCV")}</span>
 </div>
 
 <div class="features-section">
-<h2 class="features-section-title">Mendukung Analisis Awal Disleksia Berbasis AI</h2>
-<p class="features-subtitle">Diwujudkan melalui berbagai fitur unggulan untuk membantu analisis Anda. Hasil merupakan prototipe awal, bukan diagnosis.</p>
+<h2 class="features-section-title">{tr("Mendukung Analisis Awal Disleksia Berbasis AI")}</h2>
+<p class="features-subtitle">{tr("Diwujudkan melalui berbagai fitur unggulan untuk membantu analisis Anda. Hasil merupakan prototipe awal, bukan diagnosis.")}</p>
 <div class="features-grid">
 <div class="feature-card">
-<div class="feature-card-title">Klasifikasi EfficientNet-B0</div>
-<div class="feature-card-desc">Menganalisis gambar tulisan tangan dan memprediksi kategori Disleksia atau Normal. Visualisasi Grad-CAM menunjukkan area gambar yang memengaruhi prediksi. Hasil merupakan prediksi prototipe, bukan bukti klinis atau diagnosis.</div>
+<div class="feature-card-title">{tr("Klasifikasi EfficientNet-B0")}</div>
+<div class="feature-card-desc">{tr("Menganalisis gambar tulisan tangan dan memprediksi kategori Disleksia atau Normal. Visualisasi Grad-CAM menunjukkan area gambar yang memengaruhi prediksi. Hasil merupakan prediksi prototipe, bukan bukti klinis atau diagnosis.")}</div>
 </div>
 <div class="feature-card">
-<div class="feature-card-title">Eksperimen Crop OpenCV</div>
-<div class="feature-card-desc">OpenCV memotong komponen tinta, lalu EfficientNet-B0 yang sama memberi skor kelas pada setiap crop. Crop belum tentu satu huruf dan hasilnya masih eksperimen, bukan diagnosis.</div>
+<div class="feature-card-title">{tr("Eksperimen Crop OpenCV")}</div>
+<div class="feature-card-desc">{tr("OpenCV memotong komponen tinta, lalu EfficientNet-B0 yang sama memberi skor kelas pada setiap crop. Crop belum tentu satu huruf dan hasilnya masih eksperimen, bukan diagnosis.")}</div>
 </div>
 <div class="feature-card">
-<div class="feature-card-title">Multiple Processing</div>
-<div class="feature-card-desc">Mendukung pemrosesan puluhan gambar sekaligus dalam satu waktu, mempermudah pengujian data dan riset dalam skala besar secara instan.</div>
+<div class="feature-card-title">{tr("Pemrosesan Banyak Gambar")}</div>
+<div class="feature-card-desc">{tr("Mendukung pemrosesan puluhan gambar sekaligus dalam satu waktu, mempermudah pengujian data dan riset dalam skala besar secara instan.")}</div>
 </div>
 <div class="feature-card">
-<div class="feature-card-title">Laporan & Ekspor Data</div>
-<div class="feature-card-desc">Dapatkan hasil analisis lengkap beserta metrik raw score dan confidence level yang siap diekspor ke format CSV untuk kebutuhan riset lanjutan.</div>
+<div class="feature-card-title">{tr("Laporan & Ekspor Data")}</div>
+<div class="feature-card-desc">{tr("Dapatkan hasil analisis lengkap beserta metrik raw score dan confidence level yang siap diekspor ke format CSV untuk kebutuhan riset lanjutan.")}</div>
 </div>
 </div>
 </div>
@@ -512,21 +813,29 @@ if not st.session_state["analysis_intro_seen"]:
     )
 
 
-@st.dialog("Informasi Analisis", dismissible=False)
+@st.dialog(tr("Informasi Analisis"), dismissible=False)
 def analysis_intro_dialog():
     st.write(
-        "Aplikasi memiliki dua alur eksperimen: EfficientNet-B0 mengklasifikasikan "
-        "gambar utuh, sedangkan OpenCV memotong komponen tinta lalu mengirim "
-        "setiap crop ke EfficientNet-B0 yang sama. OpenCV bukan model AI terpisah."
+        tr(
+            "Aplikasi memiliki dua alur eksperimen: EfficientNet-B0 mengklasifikasikan "
+            "gambar utuh, sedangkan OpenCV memotong komponen tinta lalu mengirim "
+            "setiap crop ke EfficientNet-B0 yang sama. OpenCV bukan model AI terpisah."
+        )
     )
     st.markdown(
-        "- **EfficientNet saja:** klasifikasi gambar tulisan secara utuh.\n"
-        "- **OpenCV saja:** deteksi komponen, crop, lalu klasifikasi crop dengan EfficientNet.\n"
-        "- **Keduanya:** jalankan dua alur dan bandingkan hasilnya.\n"
-        "- Skor pada crop bersifat eksperimen dan bukan peluang diagnosis; "
-        "komponen tinta belum tentu satu huruf."
+        tr(
+            "- **EfficientNet saja:** klasifikasi gambar tulisan secara utuh.\n"
+            "- **OpenCV saja:** deteksi komponen, crop, lalu klasifikasi crop dengan EfficientNet.\n"
+            "- **Keduanya:** jalankan dua alur dan bandingkan hasilnya.\n"
+            "- Skor pada crop bersifat eksperimen dan bukan peluang diagnosis; "
+            "komponen tinta belum tentu satu huruf."
+        )
     )
-    if st.button("Lanjut ke Analisis", type="primary", use_container_width=True):
+    if st.button(
+        tr("Lanjut ke Analisis"),
+        type="primary",
+        use_container_width=True,
+    ):
         st.session_state["analysis_intro_seen"] = True
         st.rerun()
 
@@ -550,28 +859,30 @@ def restart_from_beginning():
     st.session_state.clear()
 
 
-@st.dialog("Muat Ulang Aplikasi", dismissible=False)
+@st.dialog(tr("Muat Ulang Aplikasi"), dismissible=False)
 def reload_options_dialog():
     st.write(
-        "Pilih tindakan. Refresh data akan menghapus gambar yang diunggah, "
-        "tetapi mempertahankan pengaturan analisis. Muat ulang akan "
-        "mengembalikan aplikasi ke halaman awal."
+        tr(
+            "Pilih tindakan. Refresh data akan menghapus gambar yang diunggah, "
+            "tetapi mempertahankan pengaturan analisis. Muat ulang akan "
+            "mengembalikan aplikasi ke halaman awal."
+        )
     )
     cancel_col, clear_col, restart_col = st.columns(3)
     cancel_col.button(
-        "Batal",
+        tr("Batal"),
         key="cancel_reload",
         on_click=cancel_reload,
         use_container_width=True,
     )
     clear_col.button(
-        "Refresh data aja",
+        tr("Refresh data aja"),
         key="clear_uploaded_data",
         on_click=clear_uploaded_data,
         use_container_width=True,
     )
     restart_col.button(
-        "Muat Ulang",
+        tr("Muat Ulang"),
         key="restart_from_beginning",
         on_click=restart_from_beginning,
         type="primary",
@@ -581,11 +892,11 @@ def reload_options_dialog():
 
 with st.sidebar:
     st.button(
-        "Muat Ulang",
+        tr("Muat Ulang"),
         key="open_reload_dialog",
         on_click=open_reload_dialog,
         use_container_width=True,
-        help="Kosongkan gambar yang diunggah atau mulai kembali dari awal.",
+        help=tr("Kosongkan gambar yang diunggah atau mulai kembali dari awal."),
     )
 
 if st.session_state["reload_dialog_open"]:
@@ -597,7 +908,7 @@ if (
 ):
     _, start_col, _ = st.columns([1, 1.5, 1])
     if start_col.button(
-        "Mulai Analisis",
+        tr("Mulai Analisis"),
         type="primary",
         use_container_width=True,
     ):
@@ -749,6 +1060,13 @@ def get_active_model(model_name: str):
     else:
         raise ValueError(f"Model tidak dikenal: {model_name}")
     if err:
+        if err.startswith("TensorFlow belum terpasang (") and err.endswith(")"):
+            error_details = err[len("TensorFlow belum terpasang ("):-1]
+            err = tr("TensorFlow belum terpasang ({error})").format(
+                error=error_details
+            )
+        else:
+            err = tr(err)
         st.error(err)
         return None
     return m
@@ -808,7 +1126,12 @@ BATCH_TABLE = "Hanya Tabel Ringkasan"
 CROP_AGGREGATION_VERSION = 1
 
 
-PANEL_TITLES = ["Gambar Asli", "Grid with Heatmap", "Heatmap + Gambar", "Heatmap Murni"]
+PANEL_TITLES = [
+    tr("Gambar Asli"),
+    tr("Grid with Heatmap"),
+    tr("Heatmap + Gambar"),
+    tr("Heatmap Murni"),
+]
 
 
 def make_heat_panels(image: Image.Image, hm: np.ndarray, size=320):
@@ -868,10 +1191,10 @@ for name in ANALYSIS_TYPES:
         f"""
         <tr style="background:#ffffff; color:#172b2a;">
           <td style="padding:10px 14px; border-top:1px solid #e7eef0; font-weight:600;">
-            {name}
+            {tr(name)}
           </td>
           <td style="padding:10px 14px; border-top:1px solid #e7eef0;">
-            <span style="font-size:0.75rem; font-weight:700; color:#15803d;">Aktif</span>
+            <span style="font-size:0.75rem; font-weight:700; color:#15803d;">{tr("Aktif")}</span>
           </td>
         </tr>
         """
@@ -887,11 +1210,11 @@ st.html(
           <tr style="background:linear-gradient(110deg,#102b35,#164e49); color:#f8fafc;">
             <th style="padding:10px 14px; text-align:left; font-size:0.7rem;
                        font-weight:700; letter-spacing:0.08em; text-transform:uppercase;">
-              Jenis Analisis
+              {tr("Jenis Analisis Model")}
             </th>
             <th style="width:130px; padding:10px 14px; text-align:left; font-size:0.7rem;
                        font-weight:700; letter-spacing:0.08em; text-transform:uppercase;">
-              Status
+              {tr("Status")}
             </th>
           </tr>
         </thead>
@@ -905,44 +1228,51 @@ st.html(
 
 st.markdown("---")
 with st.container():
-    st.subheader("Analisis Tulisan Tangan")
+    st.subheader(tr("Analisis Tulisan Tangan"))
     with st.container(border=True):
         st.markdown(
-            "**Eksperimen 1:** EfficientNet-B0 pada gambar utuh  \n"
-            "**Eksperimen 2:** OpenCV crop → EfficientNet-B0 pada tiap komponen"
+            tr(
+                "**Eksperimen 1:** EfficientNet-B0 pada gambar utuh  \n"
+                "**Eksperimen 2:** OpenCV crop → EfficientNet-B0 pada tiap komponen"
+            )
         )
         enhance_image_contrast = st.checkbox(
-            "Perjelas kontras tulisan",
+            tr("Perjelas kontras tulisan"),
             value=True,
             help=(
-                "Memekatkan bagian gelap dan mencerahkan bagian terang dengan "
-                "peregangan kontras, sambil mempertahankan tingkat abu-abu. Tidak "
-                "membalik atau membinarisasi warna. File asli tidak diubah."
+                tr(
+                    "Memekatkan bagian gelap dan mencerahkan bagian terang dengan "
+                    "peregangan kontras, sambil mempertahankan tingkat abu-abu. Tidak "
+                    "membalik atau membinarisasi warna. File asli tidak diubah."
+                )
             ),
         )
         source_choice = st.radio(
-            "Sumber gambar",
+            tr("Sumber gambar"),
             ["Upload file", "Kamera langsung"],
             horizontal=True,
             key="analysis_image_source",
+            format_func=tr,
         )
         if source_choice == "Upload file":
             batch_files = st.file_uploader(
-                "Pilih satu atau beberapa gambar",
+                tr("Pilih satu atau beberapa gambar"),
                 type=["jpg", "jpeg", "png"],
                 accept_multiple_files=True,
                 key=f"batch_{st.session_state['upload_generation']}",
             )
         else:
             st.caption(
-                "Pratinjau berbentuk potret. Jika kamera menampilkan lanskap, "
-                "gambar akan tampak lebih kecil di tengah tanpa terpotong. "
-                "Resolusi diminta hingga 1080p sesuai dukungan perangkat; aplikasi "
-                "tidak mengubah ukuran atau mengompresi ulang foto. Streamlit "
-                "menyimpan hasil kamera dalam JPEG kualitas maksimum."
+                tr(
+                    "Pratinjau berbentuk potret. Jika kamera menampilkan lanskap, "
+                    "gambar akan tampak lebih kecil di tengah tanpa terpotong. "
+                    "Resolusi diminta hingga 1080p sesuai dukungan perangkat; aplikasi "
+                    "tidak mengubah ukuran atau mengompresi ulang foto. Streamlit "
+                    "menyimpan hasil kamera dalam JPEG kualitas maksimum."
+                )
             )
             camera_file = st.camera_input(
-                "Ambil Gambar",
+                tr("Ambil Gambar"),
                 key=(
                     f"camera_capture_{st.session_state['upload_generation']}_"
                     f"{st.session_state['camera_capture_generation']}"
@@ -962,8 +1292,12 @@ with st.container():
 
             camera_images = st.session_state["camera_images"]
             if camera_images:
-                st.caption(f"Foto kamera siap dianalisis: {len(camera_images)}")
-                with st.expander("Lihat foto yang sudah diambil"):
+                st.caption(
+                    tr("Foto kamera siap dianalisis: {count}").format(
+                        count=len(camera_images)
+                    )
+                )
+                with st.expander(tr("Lihat foto yang sudah diambil")):
                     preview_columns = st.columns(min(len(camera_images), 4))
                     for image_index, (image_name, image_bytes) in enumerate(
                         camera_images
@@ -975,7 +1309,7 @@ with st.container():
                                 use_container_width=True,
                             )
                 if st.button(
-                    "Hapus semua foto kamera",
+                    tr("Hapus semua foto kamera"),
                     key="clear_camera_images",
                 ):
                     st.session_state["camera_images"] = []
@@ -983,13 +1317,15 @@ with st.container():
                     st.rerun()
 
             camera_fallback = st.file_uploader(
-                "Atau tambahkan beberapa foto dari perangkat",
+                tr("Atau tambahkan beberapa foto dari perangkat"),
                 type=["jpg", "jpeg", "png"],
                 accept_multiple_files=True,
                 key=f"camera_fallback_{st.session_state['upload_generation']}",
                 help=(
-                    "Pilih satu atau beberapa foto jika kamera langsung tidak "
-                    "tersedia, atau untuk menambahkan foto lain."
+                    tr(
+                        "Pilih satu atau beberapa foto jika kamera langsung tidak "
+                        "tersedia, atau untuk menambahkan foto lain."
+                    )
                 ),
             )
             batch_files = [
@@ -1004,15 +1340,16 @@ with st.container():
             del st.session_state["batch_mode"]
         batch_output_options = [BATCH_FULL, BATCH_TABLE]
         batch_mode = st.radio(
-            "Format output",
+            tr("Format output"),
             batch_output_options,
             horizontal=True,
             key="batch_mode",
+            format_func=tr,
         )
         generate_batch = False
         if batch_files:
             generate_batch = st.button(
-                "Mulai Analisis",
+                tr("Mulai Analisis"),
                 type="primary",
                 key="generate_multiple_processing",
             )
@@ -1047,7 +1384,7 @@ with st.container():
             selected_operation_count = int(run_effnet) + int(run_opencv)
             total_operations = len(batch_files) * selected_operation_count
             completed_operations = 0
-            progress = st.progress(0.0, text="Memulai analisis...")
+            progress = st.progress(0.0, text=tr("Memulai analisis..."))
 
             for i, bf in enumerate(batch_files):
                 image = Image.open(bf).convert('RGB')
@@ -1084,16 +1421,18 @@ with st.container():
                             "Inference Time (s)": f"{r['time']:.4f}",
                             "Waktu Analisis": now,
                         })
-                        caption = (
-                            f"{bf.name} — EfficientNet: {r['label']} "
-                            f"({r['confidence'] * 100:.1f}%)"
-                        )
+                        caption_data = {
+                            "label": r["label"],
+                            "confidence": r["confidence"],
+                        }
                         if batch_mode == BATCH_FULL:
                             if not gradcam_load_attempted:
                                 keras_model = load_keras_model()
                                 gradcam_load_attempted = True
                                 if keras_model is None:
-                                    st.warning("Model .h5 tidak tersedia, heatmap dilewati.")
+                                    st.warning(
+                                        tr("Model .h5 tidak tersedia, heatmap dilewati.")
+                                    )
                             if keras_model is not None:
                                 try:
                                     batch_visual = heat_row_for(
@@ -1101,7 +1440,12 @@ with st.container():
                                     )
                                     tiles.append(batch_visual)
                                 except Exception as e:
-                                    st.warning(f"Heatmap gagal untuk {bf.name}: {e}")
+                                    st.warning(
+                                        tr("Heatmap gagal untuk {filename}: {error}").format(
+                                            filename=bf.name,
+                                            error=e,
+                                        )
+                                    )
                     else:
                         _, overlay, measurements = measure_connected_regions(
                             analysis_image,
@@ -1110,7 +1454,7 @@ with st.container():
                         line_variability = summarize_line_variability(measurements)
                         crop_model = active_models.get(MODEL_EFFNET)
                         if crop_model is None:
-                            crop_error = (
+                            crop_error = tr(
                                 "EfficientNet tidak tersedia; crop tidak dapat "
                                 "diklasifikasikan."
                             )
@@ -1155,24 +1499,27 @@ with st.container():
                         })
                         batch_visual = overlay
                         component_measurements = measurements
-                        caption = (
-                            f"{bf.name} — {len(measurements)} komponen tinta terukur"
-                        )
+                        caption_data = {"component_count": len(measurements)}
 
                     completed_operations += 1
                     progress.progress(
                         completed_operations / total_operations,
-                        text=f"{model_name}: {bf.name}",
+                        text=f"{tr(model_name)}: {bf.name}",
                     )
                     encoded_ok, encoded_image = cv2.imencode(
                         ".png",
                         cv2.cvtColor(batch_visual, cv2.COLOR_RGB2BGR),
                     )
                     if not encoded_ok:
-                        raise RuntimeError(f"Gagal menyiapkan hasil gambar: {bf.name}")
+                        raise RuntimeError(
+                            tr("Gagal menyiapkan hasil gambar: {filename}").format(
+                                filename=bf.name
+                            )
+                        )
                     output_views.append({
                         "analysis": model_name,
-                        "caption": caption,
+                        "filename": bf.name,
+                        "caption_data": caption_data,
                         "image": encoded_image.tobytes(),
                         "is_measurement": component_measurements is not None,
                         "measurements": (
@@ -1193,14 +1540,16 @@ with st.container():
                         "crop_error": crop_error,
                         "filename": bf.name,
                     })
-            progress.progress(1.0, text="Selesai")
+            progress.progress(1.0, text=tr("Selesai"))
 
             grid_png = None
             if tiles:
                 grid = np.vstack(tiles)
                 ok, png = cv2.imencode(".png", cv2.cvtColor(grid, cv2.COLOR_RGB2BGR))
                 if not ok:
-                    raise RuntimeError("Gagal menyiapkan grid heatmap untuk diunduh.")
+                    raise RuntimeError(
+                        tr("Gagal menyiapkan grid heatmap untuk diunduh.")
+                    )
                 grid_png = png.tobytes()
 
             st.session_state["batch_analysis_result"] = {
@@ -1251,32 +1600,40 @@ with st.container():
             and batch_result["grid_png"] is not None
             and batch_mode == BATCH_FULL
         ):
-            st.markdown("#### Grid panel hasil gabungan")
+            st.markdown(f"#### {tr('Grid panel hasil gabungan')}")
             st.image(
                 batch_result["grid_png"],
-                caption="Panel gabungan hasil EfficientNet dan Grad-CAM",
+                caption=tr("Panel gabungan hasil EfficientNet dan Grad-CAM"),
                 use_container_width=True,
             )
         if analysis_mode == ANALYSIS_BOTH and show_batch_comparison:
-            st.markdown("## Hasil Perbandingan Model EfficientNet dan OpenCV")
-            st.dataframe(comparison_df, use_container_width=True, hide_index=True)
+            st.markdown(
+                f"## {tr('Hasil Perbandingan Model EfficientNet dan OpenCV')}"
+            )
+            st.dataframe(
+                translate_dataframe(comparison_df),
+                use_container_width=True,
+                hide_index=True,
+            )
             st.caption(
-                "Perbandingan ini menampilkan klasifikasi EfficientNet pada gambar "
-                "utuh dan proporsi label Disleksia/Normal dari crop OpenCV yang "
-                "diklasifikasikan EfficientNet. Persentase crop adalah proporsi "
-                "label komponen, bukan kemungkinan diagnosis; segmentasi komponen "
-                "belum tentu memotong huruf secara tepat."
+                tr(
+                    "Perbandingan ini menampilkan klasifikasi EfficientNet pada gambar "
+                    "utuh dan proporsi label Disleksia/Normal dari crop OpenCV yang "
+                    "diklasifikasikan EfficientNet. Persentase crop adalah proporsi "
+                    "label komponen, bukan kemungkinan diagnosis; segmentasi komponen "
+                    "belum tentu memotong huruf secara tepat."
+                )
             )
             comparison_downloads = st.columns(2)
             comparison_downloads[0].download_button(
-                "Unduh ringkasan perbandingan (CSV)",
-                comparison_df.to_csv(index=False).encode("utf-8"),
+                tr("Unduh ringkasan perbandingan (CSV)"),
+                translate_dataframe(comparison_df).to_csv(index=False).encode("utf-8"),
                 file_name="ringkasan_perbandingan_efficientnet_opencv.csv",
                 mime="text/csv",
                 on_click="ignore",
             )
             comparison_downloads[1].download_button(
-                "Unduh gambar kedua alur (ZIP)",
+                tr("Unduh gambar kedua alur (ZIP)"),
                 build_comparison_images_zip(comparison_images),
                 file_name="gambar_perbandingan_efficientnet_opencv.zip",
                 mime="application/zip",
@@ -1305,7 +1662,9 @@ with st.container():
         for batch_file in batch_files:
             filename = batch_file.name
             file_stem = os.path.splitext(filename)[0]
-            st.markdown(f"## Hasil gambar — {filename}")
+            st.markdown(
+                tr("Hasil gambar — {filename}").format(filename=filename)
+            )
 
             effnet_output = next(
                 (
@@ -1316,25 +1675,28 @@ with st.container():
                 None,
             )
             if run_effnet:
-                st.markdown("### Model EfficientNet-B0")
+                st.markdown(f"### {tr('Model EfficientNet-B0')}")
+                effnet_rows = translate_dataframe(
+                    effnet_rows_by_file.get(filename, pd.DataFrame())
+                )
                 st.dataframe(
-                    effnet_rows_by_file.get(filename, pd.DataFrame()),
+                    effnet_rows,
                     use_container_width=True,
                     hide_index=True,
                 )
                 if batch_mode == BATCH_FULL and effnet_output is not None:
-                    st.markdown("#### Grid heatmap dan panel hasil")
+                    st.markdown(f"#### {tr('Grid heatmap dan panel hasil')}")
                     st.image(
                         effnet_output["image"],
-                        caption=effnet_output["caption"],
+                        caption=localized_result_caption(effnet_output),
                         use_container_width=True,
                     )
                 effnet_downloads = st.columns(2)
                 effnet_downloads[0].download_button(
-                    f"Unduh hasil EfficientNet — {filename} (CSV)",
-                    effnet_rows_by_file.get(
-                        filename, pd.DataFrame()
-                    ).to_csv(index=False).encode("utf-8"),
+                    tr("Unduh hasil EfficientNet — {filename} (CSV)").format(
+                        filename=filename
+                    ),
+                    effnet_rows.to_csv(index=False).encode("utf-8"),
                     file_name=f"{file_stem}_hasil_efficientnet.csv",
                     mime="text/csv",
                     key=f"download_effnet_{filename}",
@@ -1342,7 +1704,9 @@ with st.container():
                 )
                 if batch_mode == BATCH_FULL and effnet_output is not None:
                     effnet_downloads[1].download_button(
-                        f"Unduh grid panel — {filename} (PNG)",
+                        tr("Unduh grid panel — {filename} (PNG)").format(
+                            filename=filename
+                        ),
                         effnet_output["image"],
                         file_name=f"{file_stem}_grid_panel.png",
                         mime="image/png",
@@ -1359,23 +1723,28 @@ with st.container():
                 None,
             )
             if run_opencv and opencv_output is not None:
-                st.markdown("### OpenCV Detection")
-                st.markdown("#### Model Crop Komponen + EfficientNet")
+                st.markdown(f"### {tr('Deteksi OpenCV')}")
+                st.markdown(f"#### {tr('Model Crop Komponen + EfficientNet')}")
                 st.caption(
-                    "Persentase merupakan proporsi crop yang diprediksi Disleksia "
-                    "atau Normal pada gambar ini, bukan peluang diagnosis. Crop "
-                    "belum tentu satu huruf; model EfficientNet dilatih untuk gambar "
-                    "utuh sehingga hasil crop masih eksperimen."
+                    tr(
+                        "Persentase merupakan proporsi crop yang diprediksi Disleksia "
+                        "atau Normal pada gambar ini, bukan peluang diagnosis. Crop "
+                        "belum tentu satu huruf; model EfficientNet dilatih untuk gambar "
+                        "utuh sehingga hasil crop masih eksperimen."
+                    )
+                )
+                crop_summary_frame = translate_dataframe(
+                    crop_summary_by_file.get(filename, pd.DataFrame())
                 )
                 st.dataframe(
-                    crop_summary_by_file.get(filename, pd.DataFrame()),
+                    crop_summary_frame,
                     use_container_width=True,
                     hide_index=True,
                 )
-                st.markdown("#### Komponen terdeteksi")
+                st.markdown(f"#### {tr('Komponen terdeteksi')}")
                 st.image(
                     opencv_output["image"],
-                    caption=opencv_output["caption"],
+                    caption=localized_result_caption(opencv_output),
                     use_container_width=True,
                 )
                 if opencv_output["crop_error"]:
@@ -1384,9 +1753,10 @@ with st.container():
                 file_crop_details = pd.DataFrame(
                     opencv_output["crop_predictions"]
                 )
-                st.markdown("#### Rincian prediksi per huruf")
+                st.markdown(f"#### {tr('Rincian prediksi per huruf')}")
+                crop_details_display = translate_dataframe(file_crop_details)
                 st.dataframe(
-                    file_crop_details,
+                    crop_details_display,
                     use_container_width=True,
                     hide_index=True,
                 )
@@ -1397,24 +1767,28 @@ with st.container():
                     opencv_output["line_variability"] or []
                 )
                 if st.toggle(
-                    "Skala Komponen & Variasi Huruf",
+                    tr("Skala Komponen & Variasi Huruf"),
                     value=False,
                     key=f"show_component_scale_v2_{filename}",
                 ):
                     st.dataframe(
-                        file_measurements,
+                        translate_dataframe(file_measurements),
                         use_container_width=True,
                         hide_index=True,
                     )
-                    st.markdown("#### Hasil pengukuran gambar")
+                    st.markdown(f"#### {tr('Hasil pengukuran gambar')}")
                     st.dataframe(
-                        opencv_rows_by_file.get(filename, pd.DataFrame()),
+                        translate_dataframe(
+                            opencv_rows_by_file.get(filename, pd.DataFrame())
+                        ),
                         use_container_width=True,
                         hide_index=True,
                     )
-                    st.markdown("#### Variasi per baris")
+                    st.markdown(f"#### {tr('Variasi per baris')}")
                     st.dataframe(
-                        file_line_variability.fillna("Data kurang"),
+                        translate_dataframe(
+                            file_line_variability.fillna("Data kurang")
+                        ),
                         use_container_width=True,
                         hide_index=True,
                     )
@@ -1427,33 +1801,37 @@ with st.container():
                 )
                 opencv_downloads = st.columns(6)
                 opencv_downloads[0].download_button(
-                    "Rincian crop (CSV)",
-                    file_crop_details.to_csv(index=False).encode("utf-8"),
+                    tr("Rincian crop (CSV)"),
+                    crop_details_display.to_csv(index=False).encode("utf-8"),
                     file_name=f"{file_stem}_rincian_prediksi_crop.csv",
                     mime="text/csv",
                     key=f"download_crop_details_{filename}",
                     on_click="ignore",
                 )
                 opencv_downloads[1].download_button(
-                    "Skala komponen (CSV)",
-                    file_measurements.to_csv(index=False).encode("utf-8"),
+                    tr("Skala komponen (CSV)"),
+                    translate_dataframe(file_measurements).to_csv(
+                        index=False
+                    ).encode("utf-8"),
                     file_name=f"{file_stem}_skala_komponen.csv",
                     mime="text/csv",
                     key=f"download_component_scale_{filename}",
                     on_click="ignore",
                 )
                 opencv_downloads[2].download_button(
-                    "Variasi per baris (CSV)",
-                    file_line_variability.to_csv(index=False).encode("utf-8"),
+                    tr("Variasi per baris (CSV)"),
+                    translate_dataframe(file_line_variability).to_csv(
+                        index=False
+                    ).encode("utf-8"),
                     file_name=f"{file_stem}_variasi_per_baris.csv",
                     mime="text/csv",
                     key=f"download_line_variability_{filename}",
                     on_click="ignore",
                 )
                 opencv_downloads[3].download_button(
-                    "Pengukuran gambar (CSV)",
-                    opencv_rows_by_file.get(
-                        filename, pd.DataFrame()
+                    tr("Pengukuran gambar (CSV)"),
+                    translate_dataframe(
+                        opencv_rows_by_file.get(filename, pd.DataFrame())
                     ).to_csv(index=False).encode("utf-8"),
                     file_name=f"{file_stem}_hasil_pengukuran.csv",
                     mime="text/csv",
@@ -1461,10 +1839,8 @@ with st.container():
                     on_click="ignore",
                 )
                 opencv_downloads[4].download_button(
-                    "Ringkasan crop (CSV)",
-                    crop_summary_by_file.get(
-                        filename, pd.DataFrame()
-                    ).to_csv(index=False).encode("utf-8"),
+                    tr("Ringkasan crop (CSV)"),
+                    crop_summary_frame.to_csv(index=False).encode("utf-8"),
                     file_name=f"{file_stem}_ringkasan_crop.csv",
                     mime="text/csv",
                     key=f"download_crop_summary_{filename}",
@@ -1480,7 +1856,9 @@ with st.container():
                 )
                 if opencv_output["crop_previews"]:
                     st.download_button(
-                        f"Unduh semua crop — {filename} (ZIP)",
+                        tr("Unduh semua crop — {filename} (ZIP)").format(
+                            filename=filename
+                        ),
                         file_crops_zip,
                         file_name=f"{file_stem}_crop_opencv.zip",
                         mime="application/zip",
