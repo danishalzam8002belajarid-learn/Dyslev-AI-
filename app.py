@@ -342,6 +342,9 @@ ENGLISH_TRANSLATIONS = {
     "Diikutsertakan dalam kompetisi Malaysia Data Innovation Talent (MDIT) 2026 yang diselenggarakan oleh Universiti Teknologi MARA (UiTM) Malaysia.": (
         "Competed in the Malaysia Data Innovation Talent (MDIT) 2026 organized by Universiti Teknologi MARA (UiTM) Malaysia."
     ),
+    "© 2026 Anova Outlier 4 — Program Studi Statistika, Universitas Singaperbangsa Karawang. All Rights Reserved.": (
+        "© 2026 Anova Outlier 4 — Statistics Study Program, Singaperbangsa Karawang University. All Rights Reserved."
+    ),
     "Advisor": "Advisor",
     "Team Members": "Team Members",
     "Dosen Pembimbing Riset": "Research Advisor",
@@ -1480,60 +1483,99 @@ st.markdown("""
         color: #00df9a;
         white-space: nowrap;
     }
-    /* === Simple Bottom Footer (Advisor, Team Members & Disclaimer) === */
+    /* === Simple Bottom Footer (Advisor, Team Members, Disclaimer & Copyright) === */
     .simple-research-footer {
-        margin: 2.8rem auto 1.2rem auto;
-        padding-top: 2rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.12);
-        max-width: 820px;
+        position: relative;
+        margin: 3.2rem auto 1.2rem auto;
+        padding-top: 2.2rem;
+        max-width: 840px;
         text-align: center;
         color: #94a3b8;
     }
+    .simple-research-footer::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 5%;
+        right: 5%;
+        height: 1px;
+        background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.16) 25%, rgba(0, 223, 154, 0.45) 50%, rgba(255, 255, 255, 0.16) 75%, transparent 100%);
+    }
     .simple-footer-title {
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: #94a3b8;
-        margin-bottom: 0.55rem;
+        font-size: 1.02rem;
+        font-weight: 700;
+        color: #e2e8f0;
+        letter-spacing: 0.01em;
+        margin-bottom: 0.4rem;
+    }
+    .simple-footer-title span {
+        color: #00df9a;
     }
     .simple-footer-sub {
-        font-size: 0.92rem;
-        font-weight: 400;
+        font-size: 0.85rem;
+        font-weight: 500;
         color: #64748b;
-        margin-bottom: 1.8rem;
+        letter-spacing: 0.02em;
+        margin-bottom: 2rem;
     }
     .simple-footer-cols {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 2.5rem;
-        max-width: 640px;
+        max-width: 660px;
         margin: 0 auto 2rem auto;
         text-align: left;
+    }
+    .simple-footer-col {
+        border-left: 2px solid rgba(0, 223, 154, 0.28);
+        padding-left: 1.1rem;
     }
     .simple-footer-heading {
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        font-size: 0.95rem;
+        font-size: 0.92rem;
         font-weight: 700;
-        color: #f8fafc;
-        margin-bottom: 1rem;
+        color: #ffffff;
+        letter-spacing: 0.02em;
+        margin-bottom: 0.9rem;
     }
     .simple-footer-person {
-        font-size: 0.9rem;
-        line-height: 1.55;
-        color: #e2e8f0;
-        margin: 0 0 0.85rem 0;
+        font-size: 0.87rem;
+        line-height: 1.5;
+        color: #cbd5e1;
+        margin: 0 0 0.75rem 0;
+    }
+    .simple-footer-person:last-child {
+        margin-bottom: 0;
+    }
+    .simple-footer-person strong {
+        color: #f8fafc;
+        font-weight: 600;
+    }
+    .simple-footer-person span {
+        display: block;
+        font-size: 0.78rem;
+        color: #64748b;
     }
     .simple-footer-disclaimer {
-        font-size: 0.8rem;
+        font-size: 0.79rem;
         line-height: 1.65;
         color: #64748b;
         max-width: 760px;
-        margin: 0 auto;
+        margin: 0 auto 1.35rem auto;
     }
     .simple-footer-disclaimer p {
         margin: 0.2rem 0;
         color: #64748b;
+    }
+    .simple-footer-copyright {
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        font-size: 0.75rem;
+        font-weight: 500;
+        letter-spacing: 0.03em;
+        color: #475569;
     }
     @media (max-width: 640px) {
         .ai-splash-box {
@@ -1934,25 +1976,28 @@ def render_research_footer() -> None:
     st.markdown(
         f"""
 <div class="simple-research-footer">
-<div class="simple-footer-title">{tr("Dyslev AI — Dyslexia & Dysgraphia Detection AI")}</div>
+<div class="simple-footer-title"><span>Dyslev AI</span> — {tr("Alat Deteksi Dysgraphia & Dyseleksia")}</div>
 <div class="simple-footer-sub">{tr("EfficientNet-B0 (TFLite & Grad-CAM) | OpenCV Component Analysis | Fast & Efficient")}</div>
 <div class="simple-footer-cols">
-<div>
+<div class="simple-footer-col">
 <div class="simple-footer-heading"><span class="ai-scanner-dot"></span><span>{tr("Advisor")}</span></div>
-<p class="simple-footer-person">Dr. Karunia Eka Lestari, Universitas Singaperbangsa Karawang</p>
-<p class="simple-footer-person">Dr. Mokhammad Ridwan Yudhanegara, Universitas Singaperbangsa Karawang</p>
+<p class="simple-footer-person"><strong>Dr. Karunia Eka Lestari</strong><span>Universitas Singaperbangsa Karawang</span></p>
+<p class="simple-footer-person"><strong>Dr. Mokhammad Ridwan Yudhanegara</strong><span>Universitas Singaperbangsa Karawang</span></p>
 </div>
-<div>
+<div class="simple-footer-col">
 <div class="simple-footer-heading"><span class="ai-scanner-dot"></span><span>{tr("Team Members")}</span></div>
-<p class="simple-footer-person">Danish Alzam, Universitas Singaperbangsa Karawang</p>
-<p class="simple-footer-person">Nurul Syifa Azzahra, Universitas Singaperbangsa Karawang</p>
-<p class="simple-footer-person">Galih Rizkia Syahlani, Universitas Singaperbangsa Karawang</p>
-<p class="simple-footer-person">Daffa Najwa Saputra, Universitas Singaperbangsa Karawang</p>
+<p class="simple-footer-person"><strong>Danish Alzam</strong><span>Universitas Singaperbangsa Karawang</span></p>
+<p class="simple-footer-person"><strong>Nurul Syifa Azzahra</strong><span>Universitas Singaperbangsa Karawang</span></p>
+<p class="simple-footer-person"><strong>Galih Rizkia Syahlani</strong><span>Universitas Singaperbangsa Karawang</span></p>
+<p class="simple-footer-person"><strong>Daffa Najwa Saputra</strong><span>Universitas Singaperbangsa Karawang</span></p>
 </div>
 </div>
 <div class="simple-footer-disclaimer">
 <p>{tr("Disclaimer: Riset Mahasiswa yang menggunakan model EfficientNet-B0 (TFLite & Grad-CAM) dan OpenCV, digunakan untuk pengembangan dan eksperimen Program Studi Statistika UNSIKA.")}</p>
 <p>{tr("Diikutsertakan dalam kompetisi Malaysia Data Innovation Talent (MDIT) 2026 yang diselenggarakan oleh Universiti Teknologi MARA (UiTM) Malaysia.")}</p>
+</div>
+<div class="simple-footer-copyright">
+{tr("© 2026 Anova Outlier 4 — Program Studi Statistika, Universitas Singaperbangsa Karawang. All Rights Reserved.")}
 </div>
 </div>
         """,
