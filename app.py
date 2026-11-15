@@ -333,8 +333,14 @@ ENGLISH_TRANSLATIONS = {
     "Dyslev AI — Dyslexia & Dysgraphia Detection AI": (
         "Dyslev AI — Dyslexia & Dysgraphia Detection AI"
     ),
-    "EfficientNet-B0 (TFLite & Grad-CAM) | OpenCV Component Analysis | MDIT 2026 UiTM Malaysia": (
-        "EfficientNet-B0 (TFLite & Grad-CAM) | OpenCV Component Analysis | MDIT 2026 UiTM Malaysia"
+    "EfficientNet-B0 (TFLite & Grad-CAM) | OpenCV Component Analysis | Fast & Efficient": (
+        "EfficientNet-B0 (TFLite & Grad-CAM) | OpenCV Component Analysis | Fast & Efficient"
+    ),
+    "Disclaimer: Riset Mahasiswa yang menggunakan model EfficientNet-B0 (TFLite & Grad-CAM) dan OpenCV, digunakan untuk pengembangan dan eksperimen Program Studi Statistika UNSIKA.": (
+        "Disclaimer: Student Research utilizing EfficientNet-B0 (TFLite & Grad-CAM) and OpenCV models, developed for academic development and experimentation in the Statistics Study Program, UNSIKA."
+    ),
+    "Diikutsertakan dalam kompetisi Malaysia Data Innovation Talent (MDIT) 2026 yang diselenggarakan oleh Universiti Teknologi MARA (UiTM) Malaysia.": (
+        "Competed in the Malaysia Data Innovation Talent (MDIT) 2026 organized by Universiti Teknologi MARA (UiTM) Malaysia."
     ),
     "Advisor": "Advisor",
     "Team Members": "Team Members",
@@ -1474,150 +1480,60 @@ st.markdown("""
         color: #00df9a;
         white-space: nowrap;
     }
-    /* === Bottom Page Research Team, Advisor & Disclaimer Showcase === */
-    .research-header-showcase {
-        position: relative;
-        overflow: hidden;
-        margin: 2.5rem auto 1rem auto;
-        padding: 2.3rem 2rem 2rem 2rem;
-        background:
-            radial-gradient(circle at 50% 0%, rgba(0, 223, 154, 0.14) 0%, transparent 58%),
-            linear-gradient(135deg, #06141a 0%, #0b222c 60%, #081b23 100%);
-        border: 1px solid rgba(0, 223, 154, 0.28);
-        border-radius: 22px;
-        box-shadow: 0 22px 48px -14px rgba(4, 13, 18, 0.78), 0 0 28px rgba(0, 223, 154, 0.08);
+    /* === Simple Bottom Footer (Advisor, Team Members & Disclaimer) === */
+    .simple-research-footer {
+        margin: 2.8rem auto 1.2rem auto;
+        padding-top: 2rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.12);
+        max-width: 820px;
         text-align: center;
+        color: #94a3b8;
     }
-    .research-header-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.45rem;
-        padding: 4px 14px;
-        border-radius: 999px;
-        background: rgba(0, 223, 154, 0.12);
-        border: 1px solid rgba(0, 223, 154, 0.32);
-        color: #00df9a;
-        font-size: 0.75rem;
-        font-weight: 700;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        margin-bottom: 0.75rem;
-    }
-    .research-header-title {
-        font-size: clamp(1.3rem, 2.5vw, 1.7rem);
-        font-weight: 800;
-        color: #ffffff;
-        letter-spacing: -0.02em;
-        margin-bottom: 0.35rem;
-    }
-    .research-header-specs {
-        font-size: 0.85rem;
+    .simple-footer-title {
+        font-size: 0.95rem;
         font-weight: 600;
         color: #94a3b8;
-        letter-spacing: 0.02em;
-        margin-bottom: 1.75rem;
+        margin-bottom: 0.55rem;
     }
-    .research-team-grid {
+    .simple-footer-sub {
+        font-size: 0.92rem;
+        font-weight: 400;
+        color: #64748b;
+        margin-bottom: 1.8rem;
+    }
+    .simple-footer-cols {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 1.15rem;
+        gap: 2.5rem;
+        max-width: 640px;
+        margin: 0 auto 2rem auto;
         text-align: left;
-        margin-bottom: 1.25rem;
     }
-    .research-team-card {
-        background: linear-gradient(135deg, rgba(6, 20, 26, 0.92) 0%, rgba(11, 34, 44, 0.88) 100%);
-        border: 1px solid rgba(0, 223, 154, 0.26);
-        border-radius: 16px;
-        padding: 1.35rem 1.45rem;
-        box-shadow: 0 14px 30px -12px rgba(4, 13, 18, 0.65), inset 0 0 18px rgba(0, 223, 154, 0.04);
-    }
-    .research-role-header {
+    .simple-footer-heading {
         display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 0.5rem;
-        padding-bottom: 0.75rem;
-        margin-bottom: 0.9rem;
-        border-bottom: 1px solid rgba(0, 223, 154, 0.18);
-    }
-    .research-role-title {
-        display: inline-flex;
         align-items: center;
         gap: 0.5rem;
         font-size: 0.95rem;
-        font-weight: 800;
-        color: #ffffff;
-        letter-spacing: 0.02em;
-    }
-    .research-role-tag {
-        font-size: 0.7rem;
-        font-weight: 700;
-        color: #00df9a;
-        background: rgba(0, 223, 154, 0.12);
-        border: 1px solid rgba(0, 223, 154, 0.28);
-        padding: 2px 9px;
-        border-radius: 999px;
-        white-space: nowrap;
-    }
-    .research-member-list {
-        display: flex;
-        flex-direction: column;
-        gap: 0.65rem;
-    }
-    .research-member-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 0.65rem;
-    }
-    .research-member-item {
-        padding: 0.6rem 0.8rem;
-        border-radius: 11px;
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.07);
-        transition: border-color 0.2s ease, background 0.2s ease;
-    }
-    .research-member-item:hover {
-        border-color: rgba(0, 223, 154, 0.38);
-        background: rgba(0, 223, 154, 0.06);
-    }
-    .research-member-name {
-        font-size: 0.9rem;
         font-weight: 700;
         color: #f8fafc;
-        line-height: 1.35;
-        margin-bottom: 0.15rem;
+        margin-bottom: 1rem;
     }
-    .research-member-affil {
-        font-size: 0.74rem;
-        font-weight: 500;
-        color: #94a3b8;
-        line-height: 1.35;
+    .simple-footer-person {
+        font-size: 0.9rem;
+        line-height: 1.55;
+        color: #e2e8f0;
+        margin: 0 0 0.85rem 0;
     }
-    .research-disclaimer-card {
-        text-align: left;
-        background: linear-gradient(135deg, rgba(6, 20, 26, 0.95) 0%, rgba(11, 34, 44, 0.92) 100%);
-        border: 1px solid rgba(0, 223, 154, 0.32);
-        border-left: 4px solid #00df9a;
-        border-radius: 14px;
-        padding: 1rem 1.25rem;
-        box-shadow: 0 12px 28px -12px rgba(4, 13, 18, 0.65);
+    .simple-footer-disclaimer {
+        font-size: 0.8rem;
+        line-height: 1.65;
+        color: #64748b;
+        max-width: 760px;
+        margin: 0 auto;
     }
-    .research-disclaimer-top {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 0.4rem;
-        font-size: 0.76rem;
-        font-weight: 800;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        color: #00df9a;
-    }
-    .research-disclaimer-text {
-        font-size: 0.82rem;
-        line-height: 1.6;
-        color: rgba(248, 250, 252, 0.84);
-        margin: 0;
+    .simple-footer-disclaimer p {
+        margin: 0.2rem 0;
+        color: #64748b;
     }
     @media (max-width: 640px) {
         .ai-splash-box {
@@ -1706,20 +1622,9 @@ st.markdown("""
             font-size: clamp(0.7rem, 2.8vw, 0.78rem);
             line-height: 1.45;
         }
-        .research-header-showcase {
-            padding: 1.65rem 1rem 1.35rem 1rem;
-            border-radius: 16px;
-            margin-top: 1.75rem;
-        }
-        .research-team-grid,
-        .research-member-grid {
+        .simple-footer-cols {
             grid-template-columns: 1fr;
-        }
-        .research-team-card {
-            padding: 1rem;
-        }
-        .research-disclaimer-card {
-            padding: 0.85rem 1rem;
+            gap: 1.25rem;
         }
     }
 </style>
@@ -2028,61 +1933,26 @@ st.markdown(f"""
 def render_research_footer() -> None:
     st.markdown(
         f"""
-<div class="research-header-showcase">
-<div class="research-header-badge">
-<span class="ai-scanner-dot"></span>
-<span>{tr("Anova Outlier 4 • Program Studi Statistika UNSIKA")}</span>
+<div class="simple-research-footer">
+<div class="simple-footer-title">{tr("Dyslev AI — Dyslexia & Dysgraphia Detection AI")}</div>
+<div class="simple-footer-sub">{tr("EfficientNet-B0 (TFLite & Grad-CAM) | OpenCV Component Analysis | Fast & Efficient")}</div>
+<div class="simple-footer-cols">
+<div>
+<div class="simple-footer-heading"><span class="ai-scanner-dot"></span><span>{tr("Advisor")}</span></div>
+<p class="simple-footer-person">Dr. Karunia Eka Lestari, Universitas Singaperbangsa Karawang</p>
+<p class="simple-footer-person">Dr. Mokhammad Ridwan Yudhanegara, Universitas Singaperbangsa Karawang</p>
 </div>
-<div class="research-header-title">{tr("Dyslev AI — Dyslexia & Dysgraphia Detection AI")}</div>
-<div class="research-header-specs">{tr("EfficientNet-B0 (TFLite & Grad-CAM) | OpenCV Component Analysis | MDIT 2026 UiTM Malaysia")}</div>
-<div class="research-team-grid">
-<div class="research-team-card">
-<div class="research-role-header">
-<span class="research-role-title"><span class="ai-scanner-dot"></span>{tr("Advisor")}</span>
-<span class="research-role-tag">{tr("Dosen Pembimbing Riset")}</span>
-</div>
-<div class="research-member-list">
-<div class="research-member-item">
-<div class="research-member-name">Dr. Karunia Eka Lestari</div>
-<div class="research-member-affil">{tr("Program Studi Statistika, Universitas Singaperbangsa Karawang")}</div>
-</div>
-<div class="research-member-item">
-<div class="research-member-name">Dr. Mokhammad Ridwan Yudhanegara</div>
-<div class="research-member-affil">{tr("Program Studi Statistika, Universitas Singaperbangsa Karawang")}</div>
+<div>
+<div class="simple-footer-heading"><span class="ai-scanner-dot"></span><span>{tr("Team Members")}</span></div>
+<p class="simple-footer-person">Danish Alzam, Universitas Singaperbangsa Karawang</p>
+<p class="simple-footer-person">Nurul Syifa Azzahra, Universitas Singaperbangsa Karawang</p>
+<p class="simple-footer-person">Galih Rizkia Syahlani, Universitas Singaperbangsa Karawang</p>
+<p class="simple-footer-person">Daffa Najwa Saputra, Universitas Singaperbangsa Karawang</p>
 </div>
 </div>
-</div>
-<div class="research-team-card">
-<div class="research-role-header">
-<span class="research-role-title"><span class="ai-scanner-dot"></span>{tr("Team Members")}</span>
-<span class="research-role-tag">{tr("Tim Peneliti Mahasiswa")}</span>
-</div>
-<div class="research-member-grid">
-<div class="research-member-item">
-<div class="research-member-name">Danish Alzam</div>
-<div class="research-member-affil">{tr("Program Studi Statistika, Universitas Singaperbangsa Karawang")}</div>
-</div>
-<div class="research-member-item">
-<div class="research-member-name">Nurul Syifa Azzahra</div>
-<div class="research-member-affil">{tr("Program Studi Statistika, Universitas Singaperbangsa Karawang")}</div>
-</div>
-<div class="research-member-item">
-<div class="research-member-name">Galih Rizkia Syahlani</div>
-<div class="research-member-affil">{tr("Program Studi Statistika, Universitas Singaperbangsa Karawang")}</div>
-</div>
-<div class="research-member-item">
-<div class="research-member-name">Daffa Najwa Saputra</div>
-<div class="research-member-affil">{tr("Program Studi Statistika, Universitas Singaperbangsa Karawang")}</div>
-</div>
-</div>
-</div>
-</div>
-<div class="research-disclaimer-card">
-<div class="research-disclaimer-top">
-<span class="ai-scanner-dot"></span>
-<span>{tr("Disclaimer Riset & Kompetisi")}</span>
-</div>
-<p class="research-disclaimer-text">{tr("Riset Mahasiswa ini menggunakan model Deep Learning EfficientNet-B0 (TensorFlow Lite & Keras Grad-CAM) untuk klasifikasi citra tulisan tangan serta algoritma Computer Vision OpenCV untuk pengukuran dan segmentasi komponen tinta. Sistem ini dikembangkan sebagai media pengembangan keilmuan dan eksperimen pada Program Studi Statistika, Universitas Singaperbangsa Karawang (UNSIKA), serta diikutsertakan dalam kompetisi Malaysia Data Innovation Talent (MDIT) 2026 yang diselenggarakan oleh Universiti Teknologi MARA (UiTM) Malaysia. Seluruh hasil analisis bersifat prototipe eksperimental dan bukan pengganti diagnosis klinis.")}</p>
+<div class="simple-footer-disclaimer">
+<p>{tr("Disclaimer: Riset Mahasiswa yang menggunakan model EfficientNet-B0 (TFLite & Grad-CAM) dan OpenCV, digunakan untuk pengembangan dan eksperimen Program Studi Statistika UNSIKA.")}</p>
+<p>{tr("Diikutsertakan dalam kompetisi Malaysia Data Innovation Talent (MDIT) 2026 yang diselenggarakan oleh Universiti Teknologi MARA (UiTM) Malaysia.")}</p>
 </div>
 </div>
         """,
@@ -2236,7 +2106,6 @@ if (
         use_container_width=True,
     ):
         analysis_intro_dialog()
-    render_research_footer()
     st.stop()
 
 # Mapping kelas EfficientNet (alfabetis sesuai train_and_convert.py)
