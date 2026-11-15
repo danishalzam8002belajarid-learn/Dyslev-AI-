@@ -1825,17 +1825,6 @@ with settings_popover:
         key="measurement_min_area",
         help=tr("Komponen yang lebih kecil dari nilai ini akan diabaikan."),
     )
-    st.markdown("---")
-    st.markdown(f"**{tr('Status Komponen')}**")
-    eff_ok = any(os.path.exists(path) for path in TFLITE_CANDIDATES)
-    eff_dot_cls = "status-dot-ok" if eff_ok else "status-dot-err"
-    st.markdown(
-        f'<div class="status-row-item"><span class="{eff_dot_cls}"></span>'
-        f'<span>{tr("EfficientNet-B0 (Klasifikasi)")} (.tflite)</span></div>'
-        f'<div class="status-row-item"><span class="status-dot-ok"></span>'
-        f'<span>{tr(MODEL_MEASUREMENT)}</span></div>',
-        unsafe_allow_html=True,
-    )
 
 run_effnet = analysis_mode in {ANALYSIS_EFFNET_ONLY, ANALYSIS_BOTH}
 run_opencv = analysis_mode in {ANALYSIS_OPENCV_ONLY, ANALYSIS_BOTH}
