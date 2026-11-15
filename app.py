@@ -23,6 +23,8 @@ ENGLISH_TRANSLATIONS = {
     "Model EfficientNet-B0 & OpenCV": "EfficientNet-B0 & OpenCV Models",
     "EfficientNet-B0 (Klasifikasi)": "EfficientNet-B0 (Classification)",
     "Aktif": "Active",
+    "Digunakan": "In Use",
+    "Tidak Digunakan": "Not Used",
     "Visualisasi Grad-CAM": "Grad-CAM Visualization",
     "Format output": "Output format",
     "Model .h5 tidak tersedia, heatmap dilewati.": "The .h5 model is unavailable; heatmap skipped.",
@@ -319,6 +321,79 @@ ENGLISH_TRANSLATIONS = {
         "Clear uploaded images or restart the app."
     ),
     "Selesai": "Complete",
+    "Terindikasi": "Indicated",
+    "Tidak tersedia": "Unavailable",
+    "Memuat Aplikasi": "Loading Application",
+    "Program Studi Statistika • Universitas Singaperbangsa Karawang": (
+        "Statistics Study Program • Singaperbangsa Karawang University"
+    ),
+    "Anova Outlier 4 • Program Studi Statistika UNSIKA": (
+        "Anova Outlier 4 • Statistics Study Program UNSIKA"
+    ),
+    "Dyslev AI — Dyslexia & Dysgraphia Detection AI": (
+        "Dyslev AI — Dyslexia & Dysgraphia Detection AI"
+    ),
+    "EfficientNet-B0 (TFLite & Grad-CAM) | OpenCV Component Analysis | MDIT 2026 UiTM Malaysia": (
+        "EfficientNet-B0 (TFLite & Grad-CAM) | OpenCV Component Analysis | MDIT 2026 UiTM Malaysia"
+    ),
+    "Advisor": "Advisor",
+    "Team Members": "Team Members",
+    "Dosen Pembimbing Riset": "Research Advisor",
+    "Tim Peneliti Mahasiswa": "Student Research Team",
+    "Program Studi Statistika, Universitas Singaperbangsa Karawang": (
+        "Statistics Study Program, Singaperbangsa Karawang University"
+    ),
+    "Disclaimer Riset & Kompetisi": "Research & Competition Disclaimer",
+    "Riset Mahasiswa ini menggunakan model Deep Learning EfficientNet-B0 (TensorFlow Lite & Keras Grad-CAM) untuk klasifikasi citra tulisan tangan serta algoritma Computer Vision OpenCV untuk pengukuran dan segmentasi komponen tinta. Sistem ini dikembangkan sebagai media pengembangan keilmuan dan eksperimen pada Program Studi Statistika, Universitas Singaperbangsa Karawang (UNSIKA), serta diikutsertakan dalam kompetisi Malaysia Data Innovation Talent (MDIT) 2026 yang diselenggarakan oleh Universiti Teknologi MARA (UiTM) Malaysia. Seluruh hasil analisis bersifat prototipe eksperimental dan bukan pengganti diagnosis klinis.": (
+        "This Student Research project utilizes the EfficientNet-B0 Deep Learning model "
+        "(TensorFlow Lite & Keras Grad-CAM) for handwriting image classification alongside "
+        "OpenCV Computer Vision algorithms for ink component measurement and segmentation. "
+        "This system is developed for academic development and experimentation within the "
+        "Statistics Study Program, Singaperbangsa Karawang University (UNSIKA), and is "
+        "competed in the Malaysia Data Innovation Talent (MDIT) 2026 organized by "
+        "Universiti Teknologi MARA (UiTM) Malaysia. All analysis results are experimental "
+        "prototypes and do not replace clinical diagnosis."
+    ),
+    "Pemindaian AI Aktif": "AI Scan Active",
+    "Analisis Selesai": "Analysis Complete",
+    "Gambar {current}/{total}": "Image {current}/{total}",
+    "1. Prapemrosesan & Kontras": "1. Preprocessing & Contrast",
+    "2. EfficientNet-B0 & Grad-CAM": "2. EfficientNet-B0 & Grad-CAM",
+    "3. Deteksi & Crop OpenCV": "3. OpenCV Detection & Crops",
+    "Menyiapkan citra dan menyelaraskan kontras tulisan...": (
+        "Preparing image and standardizing handwriting contrast..."
+    ),
+    "Memuat model Grad-CAM untuk memetakan fokus jaringan saraf...": (
+        "Loading Grad-CAM model to map neural network focus..."
+    ),
+    "Menjalankan inferensi EfficientNet-B0 & visualisasi Grad-CAM...": (
+        "Running EfficientNet-B0 inference & Grad-CAM visualization..."
+    ),
+    "Memindai bagian {part}/{total_parts} untuk Grad-CAM resolusi tinggi...": (
+        "Scanning section {part}/{total_parts} for high-resolution Grad-CAM..."
+    ),
+    "Mendeteksi komponen tinta & mengelompokkan baris tulisan...": (
+        "Detecting ink components & grouping handwriting lines..."
+    ),
+    "Mengklasifikasikan komponen tinta {current}/{total} dengan EfficientNet-B0...": (
+        "Classifying ink component {current}/{total} with EfficientNet-B0..."
+    ),
+    "Seluruh tahapan analisis gambar telah selesai diproses.": (
+        "All image analysis stages have finished processing."
+    ),
+    "Info AI": "AI Insight",
+    "Peregangan kontras (persentil 2–98%) mempertegas goresan pena tanpa menghilangkan gradasi abu-abu alami.": (
+        "Contrast stretching (2nd–98th percentile) sharpens pen strokes while preserving natural grayscale gradients."
+    ),
+    "Grad-CAM memetakan aktivasi layer konvolusi terakhir untuk menampilkan area tulisan yang paling memengaruhi prediksi.": (
+        "Grad-CAM maps the final convolutional layer activations to highlight handwriting regions that most influenced the prediction."
+    ),
+    "Gambar lebar (>448 px) dibagi menjadi beberapa segmen vertikal agar detail goresan tidak menyusut saat di-resize ke 224×224 px.": (
+        "Wide images (>448 px) are split into vertical segments so stroke details are not lost when resized to 224×224 px."
+    ),
+    "OpenCV mengelompokkan komponen tinta per baris dan menghitung koefisien variasi (CV) tinggi serta lebar secara otomatis.": (
+        "OpenCV groups ink components by baseline and automatically calculates height and width coefficients of variation (CV)."
+    ),
 }
 
 st.session_state.setdefault("ui_language", "Indonesia")
@@ -334,6 +409,9 @@ def tr(text: str) -> str:
 def toggle_ui_language() -> None:
     st.session_state["ui_language"] = (
         "English" if st.session_state["ui_language"] == "Indonesia" else "Indonesia"
+    )
+    st.session_state["page_refresh_seq"] = (
+        st.session_state.get("page_refresh_seq", 0) + 1
     )
 
 
@@ -453,34 +531,76 @@ st.markdown("""
     
     html, body, [class*="css"] {
         font-family: 'Plus Jakarta Sans', sans-serif;
+        color: #f8fafc;
     }
-    /* Memaksa background Streamlit menyesuaikan tema gelap agar lebih menyatu (opsional, tapi membuat border lebih baik) */
+    .stApp,
+    [data-testid="stAppViewContainer"] {
+        background-color: #040d12 !important;
+        background-image:
+            radial-gradient(circle at 12% 8%, rgba(0, 223, 154, 0.09) 0%, transparent 42%),
+            radial-gradient(circle at 88% 85%, rgba(0, 223, 154, 0.06) 0%, transparent 45%),
+            linear-gradient(180deg, #040d12 0%, #06141a 50%, #040d12 100%) !important;
+        color: #f8fafc !important;
+    }
+    [data-testid="stHeader"] {
+        background: rgba(4, 13, 18, 0.78) !important;
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(0, 223, 154, 0.12);
+    }
+    h1, h2, h3, h4, h5, h6,
+    [data-testid="stMarkdownContainer"] h1,
+    [data-testid="stMarkdownContainer"] h2,
+    [data-testid="stMarkdownContainer"] h3,
+    [data-testid="stMarkdownContainer"] h4,
+    [data-testid="stHeadingWithActionElements"] h1,
+    [data-testid="stHeadingWithActionElements"] h2,
+    [data-testid="stHeadingWithActionElements"] h3,
+    [data-testid="stHeadingWithActionElements"] h4 {
+        color: #f8fafc !important;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        letter-spacing: -0.015em;
+    }
+    [data-testid="stMarkdownContainer"] p,
+    [data-testid="stMarkdownContainer"] li,
+    [data-testid="stWidgetLabel"] p,
+    label[data-testid="stWidgetLabel"] {
+        color: rgba(248, 250, 252, 0.9) !important;
+    }
+    [data-testid="stCaptionContainer"],
+    [data-testid="stCaptionContainer"] p {
+        color: rgba(248, 250, 252, 0.68) !important;
+    }
+    hr {
+        border-color: rgba(0, 223, 154, 0.18) !important;
+    }
+    /* Hero Container senada dengan AI Scanner Card */
     .hero-container {
         position: relative;
-        background-color: #06141a; /* Dark navy/teal seperti referensi */
+        background: linear-gradient(135deg, #06141a 0%, #0b222c 60%, #081b23 100%);
         background-image: 
-            radial-gradient(circle at 10% 30%, rgba(0, 223, 154, 0.15) 0%, transparent 50%),
-            linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-        background-size: 100% 100%, 40px 40px, 40px 40px;
-        padding: 5rem 2rem;
+            radial-gradient(circle at 15% 25%, rgba(0, 223, 154, 0.16) 0%, transparent 50%),
+            linear-gradient(rgba(0, 223, 154, 0.035) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 223, 154, 0.035) 1px, transparent 1px),
+            linear-gradient(135deg, #06141a 0%, #0b222c 60%, #081b23 100%);
+        background-size: 100% 100%, 38px 38px, 38px 38px, 100% 100%;
+        padding: 4.5rem 2rem 3.5rem 2rem;
         border-radius: 20px;
         text-align: center;
         margin-bottom: 2rem;
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        border: 1px solid rgba(0, 223, 154, 0.28);
+        box-shadow: 0 22px 48px -12px rgba(4, 13, 18, 0.75), 0 0 28px rgba(0, 223, 154, 0.08);
     }
     
     .top-pill {
         display: inline-block;
-        background: rgba(0, 223, 154, 0.1);
+        background: rgba(0, 223, 154, 0.12);
         color: #00df9a;
         padding: 6px 18px;
         border-radius: 50px;
         font-size: 0.85rem;
         font-weight: 600;
         margin-bottom: 2rem;
-        border: 1px solid rgba(0, 223, 154, 0.2);
+        border: 1px solid rgba(0, 223, 154, 0.3);
     }
     
     .hero-title {
@@ -493,62 +613,76 @@ st.markdown("""
     }
     
     .hero-title span {
-        color: #00df9a; /* Warna aksen Mint Green */
+        color: #00df9a;
     }
     
     .hero-subtitle {
         font-weight: 400;
-        font-size: 1.1rem;
-        color: rgba(255, 255, 255, 0.7);
+        font-size: 1.08rem;
+        color: rgba(248, 250, 252, 0.76);
         max-width: 800px;
-        margin: 0 auto 2.5rem auto;
+        margin: 0 auto 2.25rem auto;
         line-height: 1.6;
     }
     
     .hero-features {
         display: flex;
         justify-content: center;
-        gap: 16px;
+        gap: 12px;
         flex-wrap: wrap;
-        max-width: 700px;
+        max-width: 780px;
         margin: 0 auto;
     }
     
     .feature-pill {
-        background: transparent;
-        color: rgba(255, 255, 255, 0.85);
-        padding: 8px 20px;
-        border-radius: 50px;
-        font-size: 0.95rem;
-        font-weight: 500;
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(0, 223, 154, 0.09);
+        color: #f8fafc;
+        padding: 8px 18px;
+        border-radius: 999px;
+        font-size: 0.88rem;
+        font-weight: 600;
+        border: 1px solid rgba(0, 223, 154, 0.3);
+        box-shadow: 0 0 16px rgba(0, 223, 154, 0.08);
+        transition: all 0.22s ease;
+    }
+    .feature-pill::before {
+        content: "";
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #00df9a;
+        box-shadow: 0 0 8px rgba(0, 223, 154, 0.85);
+        flex-shrink: 0;
     }
     
     .feature-pill:hover {
-        background: rgba(255, 255, 255, 0.05);
-        border-color: rgba(255, 255, 255, 0.3);
+        background: rgba(0, 223, 154, 0.16);
+        border-color: rgba(0, 223, 154, 0.55);
+        transform: translateY(-1px);
     }
     
-    /* Styling result box agar tetap rapi jika di bawah hero */
     .result-box {
         padding: 24px;
         border-radius: 16px;
-        background-color: white;
-        color: black;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-        border-left: 6px solid #4f46e5;
+        background: linear-gradient(135deg, #06141a 0%, #0b222c 60%, #081b23 100%);
+        color: #f8fafc;
+        border: 1px solid rgba(0, 223, 154, 0.28);
+        box-shadow: 0 14px 32px -10px rgba(4, 13, 18, 0.6);
+        border-left: 5px solid #00df9a;
     }
     .result-box h3, .result-box p {
-        color: black;
+        color: #f8fafc;
     }
     
     /* === CSS Untuk Section Fitur AI === */
     .features-section {
-        padding: 4rem 1rem 1rem 1rem;
+        padding: 3.25rem 1rem 0.5rem 1rem;
         text-align: center;
-        border-top: 1px solid rgba(255, 255, 255, 0.05);
-        margin-top: 3rem;
+        border-top: 1px solid rgba(0, 223, 154, 0.16);
+        margin-top: 2.75rem;
     }
     .features-title {
         font-weight: 800;
@@ -562,17 +696,17 @@ st.markdown("""
         color: #00df9a;
     }
     .features-subtitle {
-        color: rgba(255, 255, 255, 0.7);
-        font-size: 1.1rem;
-        margin-bottom: 3.5rem;
+        color: rgba(248, 250, 252, 0.72);
+        font-size: 1.02rem;
+        margin-bottom: 2.75rem;
     }
     .features-section-title {
         font-family: 'Plus Jakarta Sans', sans-serif;
         font-weight: 700;
         font-size: clamp(1.55rem, 3vw, 2rem);
-        color: #00d9a0;
+        color: #00df9a;
         line-height: 1.35;
-        margin: 0 auto 1rem !important;
+        margin: 0 auto 0.85rem !important;
         letter-spacing: 0;
         max-width: 900px;
         text-align: center;
@@ -580,47 +714,263 @@ st.markdown("""
     .features-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-        gap: 1.5rem;
+        gap: 1.25rem;
         max-width: 950px;
         margin: 0 auto;
     }
     .feature-card {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.05);
+        position: relative;
+        background: linear-gradient(145deg, rgba(6, 20, 26, 0.82) 0%, rgba(11, 34, 44, 0.68) 100%);
+        border: 1px solid rgba(0, 223, 154, 0.24);
         backdrop-filter: blur(10px);
-        border-radius: 20px;
-        padding: 2rem;
+        border-radius: 16px;
+        padding: 1.65rem 1.75rem;
         text-align: left;
-        transition: all 0.3s;
+        transition: all 0.28s ease;
+        box-shadow: 0 12px 28px -12px rgba(4, 13, 18, 0.6), inset 0 1px 0 rgba(0, 223, 154, 0.12);
     }
     .feature-card:hover {
-        transform: translateY(-5px);
-        background: rgba(255, 255, 255, 0.05);
-        border-color: rgba(255, 255, 255, 0.15);
-    }
-    .feature-icon {
-        background-color: rgba(0, 223, 154, 0.1);
-        color: #00df9a;
-        width: 52px;
-        height: 52px;
-        border-radius: 14px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-        margin-bottom: 1.5rem;
-        border: 1px solid rgba(0, 223, 154, 0.2);
+        transform: translateY(-4px);
+        background: linear-gradient(145deg, rgba(8, 27, 35, 0.92) 0%, rgba(13, 41, 53, 0.82) 100%);
+        border-color: rgba(0, 223, 154, 0.48);
+        box-shadow: 0 16px 34px -10px rgba(4, 13, 18, 0.75), 0 0 20px rgba(0, 223, 154, 0.12);
     }
     .feature-card-title {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
         font-weight: 700;
-        font-size: 1.15rem;
+        font-size: 1.1rem;
         color: #ffffff;
-        margin-bottom: 0.75rem;
+        margin-bottom: 0.65rem;
+    }
+    .feature-card-title::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #00df9a;
+        box-shadow: 0 0 10px rgba(0, 223, 154, 0.85);
+        flex-shrink: 0;
     }
     .feature-card-desc {
-        color: rgba(255, 255, 255, 0.6);
-        font-size: 0.95rem;
+        color: rgba(248, 250, 252, 0.72);
+        font-size: 0.92rem;
         line-height: 1.6;
+    }
+    /* === Kotak Container Utama, Tabel, Tombol & Kontrol Senada AI Scanner === */
+    [data-testid="stVerticalBlockBorderWrapper"] {
+        background: linear-gradient(135deg, #06141a 0%, #0b222c 60%, #081b23 100%) !important;
+        border: 1px solid rgba(0, 223, 154, 0.28) !important;
+        border-radius: 18px !important;
+        padding: 1.4rem 1.5rem !important;
+        box-shadow: 0 18px 40px -12px rgba(4, 13, 18, 0.65), 0 0 24px rgba(0, 223, 154, 0.07) !important;
+    }
+    [data-testid="stFileUploaderDropzone"] {
+        background: rgba(4, 13, 18, 0.62) !important;
+        border: 1px dashed rgba(0, 223, 154, 0.38) !important;
+        border-radius: 14px !important;
+        color: #f8fafc !important;
+        transition: all 0.2s ease;
+    }
+    [data-testid="stFileUploaderDropzone"]:hover {
+        border-color: #00df9a !important;
+        background: rgba(0, 223, 154, 0.06) !important;
+    }
+    [data-testid="stFileUploaderDropzone"] button {
+        background: rgba(0, 223, 154, 0.14) !important;
+        color: #00df9a !important;
+        border: 1px solid rgba(0, 223, 154, 0.38) !important;
+        border-radius: 10px !important;
+        font-weight: 600 !important;
+    }
+    .stButton > button[kind="primary"],
+    button[data-testid="stBaseButton-primary"] {
+        background: linear-gradient(135deg, #00df9a 0%, #00b87c 100%) !important;
+        color: #041217 !important;
+        border: 1px solid rgba(143, 255, 224, 0.5) !important;
+        border-radius: 12px !important;
+        font-weight: 700 !important;
+        letter-spacing: 0.01em;
+        box-shadow: 0 8px 22px -6px rgba(0, 223, 154, 0.45) !important;
+        transition: all 0.22s ease !important;
+    }
+    .stButton > button[kind="primary"]:hover,
+    button[data-testid="stBaseButton-primary"]:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 12px 26px -4px rgba(0, 223, 154, 0.62) !important;
+        filter: brightness(1.05);
+    }
+    .stButton > button[kind="secondary"],
+    button[data-testid="stBaseButton-secondary"],
+    .stDownloadButton > button,
+    div[data-testid="stPopover"] > div > button {
+        background: linear-gradient(135deg, #06141a 0%, #0b222c 100%) !important;
+        color: #f8fafc !important;
+        border: 1px solid rgba(0, 223, 154, 0.32) !important;
+        border-radius: 11px !important;
+        font-weight: 600 !important;
+        box-shadow: 0 6px 18px -6px rgba(4, 13, 18, 0.6), 0 0 14px rgba(0, 223, 154, 0.06) !important;
+        transition: all 0.2s ease !important;
+    }
+    .stButton > button[kind="secondary"]:hover,
+    button[data-testid="stBaseButton-secondary"]:hover,
+    .stDownloadButton > button:hover,
+    div[data-testid="stPopover"] > div > button:hover {
+        border-color: rgba(0, 223, 154, 0.65) !important;
+        color: #00df9a !important;
+        box-shadow: 0 8px 22px -6px rgba(0, 223, 154, 0.22) !important;
+    }
+    [data-testid="stPopoverBody"],
+    div[role="dialog"] {
+        background: linear-gradient(135deg, #06141a 0%, #0b222c 65%, #081b23 100%) !important;
+        color: #f8fafc !important;
+        border: 1px solid rgba(0, 223, 154, 0.32) !important;
+        border-radius: 16px !important;
+        box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.75), 0 0 24px rgba(0, 223, 154, 0.1) !important;
+    }
+    [data-testid="stExpander"] {
+        background: linear-gradient(135deg, #06141a 0%, #0b222c 60%, #081b23 100%) !important;
+        border: 1px solid rgba(0, 223, 154, 0.26) !important;
+        border-radius: 14px !important;
+        overflow: hidden;
+        box-shadow: 0 10px 24px -10px rgba(4, 13, 18, 0.55) !important;
+    }
+    [data-testid="stExpander"] summary {
+        color: #f8fafc !important;
+        font-weight: 600 !important;
+    }
+    [data-testid="stTable"] {
+        background: linear-gradient(135deg, #06141a 0%, #0b222c 60%, #081b23 100%) !important;
+        border: 1px solid rgba(0, 223, 154, 0.26) !important;
+        border-radius: 14px !important;
+        overflow: hidden !important;
+        box-shadow: 0 12px 28px -12px rgba(4, 13, 18, 0.6), 0 0 18px rgba(0, 223, 154, 0.05) !important;
+        margin-bottom: 0.65rem !important;
+    }
+    [data-testid="stTable"] table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        color: #f8fafc !important;
+        background: transparent !important;
+    }
+    [data-testid="stTable"] thead tr th {
+        background: rgba(0, 223, 154, 0.12) !important;
+        color: #00df9a !important;
+        font-weight: 700 !important;
+        font-size: 0.78rem !important;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        border-bottom: 1px solid rgba(0, 223, 154, 0.26) !important;
+        padding: 0.65rem 0.85rem !important;
+    }
+    [data-testid="stTable"] tbody tr td {
+        background: transparent !important;
+        color: rgba(248, 250, 252, 0.92) !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+        padding: 0.6rem 0.85rem !important;
+        font-size: 0.86rem !important;
+    }
+    [data-testid="stTable"] tbody tr:hover td {
+        background: rgba(0, 223, 154, 0.05) !important;
+    }
+    [data-testid="stAlert"],
+    [data-testid="stAlertContainer"] {
+        background: linear-gradient(135deg, #06141a 0%, #0b222c 60%, #081b23 100%) !important;
+        border: 1px solid rgba(0, 223, 154, 0.3) !important;
+        border-left: 4px solid #00df9a !important;
+        border-radius: 14px !important;
+        color: #f8fafc !important;
+        box-shadow: 0 12px 28px -10px rgba(4, 13, 18, 0.55) !important;
+    }
+    [data-testid="stMarkdownContainer"] code {
+        background: rgba(0, 223, 154, 0.12) !important;
+        color: #00df9a !important;
+        border: 1px solid rgba(0, 223, 154, 0.28) !important;
+        border-radius: 6px !important;
+        padding: 0.12rem 0.42rem !important;
+        font-size: 0.82rem !important;
+    }
+    .wide-image-card {
+        background: linear-gradient(135deg, #06141a 0%, #0b222c 60%, #081b23 100%);
+        border: 1px solid rgba(0, 223, 154, 0.28);
+        border-radius: 14px;
+        padding: 1.05rem 1.25rem;
+        margin: 0.65rem 0 0.75rem 0;
+        color: #f8fafc;
+        box-shadow: 0 12px 28px -10px rgba(6, 20, 26, 0.5), 0 0 18px rgba(0, 223, 154, 0.06);
+    }
+    .wide-image-intro {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.6rem;
+        font-size: 0.85rem;
+        color: rgba(248, 250, 252, 0.88);
+        line-height: 1.5;
+        margin-bottom: 0.7rem;
+    }
+    .wide-image-intro .ai-scanner-dot {
+        margin-top: 0.38rem;
+        flex-shrink: 0;
+    }
+    .wide-image-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.42rem;
+        margin-bottom: 0.75rem;
+    }
+    .wide-image-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 0.45rem 0.75rem;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.035);
+        border: 1px solid rgba(0, 223, 154, 0.22);
+        font-size: 0.82rem;
+    }
+    .wide-image-name {
+        font-weight: 600;
+        color: #ffffff;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .wide-image-dim {
+        padding: 2px 9px;
+        border-radius: 999px;
+        background: rgba(0, 223, 154, 0.14);
+        border: 1px solid rgba(0, 223, 154, 0.32);
+        color: #00df9a;
+        font-size: 0.75rem;
+        font-weight: 700;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+    .status-row-item {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        padding: 0.35rem 0;
+        font-size: 0.86rem;
+        color: #f8fafc;
+    }
+    .status-dot-ok {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #00df9a;
+        box-shadow: 0 0 8px rgba(0, 223, 154, 0.85);
+        flex-shrink: 0;
+    }
+    .status-dot-err {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #ef4444;
+        box-shadow: 0 0 8px rgba(239, 68, 68, 0.85);
+        flex-shrink: 0;
     }
     [data-testid="stSidebar"],
     [data-testid="stSidebarCollapsedControl"],
@@ -684,7 +1034,603 @@ st.markdown("""
         padding: 0 0.75rem;
         white-space: nowrap;
     }
+    /* === Page Refresh & Entrance Animation === */
+    @keyframes aiPageRevealA {
+        0% {
+            opacity: 0;
+            transform: translateY(14px) scale(0.992);
+            filter: brightness(1.18);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            filter: brightness(1);
+        }
+    }
+    @keyframes aiPageRevealB {
+        0% {
+            opacity: 0;
+            transform: translateY(14px) scale(0.992);
+            filter: brightness(1.18);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            filter: brightness(1);
+        }
+    }
+    .feature-card:nth-child(1) { animation: aiPageRevealA 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both; }
+    .feature-card:nth-child(2) { animation: aiPageRevealA 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.16s both; }
+    .feature-card:nth-child(3) { animation: aiPageRevealA 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.24s both; }
+    .feature-card:nth-child(4) { animation: aiPageRevealA 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.32s both; }
+    /* === Full-Screen Refresh Splash Overlay (Spinning UNSIKA & Statistika Logos + Credits) === */
+    @keyframes aiSplashOverlayFadeA {
+        0% { opacity: 1; visibility: visible; }
+        90% { opacity: 1; visibility: visible; }
+        100% { opacity: 0; visibility: hidden; }
+    }
+    @keyframes aiSplashOverlayFadeB {
+        0% { opacity: 1; visibility: visible; }
+        90% { opacity: 1; visibility: visible; }
+        100% { opacity: 0; visibility: hidden; }
+    }
+    @keyframes aiSplashCardStage {
+        0% { opacity: 0; transform: translateY(18px) scale(0.95); }
+        9% { opacity: 1; transform: translateY(0) scale(1); }
+        54% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0px); }
+        63% { opacity: 0; transform: translateY(-14px) scale(0.97); filter: blur(4px); visibility: hidden; }
+        100% { opacity: 0; transform: translateY(-14px) scale(0.97); visibility: hidden; }
+    }
+    @keyframes aiCreditsContainerStage {
+        0%, 58% { opacity: 0; visibility: hidden; transform: scale(0.96); }
+        66% { opacity: 1; visibility: visible; transform: scale(1); }
+        89% { opacity: 1; visibility: visible; transform: scale(1.02); }
+        100% { opacity: 0; visibility: hidden; transform: scale(1.05); }
+    }
+    @keyframes aiCreditLineReveal {
+        0% { opacity: 0; transform: translateY(14px); filter: blur(4px); }
+        100% { opacity: 1; transform: translateY(0); filter: blur(0px); }
+    }
+    @keyframes aiCreditDividerExpand {
+        0% { width: 0; opacity: 0; }
+        100% { width: 88px; opacity: 1; }
+    }
+    @keyframes aiOrbitSpinCW {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    @keyframes aiOrbitSpinCCW {
+        0% { transform: rotate(360deg); }
+        100% { transform: rotate(0deg); }
+    }
+    @keyframes aiLogoSpin3D {
+        0% { transform: perspective(600px) rotateY(0deg) scale(0.92); }
+        50% { transform: perspective(600px) rotateY(180deg) scale(1.04); }
+        100% { transform: perspective(600px) rotateY(360deg) scale(1); }
+    }
+    @keyframes aiSplashBarFill {
+        0% { width: 4%; }
+        35% { width: 52%; }
+        75% { width: 92%; }
+        100% { width: 100%; }
+    }
+    .ai-refresh-splash {
+        position: fixed;
+        inset: 0;
+        z-index: 999999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+        background:
+            radial-gradient(circle at 50% 35%, rgba(0, 223, 154, 0.16) 0%, transparent 55%),
+            linear-gradient(rgba(0, 223, 154, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 223, 154, 0.03) 1px, transparent 1px),
+            #040d12;
+        background-size: 100% 100%, 38px 38px, 38px 38px, 100% 100%;
+        backdrop-filter: blur(14px);
+        pointer-events: none;
+    }
+    .ai-splash-box {
+        position: relative;
+        overflow: hidden;
+        width: min(100%, 540px);
+        background: linear-gradient(135deg, #06141a 0%, #0b222c 60%, #081b23 100%);
+        border: 1px solid rgba(0, 223, 154, 0.38);
+        border-radius: 22px;
+        padding: 2.2rem 2rem 1.9rem 2rem;
+        text-align: center;
+        box-shadow: 0 28px 60px -12px rgba(0, 0, 0, 0.85), 0 0 38px rgba(0, 223, 154, 0.16);
+        animation: aiSplashCardStage 5.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    .ai-splash-credits {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 1.5rem;
+        pointer-events: none;
+        animation: aiCreditsContainerStage 5.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    .ai-credit-created {
+        font-size: 0.82rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.26em;
+        color: #94a3b8;
+        margin-bottom: 0.45rem;
+        opacity: 0;
+        animation: aiCreditLineReveal 0.55s cubic-bezier(0.22, 1, 0.36, 1) 3.32s forwards;
+    }
+    .ai-credit-team {
+        font-size: clamp(1.65rem, 3.8vw, 2.35rem);
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        line-height: 1.2;
+        background: linear-gradient(90deg, #ffffff 0%, #8fffe0 35%, #00df9a 55%, #ffffff 100%);
+        background-size: 200% auto;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        filter: drop-shadow(0 0 22px rgba(0, 223, 154, 0.38));
+        margin-bottom: 0.55rem;
+        opacity: 0;
+        animation:
+            aiCreditLineReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 3.48s forwards,
+            aiShimmer 2.4s linear 3.48s infinite;
+    }
+    .ai-credit-divider {
+        height: 2px;
+        width: 0;
+        border-radius: 999px;
+        background: linear-gradient(90deg, transparent, #00df9a, transparent);
+        box-shadow: 0 0 12px rgba(0, 223, 154, 0.75);
+        margin: 0.1rem auto 0.55rem auto;
+        opacity: 0;
+        animation: aiCreditDividerExpand 0.55s cubic-bezier(0.22, 1, 0.36, 1) 3.62s forwards;
+    }
+    .ai-credit-sub {
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: #00df9a;
+        opacity: 0;
+        animation: aiCreditLineReveal 0.55s cubic-bezier(0.22, 1, 0.36, 1) 3.68s forwards;
+    }
+    .ai-splash-orbit-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: clamp(1rem, 4.5vw, 2.2rem);
+        margin: 1.35rem auto 1.45rem auto;
+        flex-wrap: nowrap;
+    }
+    .ai-logo-spinner-wrap {
+        position: relative;
+        width: clamp(92px, 24vw, 124px);
+        height: clamp(92px, 24vw, 124px);
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .ai-orbit-ring-outer {
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        border: 2.5px solid rgba(0, 223, 154, 0.12);
+        border-top-color: #00df9a;
+        border-right-color: rgba(0, 223, 154, 0.55);
+        box-shadow: 0 0 16px rgba(0, 223, 154, 0.25);
+        animation: aiOrbitSpinCW 1.35s linear infinite;
+    }
+    .ai-orbit-ring-inner {
+        position: absolute;
+        inset: 7px;
+        border-radius: 50%;
+        border: 2px dashed rgba(143, 255, 224, 0.45);
+        animation: aiOrbitSpinCCW 2.1s linear infinite;
+    }
+    .ai-logo-medallion {
+        width: clamp(70px, 18.5vw, 94px);
+        height: clamp(70px, 18.5vw, 94px);
+        border-radius: 50%;
+        background: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: clamp(8px, 2vw, 12px);
+        box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4), 0 0 18px rgba(0, 223, 154, 0.28);
+        animation: aiLogoSpin3D 1.8s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+    }
+    .ai-logo-medallion.delay-2 {
+        animation-delay: 0.22s;
+    }
+    .ai-logo-medallion img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+    .ai-splash-title {
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: #ffffff;
+        letter-spacing: -0.02em;
+        line-height: 1.3;
+        margin-bottom: 0.35rem;
+    }
+    .ai-splash-subtitle {
+        font-size: 0.86rem;
+        font-weight: 600;
+        color: #00df9a;
+        margin-bottom: 1.3rem;
+        letter-spacing: 0.01em;
+    }
+    .ai-splash-track {
+        width: 100%;
+        height: 9px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 999px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.07);
+    }
+    .ai-splash-fill {
+        height: 100%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #00b87c 0%, #00df9a 35%, #8fffe0 50%, #00df9a 65%, #00b87c 100%);
+        background-size: 200% 100%;
+        box-shadow: 0 0 14px rgba(0, 223, 154, 0.65);
+        animation:
+            aiSplashBarFill 2.95s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+            aiShimmer 1.6s linear infinite;
+    }
+    /* === AI Progress Card (Spinning Logo Animation Only) === */
+    @keyframes aiShimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+    @keyframes aiPulseDot {
+        0%, 100% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 rgba(0, 223, 154, 0.7); }
+        50% { transform: scale(1.18); opacity: 0.85; box-shadow: 0 0 0 6px rgba(0, 223, 154, 0); }
+    }
+    .ai-scanner-card {
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(135deg, #06141a 0%, #0b222c 60%, #081b23 100%);
+        border: 1px solid rgba(0, 223, 154, 0.28);
+        border-radius: 14px;
+        padding: 1.2rem 1.35rem;
+        margin: 0.65rem 0 0.15rem 0;
+        color: #f8fafc;
+        box-shadow: 0 12px 28px -10px rgba(6, 20, 26, 0.45), 0 0 20px rgba(0, 223, 154, 0.07);
+    }
+    .ai-scanner-top {
+        display: flex;
+        align-items: center;
+        gap: 1.15rem;
+    }
+    .ai-scanner-logos {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        flex-shrink: 0;
+    }
+    .ai-logo-spinner-wrap.is-compact {
+        width: 62px;
+        height: 62px;
+    }
+    .ai-logo-spinner-wrap.is-compact .ai-orbit-ring-inner {
+        inset: 5px;
+    }
+    .ai-logo-spinner-wrap.is-compact .ai-logo-medallion {
+        width: 46px;
+        height: 46px;
+        padding: 6px;
+    }
+    .ai-scanner-logos.is-done .ai-orbit-ring-outer,
+    .ai-scanner-logos.is-done .ai-orbit-ring-inner,
+    .ai-scanner-logos.is-done .ai-logo-medallion {
+        animation: none;
+    }
+    .ai-scanner-info {
+        flex: 1;
+        min-width: 0;
+    }
+    .ai-scanner-header-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        margin-bottom: 0.35rem;
+    }
+    .ai-scanner-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 3px 11px;
+        border-radius: 999px;
+        font-size: 0.74rem;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        background: rgba(0, 223, 154, 0.14);
+        color: #00df9a;
+        border: 1px solid rgba(0, 223, 154, 0.3);
+    }
+    .ai-scanner-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #00df9a;
+        animation: aiPulseDot 1.5s infinite;
+    }
+    .ai-scanner-meta {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: rgba(248, 250, 252, 0.78);
+    }
+    .ai-scanner-pct {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: #00df9a;
+        margin-left: 0.4rem;
+    }
+    .ai-scanner-title {
+        font-size: 0.98rem;
+        font-weight: 700;
+        color: #ffffff;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-bottom: 0.18rem;
+    }
+    .ai-scanner-subtitle {
+        font-size: 0.83rem;
+        color: rgba(248, 250, 252, 0.72);
+        line-height: 1.4;
+    }
+    .ai-scanner-track {
+        width: 100%;
+        height: 10px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 999px;
+        overflow: hidden;
+        margin: 0.95rem 0 0.85rem 0;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .ai-scanner-fill {
+        height: 100%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #00b87c 0%, #00df9a 35%, #8fffe0 50%, #00df9a 65%, #00b87c 100%);
+        background-size: 200% 100%;
+        animation: aiShimmer 2s linear infinite;
+        transition: width 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+        box-shadow: 0 0 14px rgba(0, 223, 154, 0.55);
+    }
+    .ai-scanner-steps {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.55rem;
+        margin-bottom: 0.8rem;
+    }
+    .ai-step-pill {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.45rem 0.65rem;
+        border-radius: 10px;
+        font-size: 0.76rem;
+        font-weight: 600;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: rgba(248, 250, 252, 0.52);
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+    .ai-step-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: rgba(248, 250, 252, 0.28);
+        flex-shrink: 0;
+    }
+    .ai-step-pill.is-active {
+        background: rgba(0, 223, 154, 0.13);
+        border-color: rgba(0, 223, 154, 0.48);
+        color: #ffffff;
+        box-shadow: 0 0 14px rgba(0, 223, 154, 0.14);
+    }
+    .ai-step-pill.is-active .ai-step-dot {
+        background: #00df9a;
+        box-shadow: 0 0 8px rgba(0, 223, 154, 0.9);
+        animation: aiPulseDot 1.5s infinite;
+    }
+    .ai-step-pill.is-done {
+        background: rgba(21, 128, 61, 0.18);
+        border-color: rgba(34, 197, 94, 0.38);
+        color: #86efac;
+    }
+    .ai-step-pill.is-done .ai-step-dot {
+        background: #22c55e;
+        box-shadow: 0 0 6px rgba(34, 197, 94, 0.75);
+    }
+    .ai-scanner-tip {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.55rem;
+        padding: 0.55rem 0.75rem;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.035);
+        border-left: 3px solid #00df9a;
+        font-size: 0.77rem;
+        color: rgba(248, 250, 252, 0.78);
+        line-height: 1.45;
+    }
+    .ai-scanner-tip strong {
+        color: #00df9a;
+        white-space: nowrap;
+    }
+    /* === Header Research Team, Advisor & Disclaimer Showcase === */
+    .research-header-showcase {
+        margin-top: 2.6rem;
+        padding-top: 2.4rem;
+        border-top: 1px solid rgba(0, 223, 154, 0.2);
+        max-width: 950px;
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+    }
+    .research-header-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 4px 14px;
+        border-radius: 999px;
+        background: rgba(0, 223, 154, 0.12);
+        border: 1px solid rgba(0, 223, 154, 0.32);
+        color: #00df9a;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        margin-bottom: 0.75rem;
+    }
+    .research-header-title {
+        font-size: clamp(1.3rem, 2.5vw, 1.7rem);
+        font-weight: 800;
+        color: #ffffff;
+        letter-spacing: -0.02em;
+        margin-bottom: 0.35rem;
+    }
+    .research-header-specs {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #94a3b8;
+        letter-spacing: 0.02em;
+        margin-bottom: 1.75rem;
+    }
+    .research-team-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1.15rem;
+        text-align: left;
+        margin-bottom: 1.25rem;
+    }
+    .research-team-card {
+        background: linear-gradient(135deg, rgba(6, 20, 26, 0.92) 0%, rgba(11, 34, 44, 0.88) 100%);
+        border: 1px solid rgba(0, 223, 154, 0.26);
+        border-radius: 16px;
+        padding: 1.35rem 1.45rem;
+        box-shadow: 0 14px 30px -12px rgba(4, 13, 18, 0.65), inset 0 0 18px rgba(0, 223, 154, 0.04);
+    }
+    .research-role-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        padding-bottom: 0.75rem;
+        margin-bottom: 0.9rem;
+        border-bottom: 1px solid rgba(0, 223, 154, 0.18);
+    }
+    .research-role-title {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.95rem;
+        font-weight: 800;
+        color: #ffffff;
+        letter-spacing: 0.02em;
+    }
+    .research-role-tag {
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: #00df9a;
+        background: rgba(0, 223, 154, 0.12);
+        border: 1px solid rgba(0, 223, 154, 0.28);
+        padding: 2px 9px;
+        border-radius: 999px;
+        white-space: nowrap;
+    }
+    .research-member-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.65rem;
+    }
+    .research-member-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.65rem;
+    }
+    .research-member-item {
+        padding: 0.6rem 0.8rem;
+        border-radius: 11px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        transition: border-color 0.2s ease, background 0.2s ease;
+    }
+    .research-member-item:hover {
+        border-color: rgba(0, 223, 154, 0.38);
+        background: rgba(0, 223, 154, 0.06);
+    }
+    .research-member-name {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #f8fafc;
+        line-height: 1.35;
+        margin-bottom: 0.15rem;
+    }
+    .research-member-affil {
+        font-size: 0.74rem;
+        font-weight: 500;
+        color: #94a3b8;
+        line-height: 1.35;
+    }
+    .research-disclaimer-card {
+        text-align: left;
+        background: linear-gradient(135deg, rgba(6, 20, 26, 0.95) 0%, rgba(11, 34, 44, 0.92) 100%);
+        border: 1px solid rgba(0, 223, 154, 0.32);
+        border-left: 4px solid #00df9a;
+        border-radius: 14px;
+        padding: 1rem 1.25rem;
+        box-shadow: 0 12px 28px -12px rgba(4, 13, 18, 0.65);
+    }
+    .research-disclaimer-top {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.4rem;
+        font-size: 0.76rem;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #00df9a;
+    }
+    .research-disclaimer-text {
+        font-size: 0.82rem;
+        line-height: 1.6;
+        color: rgba(248, 250, 252, 0.84);
+        margin: 0;
+    }
     @media (max-width: 640px) {
+        .ai-splash-box {
+            padding: 1.75rem 1.1rem 1.5rem 1.1rem;
+        }
+        .ai-scanner-card {
+            padding: 1rem;
+        }
+        .ai-scanner-steps {
+            grid-template-columns: 1fr;
+            gap: 0.38rem;
+        }
+        .ai-scanner-visual {
+            width: 54px;
+            height: 54px;
+            min-width: 54px;
+        }
         .st-key-language_toggle {
             right: 0.75rem;
         }
@@ -720,12 +1666,13 @@ st.markdown("""
             white-space: nowrap;
         }
         .hero-container img {
-            max-width: 90px !important;
-            height: 48px !important;
+            max-width: clamp(50px, 16.5vw, 84px) !important;
+            height: clamp(30px, 9.5vw, 46px) !important;
         }
         .hero-container > div[style*="display:flex"] {
-            gap: 8px !important;
-            padding: 8px 14px !important;
+            flex-wrap: nowrap !important;
+            gap: clamp(6px, 2vw, 12px) !important;
+            padding: 8px 12px !important;
             margin-bottom: 1.5rem !important;
         }
         .hero-container .features-section {
@@ -755,6 +1702,16 @@ st.markdown("""
             font-size: clamp(0.7rem, 2.8vw, 0.78rem);
             line-height: 1.45;
         }
+        .research-team-grid,
+        .research-member-grid {
+            grid-template-columns: 1fr;
+        }
+        .research-team-card {
+            padding: 1rem;
+        }
+        .research-disclaimer-card {
+            padding: 0.85rem 1rem;
+        }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -764,6 +1721,21 @@ st.markdown(
     <style>
     [data-testid="stCameraInputButton"]::before {{
         content: "{tr("Ambil Gambar")}";
+    }}
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+st.session_state.setdefault("page_refresh_seq", 0)
+_refresh_variant = "A" if st.session_state["page_refresh_seq"] % 2 == 0 else "B"
+st.markdown(
+    f"""
+    <style>
+    .hero-container,
+    [data-testid="stVerticalBlockBorderWrapper"],
+    .wide-image-card,
+    [data-testid="stTable"] {{
+        animation: aiPageReveal{_refresh_variant} 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
     }}
     </style>
     """,
@@ -797,7 +1769,7 @@ ANALYSIS_BOTH = "Keduanya"
 settings_col, language_col = st.columns([1, 1], gap="small")
 with settings_col:
     settings_popover = st.popover(
-        f"⚙️ {tr('Pengaturan')}",
+        tr("Pengaturan"),
         use_container_width=False,
         help=tr("Atur model dan parameter analisis."),
     )
@@ -900,8 +1872,14 @@ with settings_popover:
     st.markdown("---")
     st.markdown(f"**{tr('Status Komponen')}**")
     eff_ok = any(os.path.exists(path) for path in TFLITE_CANDIDATES)
-    st.markdown(f"{'🟢' if eff_ok else '🔴'} {tr('EfficientNet-B0 (Klasifikasi)')} (.tflite)")
-    st.markdown(f"🟢 {tr(MODEL_MEASUREMENT)}")
+    eff_dot_cls = "status-dot-ok" if eff_ok else "status-dot-err"
+    st.markdown(
+        f'<div class="status-row-item"><span class="{eff_dot_cls}"></span>'
+        f'<span>{tr("EfficientNet-B0 (Klasifikasi)")} (.tflite)</span></div>'
+        f'<div class="status-row-item"><span class="status-dot-ok"></span>'
+        f'<span>{tr(MODEL_MEASUREMENT)}</span></div>',
+        unsafe_allow_html=True,
+    )
 
 run_effnet = analysis_mode in {ANALYSIS_EFFNET_ONLY, ANALYSIS_BOTH}
 run_opencv = analysis_mode in {ANALYSIS_OPENCV_ONLY, ANALYSIS_BOTH}
@@ -926,6 +1904,56 @@ def get_base64_logos():
     return logos
 
 logos = get_base64_logos()
+SPLASH_VERSION = 5
+show_refresh_splash = (
+    st.session_state.get("splash_shown_version") != SPLASH_VERSION
+    or st.session_state.pop("trigger_splash", False)
+)
+st.session_state["splash_shown_version"] = SPLASH_VERSION
+if show_refresh_splash and len(logos) >= 4:
+    unsika_logo = logos[2]
+    statistika_logo = logos[3]
+    st.markdown(
+        f"""
+<style>
+.ai-refresh-splash.seq-{st.session_state["page_refresh_seq"]} {{
+    animation: aiSplashOverlayFade{_refresh_variant} 5.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}}
+</style>
+<div class="ai-refresh-splash seq-{st.session_state["page_refresh_seq"]}">
+<div class="ai-splash-box">
+<span class="ai-scanner-badge"><span class="ai-scanner-dot"></span>{tr("Memuat Aplikasi")}</span>
+<div class="ai-splash-orbit-row">
+<div class="ai-logo-spinner-wrap">
+<div class="ai-orbit-ring-outer"></div>
+<div class="ai-orbit-ring-inner"></div>
+<div class="ai-logo-medallion">
+<img src="{unsika_logo}" alt="Logo UNSIKA">
+</div>
+</div>
+<div class="ai-logo-spinner-wrap">
+<div class="ai-orbit-ring-outer"></div>
+<div class="ai-orbit-ring-inner"></div>
+<div class="ai-logo-medallion delay-2">
+<img src="{statistika_logo}" alt="Logo Program Studi Statistika UNSIKA">
+</div>
+</div>
+</div>
+<div class="ai-splash-title">{tr("Alat Deteksi Dysgraphia & Dyseleksia")}</div>
+<div class="ai-splash-subtitle">{tr("Program Studi Statistika • Universitas Singaperbangsa Karawang")}</div>
+<div class="ai-splash-track"><div class="ai-splash-fill"></div></div>
+</div>
+<div class="ai-splash-credits">
+<div class="ai-credit-created">Created By</div>
+<div class="ai-credit-team">Anova Outlier 4</div>
+<div class="ai-credit-divider"></div>
+<div class="ai-credit-sub">UNSIKA Research Team</div>
+</div>
+</div>
+        """,
+        unsafe_allow_html=True,
+    )
+
 logo_tags = "".join(
     f'<img src="{logo}" alt="Logo mitra {index}" '
     'style="width:auto; max-width:150px; height:72px; object-fit:contain;">'
@@ -956,10 +1984,10 @@ st.markdown(f"""
 {tr("Analisis pola gambar tulisan tangan tanpa ribet teknis. Cocok untuk guru, orang tua, hingga terapis. Dilengkapi berbagai fitur pendukung:")}
 </div>
 <div class="hero-features">
-<span class="feature-pill">✓ {tr("Pemrosesan Banyak Gambar")}</span>
-<span class="feature-pill">✓ {tr("Ekspor Hasil CSV")}</span>
-<span class="feature-pill">✓ {tr("Visualisasi Grad-CAM")}</span>
-<span class="feature-pill">✓ {tr("Eksperimen Crop OpenCV")}</span>
+<span class="feature-pill">{tr("Pemrosesan Banyak Gambar")}</span>
+<span class="feature-pill">{tr("Ekspor Hasil CSV")}</span>
+<span class="feature-pill">{tr("Visualisasi Grad-CAM")}</span>
+<span class="feature-pill">{tr("Eksperimen Crop OpenCV")}</span>
 </div>
 
 <div class="features-section">
@@ -982,6 +2010,64 @@ st.markdown(f"""
 <div class="feature-card-title">{tr("Laporan & Ekspor Data")}</div>
 <div class="feature-card-desc">{tr("Dapatkan hasil analisis lengkap beserta metrik raw score dan confidence level yang siap diekspor ke format CSV untuk kebutuhan riset lanjutan.")}</div>
 </div>
+</div>
+</div>
+
+<div class="research-header-showcase">
+<div class="research-header-badge">
+<span class="ai-scanner-dot"></span>
+<span>{tr("Anova Outlier 4 • Program Studi Statistika UNSIKA")}</span>
+</div>
+<div class="research-header-title">{tr("Dyslev AI — Dyslexia & Dysgraphia Detection AI")}</div>
+<div class="research-header-specs">{tr("EfficientNet-B0 (TFLite & Grad-CAM) | OpenCV Component Analysis | MDIT 2026 UiTM Malaysia")}</div>
+<div class="research-team-grid">
+<div class="research-team-card">
+<div class="research-role-header">
+<span class="research-role-title"><span class="ai-scanner-dot"></span>{tr("Advisor")}</span>
+<span class="research-role-tag">{tr("Dosen Pembimbing Riset")}</span>
+</div>
+<div class="research-member-list">
+<div class="research-member-item">
+<div class="research-member-name">Dr. Karunia Eka Lestari</div>
+<div class="research-member-affil">{tr("Program Studi Statistika, Universitas Singaperbangsa Karawang")}</div>
+</div>
+<div class="research-member-item">
+<div class="research-member-name">Dr. Mokhammad Ridwan Yudhanegara</div>
+<div class="research-member-affil">{tr("Program Studi Statistika, Universitas Singaperbangsa Karawang")}</div>
+</div>
+</div>
+</div>
+<div class="research-team-card">
+<div class="research-role-header">
+<span class="research-role-title"><span class="ai-scanner-dot"></span>{tr("Team Members")}</span>
+<span class="research-role-tag">{tr("Tim Peneliti Mahasiswa")}</span>
+</div>
+<div class="research-member-grid">
+<div class="research-member-item">
+<div class="research-member-name">Danish Alzam</div>
+<div class="research-member-affil">{tr("Program Studi Statistika, Universitas Singaperbangsa Karawang")}</div>
+</div>
+<div class="research-member-item">
+<div class="research-member-name">Nurul Syifa Azzahra</div>
+<div class="research-member-affil">{tr("Program Studi Statistika, Universitas Singaperbangsa Karawang")}</div>
+</div>
+<div class="research-member-item">
+<div class="research-member-name">Galih Rizkia Syahlani</div>
+<div class="research-member-affil">{tr("Program Studi Statistika, Universitas Singaperbangsa Karawang")}</div>
+</div>
+<div class="research-member-item">
+<div class="research-member-name">Daffa Najwa Saputra</div>
+<div class="research-member-affil">{tr("Program Studi Statistika, Universitas Singaperbangsa Karawang")}</div>
+</div>
+</div>
+</div>
+</div>
+<div class="research-disclaimer-card">
+<div class="research-disclaimer-top">
+<span class="ai-scanner-dot"></span>
+<span>{tr("Disclaimer Riset & Kompetisi")}</span>
+</div>
+<p class="research-disclaimer-text">{tr("Riset Mahasiswa ini menggunakan model Deep Learning EfficientNet-B0 (TensorFlow Lite & Keras Grad-CAM) untuk klasifikasi citra tulisan tangan serta algoritma Computer Vision OpenCV untuk pengukuran dan segmentasi komponen tinta. Sistem ini dikembangkan sebagai media pengembangan keilmuan dan eksperimen pada Program Studi Statistika, Universitas Singaperbangsa Karawang (UNSIKA), serta diikutsertakan dalam kompetisi Malaysia Data Innovation Talent (MDIT) 2026 yang diselenggarakan oleh Universiti Teknologi MARA (UiTM) Malaysia. Seluruh hasil analisis bersifat prototipe eksperimental dan bukan pengganti diagnosis klinis.")}</p>
 </div>
 </div>
 </div>
@@ -1050,6 +2136,10 @@ def analysis_intro_dialog():
         use_container_width=True,
     ):
         st.session_state["analysis_intro_seen"] = True
+        st.session_state["trigger_splash"] = True
+        st.session_state["page_refresh_seq"] = (
+            st.session_state.get("page_refresh_seq", 0) + 1
+        )
         st.rerun()
 
 
@@ -1066,6 +2156,10 @@ def clear_uploaded_data():
     st.session_state["camera_capture_generation"] += 1
     st.session_state["camera_images"] = []
     st.session_state["reload_dialog_open"] = False
+    st.session_state["trigger_splash"] = True
+    st.session_state["page_refresh_seq"] = (
+        st.session_state.get("page_refresh_seq", 0) + 1
+    )
 
 
 def restart_from_beginning():
@@ -1140,7 +2234,10 @@ def load_efficientnet():
         return None, None, f"TensorFlow belum terpasang ({e})"
     for path in TFLITE_CANDIDATES:
         if os.path.exists(path):
-            interp = tf.lite.Interpreter(model_path=path)
+            interp = tf.lite.Interpreter(
+                model_path=path,
+                num_threads=min(4, os.cpu_count() or 1),
+            )
             interp.allocate_tensors()
             return interp, path, None
     return None, None, "File .tflite EfficientNet tidak ditemukan"
@@ -1182,11 +2279,19 @@ def enhance_handwriting_contrast(image: Image.Image) -> Image.Image:
 def predict_efficientnet(interpreter, image: Image.Image, threshold: float):
     start = time.time()
     img_resized, input_data = preprocess_effnet(image)
-    inp = interpreter.get_input_details()
-    out = interpreter.get_output_details()
-    interpreter.set_tensor(inp[0]['index'], input_data)
+    inp_idx = getattr(interpreter, "_cached_inp_idx", None)
+    out_idx = getattr(interpreter, "_cached_out_idx", None)
+    if inp_idx is None or out_idx is None:
+        inp_idx = interpreter.get_input_details()[0]["index"]
+        out_idx = interpreter.get_output_details()[0]["index"]
+        try:
+            setattr(interpreter, "_cached_inp_idx", inp_idx)
+            setattr(interpreter, "_cached_out_idx", out_idx)
+        except Exception:
+            pass
+    interpreter.set_tensor(inp_idx, input_data)
     interpreter.invoke()
-    preds = interpreter.get_tensor(out[0]['index'])[0]
+    preds = interpreter.get_tensor(out_idx)[0]
     raw = float(preds[0])  # indeks 0 = Disleksia
     if raw > threshold:
         label, conf = "Disleksia", raw
@@ -1209,10 +2314,20 @@ def predict_component_crops(
     image: Image.Image,
     measurements: pd.DataFrame,
     threshold: float,
+    on_crop_progress: Any = None,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, Any]]:
     predictions = []
-    crop_previews = []
-    for component in crop_connected_regions(image, measurements):
+    crop_previews: list[dict[str, Any]] = []
+    cropped_regions = crop_connected_regions(image, measurements)
+    total_regions = len(cropped_regions)
+    update_interval = max(1, total_regions // 4) if total_regions else 1
+    for crop_idx, component in enumerate(cropped_regions, start=1):
+        if on_crop_progress is not None and (
+            crop_idx == 1
+            or crop_idx == total_regions
+            or crop_idx % update_interval == 0
+        ):
+            on_crop_progress(crop_idx, total_regions)
         result = predict_efficientnet(interpreter, component["crop"], threshold)
         predictions.append(
             {
@@ -1222,23 +2337,6 @@ def predict_component_crops(
                 "Skor Disleksia (%)": f"{result['class_scores']['Disleksia'] * 100:.2f}%",
                 "Skor Normal (%)": f"{result['class_scores']['Normal'] * 100:.2f}%",
                 "Skor kelas terpilih (%)": f"{result['confidence'] * 100:.2f}%",
-            }
-        )
-        encoded_ok, encoded_crop = cv2.imencode(
-            ".png",
-            cv2.cvtColor(np.asarray(component["crop"]), cv2.COLOR_RGB2BGR),
-        )
-        if not encoded_ok:
-            raise RuntimeError(
-                f"Gagal menyiapkan crop komponen {component['Komponen']}."
-            )
-        crop_previews.append(
-            {
-                "Komponen": component["Komponen"],
-                "Baris": component["Baris"],
-                "Prediksi": result["label"],
-                "Skor": f"{result['confidence'] * 100:.2f}%",
-                "image": encoded_crop.tobytes(),
             }
         )
     total_crops = len(predictions)
@@ -1498,16 +2596,45 @@ def heat_row_for(image, r, keras_model, filename):
                     f"{r['label']} {r['confidence'] * 100:.1f}%", col)
 
 
+model_usage_map = {
+    MODEL_EFFNET: run_effnet,
+    MODEL_MEASUREMENT: run_opencv,
+}
 model_rows = []
 for name in ANALYSIS_TYPES:
+    is_used = model_usage_map.get(name, True)
+    if is_used:
+        status_label = tr("Digunakan")
+        badge_bg = "rgba(0,223,154,0.14)"
+        badge_border = "rgba(0,223,154,0.32)"
+        badge_color = "#00df9a"
+        dot_bg = "#00df9a"
+        dot_shadow = "0 0 8px rgba(0,223,154,0.85)"
+        row_opacity = "1"
+    else:
+        status_label = tr("Tidak Digunakan")
+        badge_bg = "rgba(148,163,184,0.12)"
+        badge_border = "rgba(148,163,184,0.28)"
+        badge_color = "#94a3b8"
+        dot_bg = "#64748b"
+        dot_shadow = "none"
+        row_opacity = "0.68"
+
     model_rows.append(
         f"""
-        <tr style="background:#ffffff; color:#172b2a;">
-          <td style="padding:10px 14px; border-top:1px solid #e7eef0; font-weight:600;">
+        <tr style="background:transparent; color:#f8fafc; opacity:{row_opacity};">
+          <td style="padding:12px 16px; border-top:1px solid rgba(255,255,255,0.06); font-weight:600;">
             {tr(name)}
           </td>
-          <td style="padding:10px 14px; border-top:1px solid #e7eef0;">
-            <span style="font-size:0.75rem; font-weight:700; color:#15803d;">{tr("Aktif")}</span>
+          <td style="padding:12px 16px; border-top:1px solid rgba(255,255,255,0.06);">
+            <span style="display:inline-flex; align-items:center; gap:6px;
+                         padding:3px 10px; border-radius:999px;
+                         background:{badge_bg}; border:1px solid {badge_border};
+                         font-size:0.74rem; font-weight:700; color:{badge_color};">
+              <span style="width:7px; height:7px; border-radius:50%; background:{dot_bg};
+                           box-shadow:{dot_shadow};"></span>
+              {status_label}
+            </span>
           </td>
         </tr>
         """
@@ -1515,18 +2642,20 @@ for name in ANALYSIS_TYPES:
 
 st.html(
     f"""
-    <div style="max-width:640px; overflow:hidden; margin:0.35rem 0 0.9rem;
-                border:1px solid #dbe4e8; border-radius:14px;
-                box-shadow:0 4px 14px rgba(15,23,42,0.07);">
-      <table style="width:100%; border-collapse:collapse; font-size:0.84rem;">
+    <div style="max-width:680px; overflow:hidden; margin:0.35rem 0 1rem;
+                background:linear-gradient(135deg, #06141a 0%, #0b222c 60%, #081b23 100%);
+                border:1px solid rgba(0,223,154,0.28); border-radius:16px;
+                box-shadow:0 16px 36px -12px rgba(4,13,18,0.65), 0 0 22px rgba(0,223,154,0.07);">
+      <table style="width:100%; border-collapse:collapse; font-size:0.86rem;">
         <thead>
-          <tr style="background:linear-gradient(110deg,#102b35,#164e49); color:#f8fafc;">
-            <th style="padding:10px 14px; text-align:left; font-size:0.7rem;
-                       font-weight:700; letter-spacing:0.08em; text-transform:uppercase;">
+          <tr style="background:rgba(0,223,154,0.12); color:#00df9a;
+                     border-bottom:1px solid rgba(0,223,154,0.24);">
+            <th style="padding:11px 16px; text-align:left; font-size:0.74rem;
+                       font-weight:700; letter-spacing:0.07em; text-transform:uppercase;">
               {tr("Jenis Analisis Model")}
             </th>
-            <th style="width:130px; padding:10px 14px; text-align:left; font-size:0.7rem;
-                       font-weight:700; letter-spacing:0.08em; text-transform:uppercase;">
+            <th style="width:140px; padding:11px 16px; text-align:left; font-size:0.74rem;
+                       font-weight:700; letter-spacing:0.07em; text-transform:uppercase;">
               {tr("Status")}
             </th>
           </tr>
@@ -1668,23 +2797,42 @@ with st.container():
             and os.path.exists(KERAS_PATH)
         )
         if wide_images:
-            image_list = "\n".join(
-                f"- `{filename}`: {width} × {height} px"
+            import html as _html_notice
+
+            image_items_html = "".join(
+                f'<div class="wide-image-item">'
+                f'<span class="wide-image-name">{_html_notice.escape(filename)}</span>'
+                f'<span class="wide-image-dim">{width} × {height} px</span>'
+                f'</div>'
                 for _, filename, width, height, _ in wide_images
             )
-            warning_intro = tr(
-                "Gambar berikut memiliki lebar lebih dari {threshold} piksel. "
-                "Input model diubah menjadi 224 × 224 piksel, sehingga detail "
-                "tulisan mungkin sulit terlihat:"
-            ).format(threshold=WIDE_IMAGE_WARNING_WIDTH)
-            warning_guidance = tr(
-                "Gambar lebar yang tercantum direkomendasikan untuk dibagi "
-                "otomatis dengan pengaturan di bawah."
-                if can_split_wide_images
-                else "Pembagian per gambar hanya tersedia pada Analisis Lengkap "
-                "saat model Grad-CAM EfficientNet tersedia."
+            warning_intro = _html_notice.escape(
+                tr(
+                    "Gambar berikut memiliki lebar lebih dari {threshold} piksel. "
+                    "Input model diubah menjadi 224 × 224 piksel, sehingga detail "
+                    "tulisan mungkin sulit terlihat:"
+                ).format(threshold=WIDE_IMAGE_WARNING_WIDTH)
             )
-            st.warning(f"{warning_intro}\n\n{image_list}\n\n{warning_guidance}")
+            warning_guidance = _html_notice.escape(
+                tr(
+                    "Gambar lebar yang tercantum direkomendasikan untuk dibagi "
+                    "otomatis dengan pengaturan di bawah."
+                    if can_split_wide_images
+                    else "Pembagian per gambar hanya tersedia pada Analisis Lengkap "
+                    "saat model Grad-CAM EfficientNet tersedia."
+                )
+            )
+            st.markdown(
+                f'<div class="wide-image-card">'
+                f'<div class="wide-image-intro">'
+                f'<span class="ai-scanner-dot"></span>'
+                f'<span>{warning_intro}</span>'
+                f'</div>'
+                f'<div class="wide-image-list">{image_items_html}</div>'
+                f'<div class="ai-scanner-tip"><span>{warning_guidance}</span></div>'
+                f'</div>',
+                unsafe_allow_html=True,
+            )
 
         split_wide_file_indices: set[int] = set()
         if can_split_wide_images:
@@ -1716,6 +2864,7 @@ with st.container():
                 type="primary",
                 key="generate_multiple_processing",
             )
+        scanner_placeholder = st.empty()
     batch_signature = (
         (
             tuple(
@@ -1737,6 +2886,8 @@ with st.container():
     if batch_files and generate_batch:
         active_models = get_active_analyses()
         if active_models:
+            import html as _html
+
             results = []
             opencv_results = []
             opencv_line_results = []
@@ -1746,11 +2897,151 @@ with st.container():
             keras_model = None
             gradcam_load_attempted = False
             selected_operation_count = int(run_effnet) + int(run_opencv)
-            total_operations = len(batch_files) * selected_operation_count
+            total_operations = max(1, len(batch_files) * selected_operation_count)
             completed_operations = 0
-            progress = st.progress(0.0, text=tr("Memulai analisis..."))
+            scan_start_time = time.time()
+            last_ui_update = [0.0]
 
+            scanner_tips = [
+                tr(
+                    "Peregangan kontras (persentil 2–98%) mempertegas goresan pena "
+                    "tanpa menghilangkan gradasi abu-abu alami."
+                ),
+                tr(
+                    "Grad-CAM memetakan aktivasi layer konvolusi terakhir untuk "
+                    "menampilkan area tulisan yang paling memengaruhi prediksi."
+                ),
+                tr(
+                    "Gambar lebar (>448 px) dibagi menjadi beberapa segmen vertikal "
+                    "agar detail goresan tidak menyusut saat di-resize ke 224×224 px."
+                ),
+                tr(
+                    "OpenCV mengelompokkan komponen tinta per baris dan menghitung "
+                    "koefisien variasi (CV) tinggi serta lebar secara otomatis."
+                ),
+            ]
+
+            def update_scanner_card(
+                progress_fraction: float,
+                filename: str,
+                image_idx: int,
+                total_images: int,
+                stage_index: int,
+                detail_text: str,
+                tip_index: int = 0,
+                is_done: bool = False,
+                force: bool = False,
+            ) -> None:
+                now_ts = time.time()
+                if (
+                    not force
+                    and not is_done
+                    and (now_ts - last_ui_update[0]) < 0.25
+                ):
+                    return
+                last_ui_update[0] = now_ts
+                pct = max(2, min(100, int(round(progress_fraction * 100))))
+                if is_done:
+                    pct = 100
+                elapsed = now_ts - scan_start_time
+                safe_filename = _html.escape(filename)
+                safe_detail = _html.escape(detail_text)
+                tip_text = _html.escape(
+                    scanner_tips[tip_index % len(scanner_tips)]
+                )
+                badge_label = (
+                    tr("Analisis Selesai")
+                    if is_done
+                    else tr("Pemindaian AI Aktif")
+                )
+                counter_label = tr("Gambar {current}/{total}").format(
+                    current=image_idx,
+                    total=total_images,
+                )
+
+                step_defs = [
+                    (1, tr("1. Prapemrosesan & Kontras"), True),
+                    (2, tr("2. EfficientNet-B0 & Grad-CAM"), run_effnet),
+                    (3, tr("3. Deteksi & Crop OpenCV"), run_opencv),
+                ]
+                step_pills_html = []
+                for step_num, step_label, step_enabled in step_defs:
+                    if not step_enabled:
+                        state_cls = ""
+                    elif is_done or step_num < stage_index:
+                        state_cls = "is-done"
+                    elif step_num == stage_index:
+                        state_cls = "is-active"
+                    else:
+                        state_cls = ""
+                    step_pills_html.append(
+                        f'<div class="ai-step-pill {state_cls}">'
+                        f'<span class="ai-step-dot"></span><span>{_html.escape(step_label)}</span>'
+                        f'</div>'
+                    )
+
+                visual_cls = "ai-scanner-logos is-done" if is_done else "ai-scanner-logos"
+                unsika_uri = logos[2] if len(logos) >= 4 else ""
+                statistika_uri = logos[3] if len(logos) >= 4 else ""
+                card_html = (
+                    f'<div class="ai-scanner-card">'
+                    f'<div class="ai-scanner-top">'
+                    f'<div class="{visual_cls}">'
+                    f'<div class="ai-logo-spinner-wrap is-compact">'
+                    f'<div class="ai-orbit-ring-outer"></div>'
+                    f'<div class="ai-orbit-ring-inner"></div>'
+                    f'<div class="ai-logo-medallion">'
+                    f'<img src="{unsika_uri}" alt="UNSIKA">'
+                    f'</div>'
+                    f'</div>'
+                    f'<div class="ai-logo-spinner-wrap is-compact">'
+                    f'<div class="ai-orbit-ring-outer"></div>'
+                    f'<div class="ai-orbit-ring-inner"></div>'
+                    f'<div class="ai-logo-medallion delay-2">'
+                    f'<img src="{statistika_uri}" alt="Statistika UNSIKA">'
+                    f'</div>'
+                    f'</div>'
+                    f'</div>'
+                    f'<div class="ai-scanner-info">'
+                    f'<div class="ai-scanner-header-row">'
+                    f'<span class="ai-scanner-badge">'
+                    f'<span class="ai-scanner-dot"></span>{_html.escape(badge_label)}'
+                    f'</span>'
+                    f'<span class="ai-scanner-meta">'
+                    f'{_html.escape(counter_label)} &bull; {elapsed:.1f}s'
+                    f'<span class="ai-scanner-pct">{pct}%</span>'
+                    f'</span>'
+                    f'</div>'
+                    f'<div class="ai-scanner-title">{safe_filename}</div>'
+                    f'<div class="ai-scanner-subtitle">{safe_detail}</div>'
+                    f'</div>'
+                    f'</div>'
+                    f'<div class="ai-scanner-track">'
+                    f'<div class="ai-scanner-fill" style="width:{pct}%;"></div>'
+                    f'</div>'
+                    f'<div class="ai-scanner-steps">{"".join(step_pills_html)}</div>'
+                    f'<div class="ai-scanner-tip">'
+                    f'<strong>{_html.escape(tr("Info AI"))}:</strong>'
+                    f'<span>{tip_text}</span>'
+                    f'</div>'
+                    f'</div>'
+                )
+                scanner_placeholder.markdown(card_html, unsafe_allow_html=True)
+
+            total_files = len(batch_files)
             for i, bf in enumerate(batch_files):
+                base_progress = completed_operations / total_operations
+                update_scanner_card(
+                    base_progress + (0.08 / total_operations),
+                    bf.name,
+                    i + 1,
+                    total_files,
+                    stage_index=1,
+                    detail_text=tr(
+                        "Menyiapkan citra dan menyelaraskan kontras tulisan..."
+                    ),
+                    tip_index=i * 2,
+                )
                 image = Image.open(bf).convert('RGB')
                 analysis_image = (
                     enhance_handwriting_contrast(image)
@@ -1764,8 +3055,10 @@ with st.container():
                         continue
                     if model_name == MODEL_MEASUREMENT and not run_opencv:
                         continue
+                    op_start_progress = completed_operations / total_operations
                     batch_visual = np.array(analysis_image)
                     component_measurements = None
+                    line_variability_records = None
                     component_predictions = []
                     crop_previews = []
                     crop_summary = None
@@ -1775,6 +3068,17 @@ with st.container():
                         r = None
                         if batch_mode == BATCH_FULL:
                             if not gradcam_load_attempted:
+                                update_scanner_card(
+                                    op_start_progress + (0.2 / total_operations),
+                                    bf.name,
+                                    i + 1,
+                                    total_files,
+                                    stage_index=2,
+                                    detail_text=tr(
+                                        "Memuat model Grad-CAM untuk memetakan fokus jaringan saraf..."
+                                    ),
+                                    tip_index=1,
+                                )
                                 keras_model = load_keras_model()
                                 gradcam_load_attempted = True
                                 if keras_model is None:
@@ -1799,6 +3103,21 @@ with st.container():
                                     image_parts,
                                     start=1,
                                 ):
+                                    part_frac = (part_index - 0.5) / max(1, len(image_parts))
+                                    update_scanner_card(
+                                        op_start_progress + (part_frac * 0.85 / total_operations),
+                                        bf.name,
+                                        i + 1,
+                                        total_files,
+                                        stage_index=2,
+                                        detail_text=tr(
+                                            "Memindai bagian {part}/{total_parts} untuk Grad-CAM resolusi tinggi..."
+                                        ).format(
+                                            part=part_index,
+                                            total_parts=len(image_parts),
+                                        ),
+                                        tip_index=2,
+                                    )
                                     part_result = predict_efficientnet(
                                         model,
                                         image_part,
@@ -1859,6 +3178,17 @@ with st.container():
                                 )
 
                         if r is None:
+                            update_scanner_card(
+                                op_start_progress + (0.45 / total_operations),
+                                bf.name,
+                                i + 1,
+                                total_files,
+                                stage_index=2,
+                                detail_text=tr(
+                                    "Menjalankan inferensi EfficientNet-B0 & visualisasi Grad-CAM..."
+                                ),
+                                tip_index=1,
+                            )
                             r = predict_efficientnet(
                                 model,
                                 analysis_image,
@@ -1886,7 +3216,7 @@ with st.container():
                                 if gradcam_part_results
                                 else "Gambar utuh"
                             ),
-                            "Status": "🔴" if r["label"] == "Disleksia" else "🟢",
+                            "Status": "Terindikasi" if r["label"] == "Disleksia" else "Normal",
                             "Prediksi": r["label"],
                             "Tingkat Kepercayaan": f"{r['confidence'] * 100:.2f}%",
                             "Level Confidence": lvl,
@@ -1900,6 +3230,17 @@ with st.container():
                             "confidence": r["confidence"],
                         }
                     else:
+                        update_scanner_card(
+                            op_start_progress + (0.2 / total_operations),
+                            bf.name,
+                            i + 1,
+                            total_files,
+                            stage_index=3,
+                            detail_text=tr(
+                                "Mendeteksi komponen tinta & mengelompokkan baris tulisan..."
+                            ),
+                            tip_index=3,
+                        )
                         _, overlay, measurements = measure_connected_regions(
                             analysis_image,
                             min_area=min_component_area,
@@ -1917,23 +3258,48 @@ with st.container():
                                 "Komponen diprediksi Normal (%)": "Model tidak tersedia",
                             }
                         else:
+                            def _on_crop_step(
+                                current_crop: int,
+                                total_crops: int,
+                                _op_base: float = op_start_progress,
+                                _fname: str = bf.name,
+                                _img_idx: int = i + 1,
+                            ) -> None:
+                                crop_frac = current_crop / max(1, total_crops)
+                                update_scanner_card(
+                                    _op_base + ((0.25 + 0.65 * crop_frac) / total_operations),
+                                    _fname,
+                                    _img_idx,
+                                    total_files,
+                                    stage_index=3,
+                                    detail_text=tr(
+                                        "Mengklasifikasikan komponen tinta {current}/{total} dengan EfficientNet-B0..."
+                                    ).format(
+                                        current=current_crop,
+                                        total=total_crops,
+                                    ),
+                                    tip_index=3,
+                                )
+
                             component_predictions, crop_previews, crop_summary = (
                                 predict_component_crops(
                                     crop_model,
                                     analysis_image,
                                     measurements,
                                     threshold,
+                                    on_crop_progress=_on_crop_step,
                                 )
                             )
                         opencv_crop_summaries.append(
                             {"Nama File": bf.name, **crop_summary}
                         )
+                        line_variability_records = line_variability.to_dict("records")
                         opencv_line_results.extend(
                             {
                                 "Nama File": bf.name,
                                 **line_summary,
                             }
-                            for line_summary in line_variability.to_dict("records")
+                            for line_summary in line_variability_records
                         )
                         valid_line_indices = line_variability[
                             "Indeks variasi ukuran (%)"
@@ -1955,9 +3321,15 @@ with st.container():
                         caption_data = {"component_count": len(measurements)}
 
                     completed_operations += 1
-                    progress.progress(
+                    update_scanner_card(
                         completed_operations / total_operations,
-                        text=f"{tr(model_name)}: {bf.name}",
+                        bf.name,
+                        i + 1,
+                        total_files,
+                        stage_index=2 if model_name == MODEL_EFFNET else 3,
+                        detail_text=f"{tr(model_name)}: {bf.name}",
+                        tip_index=(completed_operations % len(scanner_tips)),
+                        force=True,
                     )
                     encoded_ok, encoded_image = cv2.imencode(
                         ".png",
@@ -1981,20 +3353,24 @@ with st.container():
                             if component_measurements is not None
                             else None
                         ),
-                        "line_variability": (
-                            summarize_line_variability(
-                                component_measurements
-                            ).to_dict("records")
-                            if component_measurements is not None
-                            else None
-                        ),
+                        "line_variability": line_variability_records,
                         "crop_predictions": component_predictions,
                         "crop_previews": crop_previews,
                         "crop_summary": crop_summary,
                         "crop_error": crop_error,
-                        "filename": bf.name,
                     })
-            progress.progress(1.0, text=tr("Selesai"))
+            update_scanner_card(
+                1.0,
+                batch_files[-1].name,
+                total_files,
+                total_files,
+                stage_index=3,
+                detail_text=tr(
+                    "Seluruh tahapan analisis gambar telah selesai diproses."
+                ),
+                tip_index=0,
+                is_done=True,
+            )
 
             grid_png = None
             if tiles:
