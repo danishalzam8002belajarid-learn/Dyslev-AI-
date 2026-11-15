@@ -1474,14 +1474,18 @@ st.markdown("""
         color: #00df9a;
         white-space: nowrap;
     }
-    /* === Header Research Team, Advisor & Disclaimer Showcase === */
+    /* === Bottom Page Research Team, Advisor & Disclaimer Showcase === */
     .research-header-showcase {
-        margin-top: 2.6rem;
-        padding-top: 2.4rem;
-        border-top: 1px solid rgba(0, 223, 154, 0.2);
-        max-width: 950px;
-        margin-left: auto;
-        margin-right: auto;
+        position: relative;
+        overflow: hidden;
+        margin: 2.5rem auto 1rem auto;
+        padding: 2.3rem 2rem 2rem 2rem;
+        background:
+            radial-gradient(circle at 50% 0%, rgba(0, 223, 154, 0.14) 0%, transparent 58%),
+            linear-gradient(135deg, #06141a 0%, #0b222c 60%, #081b23 100%);
+        border: 1px solid rgba(0, 223, 154, 0.28);
+        border-radius: 22px;
+        box-shadow: 0 22px 48px -14px rgba(4, 13, 18, 0.78), 0 0 28px rgba(0, 223, 154, 0.08);
         text-align: center;
     }
     .research-header-badge {
@@ -1701,6 +1705,11 @@ st.markdown("""
         .hero-container .feature-card-desc {
             font-size: clamp(0.7rem, 2.8vw, 0.78rem);
             line-height: 1.45;
+        }
+        .research-header-showcase {
+            padding: 1.65rem 1rem 1.35rem 1rem;
+            border-radius: 16px;
+            margin-top: 1.75rem;
         }
         .research-team-grid,
         .research-member-grid {
@@ -2012,7 +2021,13 @@ st.markdown(f"""
 </div>
 </div>
 </div>
+</div>
+""", unsafe_allow_html=True)
 
+
+def render_research_footer() -> None:
+    st.markdown(
+        f"""
 <div class="research-header-showcase">
 <div class="research-header-badge">
 <span class="ai-scanner-dot"></span>
@@ -2070,8 +2085,9 @@ st.markdown(f"""
 <p class="research-disclaimer-text">{tr("Riset Mahasiswa ini menggunakan model Deep Learning EfficientNet-B0 (TensorFlow Lite & Keras Grad-CAM) untuk klasifikasi citra tulisan tangan serta algoritma Computer Vision OpenCV untuk pengukuran dan segmentasi komponen tinta. Sistem ini dikembangkan sebagai media pengembangan keilmuan dan eksperimen pada Program Studi Statistika, Universitas Singaperbangsa Karawang (UNSIKA), serta diikutsertakan dalam kompetisi Malaysia Data Innovation Talent (MDIT) 2026 yang diselenggarakan oleh Universiti Teknologi MARA (UiTM) Malaysia. Seluruh hasil analisis bersifat prototipe eksperimental dan bukan pengganti diagnosis klinis.")}</p>
 </div>
 </div>
-</div>
-""", unsafe_allow_html=True)
+        """,
+        unsafe_allow_html=True,
+    )
 
 # =====================================================================
 #  EfficientNet-B0 dan Eksperimen Crop OpenCV
@@ -2220,6 +2236,7 @@ if (
         use_container_width=True,
     ):
         analysis_intro_dialog()
+    render_research_footer()
     st.stop()
 
 # Mapping kelas EfficientNet (alfabetis sesuai train_and_convert.py)
@@ -3803,3 +3820,5 @@ with st.container():
                     st.caption(
                         tr("Pilih minimal satu data atau grid panel untuk diunduh.")
                     )
+
+render_research_footer()
