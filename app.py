@@ -39,6 +39,15 @@ ENGLISH_TRANSLATIONS = {
     "TensorFlow belum terpasang ({error})": "TensorFlow is not installed ({error})",
     "File .tflite EfficientNet tidak ditemukan": "EfficientNet .tflite file not found",
     "Gambar Asli": "Original Image",
+    "Bagian": "Section",
+    "Metode Prediksi": "Scoring Method",
+    "Gambar utuh": "Full image",
+    "Rata-rata tertimbang skor per bagian": "Pixel-area-weighted average of section scores",
+    "Skor Klasifikasi per Bagian Grad-CAM": "Classification Scores per Grad-CAM Section",
+    "Setiap bagian diklasifikasikan secara mandiri. Prediksi gambar pada tabel di atas adalah rata-rata tertimbang skor Disleksia dari seluruh bagian.": (
+        "Each section is classified independently. The image prediction in the "
+        "table above is the pixel-area-weighted average of section Dyslexia scores."
+    ),
     "Grid with Heatmap": "Grid with Heatmap",
     "Heatmap + Gambar": "Heatmap + Image",
     "Heatmap Murni": "Heatmap Only",
@@ -83,23 +92,61 @@ ENGLISH_TRANSLATIONS = {
     "Grid heatmap dan panel hasil": "Heatmap and Results Panel Grid",
     "Gambar perbandingan": "Comparison images",
     "Panel gabungan hasil EfficientNet dan Grad-CAM": "Combined EfficientNet and Grad-CAM panels",
-    "Unduh hasil EfficientNet — {filename} (CSV)": "Download EfficientNet results — {filename} (CSV)",
-    "Unduh grid panel — {filename} (PNG)": "Download panel grid — {filename} (PNG)",
-    "Unduh ringkasan perbandingan (CSV)": "Download comparison summary (CSV)",
-    "Unduh gambar kedua alur (ZIP)": "Download images from both workflows (ZIP)",
-    "Rincian crop (CSV)": "Crop Details (CSV)",
-    "Skala komponen (CSV)": "Component Scale (CSV)",
-    "Variasi per baris (CSV)": "Variation by Line (CSV)",
-    "Pengukuran gambar (CSV)": "Image Measurements (CSV)",
-    "Ringkasan crop (CSV)": "Crop Summary (CSV)",
-    "Gambar komponen (PNG)": "Component Image (PNG)",
+    "Unduh Tabel - {filename}": "Download Table - {filename}",
+    "Unduh Tabel": "Download Table",
+    "Unduh Gambar": "Download Image",
+    "Unduh Grid Panel Gabungan": "Download Combined Results Grid",
+    "Unduh ZIP": "Download ZIP",
+    "Unduh Data Pilihan": "Download Selected Data",
+    "Pilih tabel dan format": "Choose tables and format",
+    "Cakupan data": "Data scope",
+    "Semua gambar": "All images",
+    "Cakupan ini berlaku untuk semua tabel yang dipilih.": (
+        "This scope applies to all selected tables."
+    ),
+    "Grid panel gabungan selalu mencakup semua gambar.": (
+        "The combined results grid always includes all images."
+    ),
+    "Format unduhan": "Download format",
+    "Excel (beberapa sheet)": "Excel (multiple sheets)",
+    "ZIP (CSV per tabel)": "ZIP (one CSV per table)",
+    "Unduh Excel": "Download Excel",
+    "Pilih minimal satu data atau grid panel untuk diunduh.": (
+        "Select at least one dataset or results grid to download."
+    ),
+    "EfficientNet": "EfficientNet",
+    "OpenCV": "OpenCV",
+    "Perbandingan Model": "Model Comparison",
+    "Keseluruhan": "Overall",
+    "Disarankan: bagi otomatis semua gambar lebar untuk Grad-CAM": (
+        "Recommended: automatically split all wide images for Grad-CAM"
+    ),
+    "Semua gambar lebar yang tercantum akan dibagi otomatis untuk Grad-CAM. Matikan centang ini jika ingin memprosesnya tanpa pembagian.": (
+        "All listed wide images will be split automatically for Grad-CAM. "
+        "Uncheck this to process them without splitting."
+    ),
+    "Gambar lebar yang tercantum direkomendasikan untuk dibagi otomatis dengan pengaturan di bawah.": (
+        "The listed wide images are recommended for automatic splitting with "
+        "the setting below."
+    ),
+    "Pembagian per gambar hanya tersedia pada Analisis Lengkap saat model Grad-CAM EfficientNet tersedia.": (
+        "Per-image splitting is available only in Full Analysis when the "
+        "EfficientNet Grad-CAM model is available."
+    ),
+    "Ringkasan EfficientNet": "EfficientNet Summary",
+    "Skor per Bagian Grad-CAM": "Grad-CAM Section Scores",
+    "Ringkasan Perbandingan": "Comparison Summary",
+    "Pengukuran Gambar OpenCV": "OpenCV Image Measurements",
+    "Ringkasan Crop OpenCV": "OpenCV Crop Summary",
+    "Prediksi Komponen OpenCV": "OpenCV Component Predictions",
+    "Skala Komponen": "Component Scale",
+    "Variasi per Baris": "Variation by Line",
     "Komponen terdeteksi": "Detected Components",
     "Rincian prediksi per huruf": "Per-Component Prediction Details",
     "Skala Komponen & Variasi Huruf": "Component Scale & Letter Variation",
     "Hasil pengukuran gambar": "Image Measurement Results",
     "Variasi per baris": "Variation by Line",
     "Analisis Tulisan Tangan": "Handwriting Analysis",
-    "Unduh semua crop — {filename} (ZIP)": "Download all crops — {filename} (ZIP)",
     "Analisis pola gambar tulisan tangan tanpa ribet teknis. Cocok untuk guru, orang tua, hingga terapis. Dilengkapi berbagai fitur pendukung:": (
         "Analyze handwriting patterns without technical complexity. Suitable for "
         "teachers, parents, and therapists, with the following features:"
@@ -114,6 +161,12 @@ ENGLISH_TRANSLATIONS = {
     "Pengaturan": "Settings",
     "Atur model dan parameter analisis.": "Configure analysis models and parameters.",
     "Bahasa / Language": "Language / Bahasa",
+    "Ganti bahasa / Change language": "Ganti bahasa / Change language",
+    "Gambar berikut memiliki lebar lebih dari {threshold} piksel. Input model diubah menjadi 224 × 224 piksel, sehingga detail tulisan mungkin sulit terlihat:": (
+        "The following images are wider than {threshold} pixels. Model input is "
+        "resized to 224 × 224 pixels, so handwriting details may be difficult to see:"
+    ),
+    "Bagian {index}/{count} - {filename}": "Part {index}/{count} - {filename}",
     "Pengaturan Analisis": "Analysis Settings",
     "Pilih alur analisis": "Choose an analysis workflow",
     "OpenCV menggunakan EfficientNet untuk mengklasifikasikan setiap crop; mode ini tidak menjalankan klasifikasi gambar utuh.": (
@@ -208,6 +261,13 @@ ENGLISH_TRANSLATIONS = {
         "diagnostic probabilities; component segmentation may not isolate "
         "individual letters."
     ),
+    "Perbandingan menampilkan prediksi EfficientNet per gambar dan proporsi label crop OpenCV. Untuk gambar lebar yang dibagi otomatis, prediksi EfficientNet adalah rata-rata tertimbang skor Disleksia tiap bagian. Persentase crop OpenCV adalah proporsi label, bukan kemungkinan diagnosis.": (
+        "This comparison shows EfficientNet predictions per image and the "
+        "proportion of OpenCV crop labels. For automatically split wide images, the "
+        "EfficientNet prediction is the pixel-area-weighted average of section "
+        "Dyslexia scores. OpenCV crop percentages are label proportions, not "
+        "diagnostic probabilities."
+    ),
     "Hasil gambar — {filename}": "Image results — {filename}",
     "Model EfficientNet-B0": "EfficientNet-B0 Model",
     "Deteksi OpenCV": "OpenCV Detection",
@@ -229,13 +289,18 @@ ENGLISH_TRANSLATIONS = {
     "Gagal memuat model": "Failed to load model",
     "Lanjut ke Analisis": "Continue to Analysis",
     "Informasi Analisis": "Analysis Information",
-    "Aplikasi memiliki dua alur eksperimen: EfficientNet-B0 mengklasifikasikan gambar utuh, sedangkan OpenCV memotong komponen tinta lalu mengirim setiap crop ke EfficientNet-B0 yang sama. OpenCV bukan model AI terpisah.": (
+    "Aplikasi memiliki dua alur eksperimen: EfficientNet-B0 mengklasifikasikan gambar utuh secara default, atau bagian gambar lebar secara mandiri setelah gambar yang direkomendasikan dibagi otomatis. OpenCV memotong komponen tinta lalu mengirim setiap crop ke EfficientNet-B0 yang sama; OpenCV bukan model AI terpisah.": (
         "The app offers two experimental workflows: EfficientNet-B0 classifies "
-        "the full image, while OpenCV crops ink components and sends each crop to "
-        "the same EfficientNet-B0 model. OpenCV is not a separate AI model."
+        "the full image by default, or independently classifies sections of a "
+        "wide image after automatically splitting the recommended images. OpenCV crops ink "
+        "components and sends each crop to the same EfficientNet-B0 model; "
+        "OpenCV is not a separate AI model."
     ),
-    "- **EfficientNet saja:** klasifikasi gambar tulisan secara utuh.\n- **OpenCV saja:** deteksi komponen, crop, lalu klasifikasi crop dengan EfficientNet.\n- **Keduanya:** jalankan dua alur dan bandingkan hasilnya.\n- Skor pada crop bersifat eksperimen dan bukan peluang diagnosis; komponen tinta belum tentu satu huruf.": (
-        "- **EfficientNet only:** classify the full handwriting image.\n"
+    "- **EfficientNet saja:** klasifikasi gambar tulisan secara utuh. Untuk gambar lebar yang direkomendasikan untuk dibagi, tiap bagian diklasifikasikan mandiri dan skornya digabung dengan rata-rata tertimbang luas piksel.\n- **OpenCV saja:** deteksi komponen, crop, lalu klasifikasi crop dengan EfficientNet.\n- **Keduanya:** jalankan dua alur dan bandingkan hasilnya.\n- Skor pada crop bersifat eksperimen dan bukan peluang diagnosis; komponen tinta belum tentu satu huruf.": (
+        "- **EfficientNet only:** classify the full handwriting image. For "
+        "wide images recommended for splitting, classify each section "
+        "independently and combine "
+        "scores using a pixel-area-weighted average.\n"
         "- **OpenCV only:** detect components, crop them, then classify crops "
         "with EfficientNet.\n"
         "- **Both:** run and compare both workflows.\n"
@@ -266,6 +331,12 @@ def tr(text: str) -> str:
     return text
 
 
+def toggle_ui_language() -> None:
+    st.session_state["ui_language"] = (
+        "English" if st.session_state["ui_language"] == "Indonesia" else "Indonesia"
+    )
+
+
 def translate_dataframe(frame: pd.DataFrame) -> pd.DataFrame:
     if UI_LANGUAGE != "English":
         return frame
@@ -290,6 +361,82 @@ def localized_result_caption(output: dict[str, Any]) -> str:
         filename=output["filename"],
         count=output["caption_data"]["component_count"],
     )
+
+
+def uploaded_image_fingerprint(uploaded_file: Any) -> str:
+    content_hash = hashlib.sha256(uploaded_file.getvalue()).hexdigest()
+    return hashlib.sha256(
+        f"{uploaded_file.name}:{content_hash}".encode("utf-8")
+    ).hexdigest()[:16]
+
+
+def images_over_width(
+    files: list[Any],
+    max_width: int,
+) -> list[tuple[int, str, int, int, str]]:
+    oversized = []
+    for file_index, uploaded_file in enumerate(files):
+        with Image.open(io.BytesIO(uploaded_file.getvalue())) as image:
+            width, height = image.size
+        if width > max_width:
+            oversized.append(
+                (
+                    file_index,
+                    uploaded_file.name,
+                    width,
+                    height,
+                    uploaded_image_fingerprint(uploaded_file),
+                )
+            )
+    return oversized
+
+
+def split_image_into_equal_width_parts(
+    image: Image.Image,
+    max_width: int,
+) -> list[Image.Image]:
+    width, height = image.size
+    part_count = (width + max_width - 1) // max_width
+    if part_count <= 1:
+        return [image]
+    base_width, remainder = divmod(width, part_count)
+    parts = []
+    for part_index in range(part_count):
+        left = part_index * base_width + min(part_index, remainder)
+        right = left + base_width + int(part_index < remainder)
+        parts.append(image.crop((left, 0, right, height)))
+    return parts
+
+
+def aggregate_efficientnet_predictions(
+    predictions: list[dict[str, Any]],
+    areas: list[int],
+    threshold: float,
+) -> dict[str, Any]:
+    if not predictions or len(predictions) != len(areas):
+        raise ValueError("Predictions and pixel areas must be non-empty and aligned.")
+    total_area = sum(areas)
+    if total_area <= 0 or any(area <= 0 for area in areas):
+        raise ValueError("Every image section must have a positive pixel area.")
+
+    dyslexia_score = sum(
+        prediction["raw"] * area
+        for prediction, area in zip(predictions, areas)
+    ) / total_area
+    label = "Disleksia" if dyslexia_score > threshold else "Normal"
+    confidence = (
+        dyslexia_score if label == "Disleksia" else 1.0 - dyslexia_score
+    )
+    return {
+        "label": label,
+        "confidence": confidence,
+        "raw": dyslexia_score,
+        "class_scores": {
+            "Disleksia": dyslexia_score,
+            "Normal": 1.0 - dyslexia_score,
+        },
+        "time": sum(prediction["time"] for prediction in predictions),
+    }
 
 
 # Setup Halaman
@@ -524,7 +671,27 @@ st.markdown("""
         z-index: 99999;
         width: auto;
     }
+    .st-key-language_toggle {
+        position: fixed;
+        top: 4rem;
+        right: 1rem;
+        left: auto;
+        z-index: 99999;
+        width: auto;
+    }
+    .st-key-language_toggle button {
+        min-height: 2.5rem;
+        padding: 0 0.75rem;
+        white-space: nowrap;
+    }
     @media (max-width: 640px) {
+        .st-key-language_toggle {
+            right: 0.75rem;
+        }
+        .st-key-language_toggle button {
+            font-size: 0.8rem;
+            padding: 0 0.55rem;
+        }
         .hero-container {
             padding: 4.5rem 1rem 1.5rem;
             border-radius: 16px;
@@ -621,22 +788,64 @@ KERAS_PATH = os.path.join(BASE_DIR, "dyslexia_model.h5")
 
 MODEL_EFFNET = "EfficientNet-B0 (Klasifikasi)"
 MODEL_MEASUREMENT = "OpenCV: Pengukuran & Crop Eksperimental"
+WIDE_IMAGE_WARNING_WIDTH = 448
 ANALYSIS_TYPES = [MODEL_EFFNET, MODEL_MEASUREMENT]
 ANALYSIS_EFFNET_ONLY = "EfficientNet saja"
 ANALYSIS_OPENCV_ONLY = "OpenCV saja (crop + EfficientNet)"
 ANALYSIS_BOTH = "Keduanya"
 
-with st.popover(
-    f"⚙️ {tr('Pengaturan')}",
-    use_container_width=False,
-    help=tr("Atur model dan parameter analisis."),
-):
-    st.radio(
-        tr("Bahasa / Language"),
-        ["Indonesia", "English"],
-        horizontal=True,
-        key="ui_language",
+settings_col, language_col = st.columns([1, 1], gap="small")
+with settings_col:
+    settings_popover = st.popover(
+        f"⚙️ {tr('Pengaturan')}",
+        use_container_width=False,
+        help=tr("Atur model dan parameter analisis."),
     )
+with language_col:
+    flag_svg = (
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 42">'
+        '<rect width="64" height="21" fill="#CE1126"/>'
+        '<rect y="21" width="64" height="21" fill="#FFFFFF"/>'
+        '</svg>'
+        if UI_LANGUAGE == "Indonesia"
+        else
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 42">'
+        '<rect width="64" height="42" fill="#012169"/>'
+        '<path d="M0 0h8l56 34v8h-8L0 8zm64 0h-8L0 34v8h8L64 8z" fill="#FFF"/>'
+        '<path d="M0 0h4l60 36v4h-4L0 4zm64 0h-4L0 36v4h4L64 4z" fill="#C8102E"/>'
+        '<path d="M27 0h10v42H27zM0 16h64v10H0z" fill="#FFF"/>'
+        '<path d="M29 0h6v42h-6zM0 18h64v6H0z" fill="#C8102E"/>'
+        '</svg>'
+    )
+    flag_data_uri = base64.b64encode(flag_svg.encode("utf-8")).decode("ascii")
+    st.markdown(
+        f"""
+        <style>
+            .st-key-language_toggle button::before {{
+                content: "";
+                display: inline-block;
+                width: 1.5rem;
+                min-width: 1.5rem;
+                height: 1rem;
+                flex-shrink: 0;
+                margin-right: 0.45rem;
+                vertical-align: middle;
+                background: url("data:image/svg+xml;base64,{flag_data_uri}") center / cover no-repeat;
+                border-radius: 2px;
+                box-shadow: 0 0 0 1px rgba(128, 128, 128, 0.35);
+            }}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.button(
+        "ID" if UI_LANGUAGE == "Indonesia" else "EN",
+        key="language_toggle",
+        help=tr("Ganti bahasa / Change language"),
+        on_click=toggle_ui_language,
+    )
+
+with settings_popover:
     st.markdown(f"### {tr('Pengaturan Analisis')}")
     analysis_mode = st.radio(
         tr("Pilih alur analisis"),
@@ -818,13 +1027,17 @@ def analysis_intro_dialog():
     st.write(
         tr(
             "Aplikasi memiliki dua alur eksperimen: EfficientNet-B0 mengklasifikasikan "
-            "gambar utuh, sedangkan OpenCV memotong komponen tinta lalu mengirim "
-            "setiap crop ke EfficientNet-B0 yang sama. OpenCV bukan model AI terpisah."
+            "gambar utuh secara default, atau bagian gambar lebar secara mandiri "
+            "setelah gambar yang direkomendasikan dibagi otomatis. OpenCV memotong komponen tinta "
+            "lalu mengirim setiap crop ke EfficientNet-B0 yang sama; OpenCV bukan "
+            "model AI terpisah."
         )
     )
     st.markdown(
         tr(
-            "- **EfficientNet saja:** klasifikasi gambar tulisan secara utuh.\n"
+            "- **EfficientNet saja:** klasifikasi gambar tulisan secara utuh. "
+            "Untuk gambar lebar yang direkomendasikan untuk dibagi, tiap bagian diklasifikasikan "
+            "mandiri dan skornya digabung dengan rata-rata tertimbang luas piksel.\n"
             "- **OpenCV saja:** deteksi komponen, crop, lalu klasifikasi crop dengan EfficientNet.\n"
             "- **Keduanya:** jalankan dua alur dan bandingkan hasilnya.\n"
             "- Skor pada crop bersifat eksperimen dan bukan peluang diagnosis; "
@@ -1082,15 +1295,6 @@ def get_active_analyses() -> dict[str, Any]:
     }
 
 
-def build_comparison_images_zip(images: list[tuple[str, bytes]]) -> bytes:
-    """Package named output images into a downloadable ZIP archive."""
-    archive_buffer = io.BytesIO()
-    with zipfile.ZipFile(archive_buffer, mode="w", compression=zipfile.ZIP_DEFLATED) as archive:
-        for name, image_bytes in images:
-            archive.writestr(name, image_bytes)
-    return archive_buffer.getvalue()
-
-
 def build_comparison_summary(
     effnet_results: list[dict[str, Any]],
     crop_summaries: list[dict[str, Any]],
@@ -1118,6 +1322,110 @@ def build_comparison_summary(
     if crops.empty:
         return effnet
     return effnet.merge(crops, on="Nama File", how="outer")
+
+
+EXPORT_DATASET_LABELS = {
+    "effnet_summary": "Ringkasan EfficientNet",
+    "gradcam_parts": "Skor per Bagian Grad-CAM",
+    "comparison": "Ringkasan Perbandingan",
+    "opencv_summary": "Pengukuran Gambar OpenCV",
+    "opencv_crop_summary": "Ringkasan Crop OpenCV",
+    "opencv_crop_details": "Prediksi Komponen OpenCV",
+    "opencv_component_scale": "Skala Komponen",
+    "opencv_line_variation": "Variasi per Baris",
+}
+
+EXPORT_CSV_FILENAMES = {
+    "effnet_summary": "ringkasan_efficientnet.csv",
+    "gradcam_parts": "skor_gradcam_per_bagian.csv",
+    "comparison": "ringkasan_perbandingan.csv",
+    "opencv_summary": "pengukuran_gambar_opencv.csv",
+    "opencv_crop_summary": "ringkasan_crop_opencv.csv",
+    "opencv_crop_details": "prediksi_komponen_opencv.csv",
+    "opencv_component_scale": "skala_komponen.csv",
+    "opencv_line_variation": "variasi_per_baris.csv",
+}
+
+
+def build_export_tables(
+    batch_result: dict[str, Any],
+    comparison_df: pd.DataFrame,
+) -> dict[str, pd.DataFrame]:
+    tables: dict[str, pd.DataFrame] = {}
+    record_tables = (
+        ("effnet_summary", batch_result.get("results", [])),
+        ("comparison", comparison_df.to_dict("records")),
+        ("opencv_summary", batch_result.get("opencv_results", [])),
+        ("opencv_crop_summary", batch_result.get("opencv_crop_summaries", [])),
+        ("opencv_line_variation", batch_result.get("opencv_line_results", [])),
+    )
+    for key, records in record_tables:
+        frame = pd.DataFrame(records)
+        if not frame.empty:
+            tables[key] = frame
+
+    view_tables = (
+        ("gradcam_parts", "gradcam_part_results", MODEL_EFFNET),
+        ("opencv_crop_details", "crop_predictions", MODEL_MEASUREMENT),
+        ("opencv_component_scale", "measurements", MODEL_MEASUREMENT),
+    )
+    for key, field, model_name in view_tables:
+        records = [
+            {"Nama File": output["filename"], **record}
+            for output in batch_result.get("views", [])
+            if output["analysis"] == model_name
+            for record in output.get(field) or []
+        ]
+        frame = pd.DataFrame(records)
+        if not frame.empty:
+            tables[key] = frame
+    return tables
+
+
+def build_excel_export(tables: dict[str, pd.DataFrame]) -> bytes:
+    output = io.BytesIO()
+    with pd.ExcelWriter(
+        output,
+        engine="xlsxwriter",
+        engine_kwargs={
+            "options": {
+                "strings_to_formulas": False,
+                "strings_to_urls": False,
+            }
+        },
+    ) as writer:
+        for key, frame in tables.items():
+            frame.to_excel(
+                writer,
+                sheet_name=tr(EXPORT_DATASET_LABELS[key])[:31],
+                index=False,
+            )
+    return output.getvalue()
+
+
+def build_csv_export_zip(tables: dict[str, pd.DataFrame]) -> bytes:
+    output = io.BytesIO()
+    with zipfile.ZipFile(
+        output,
+        mode="w",
+        compression=zipfile.ZIP_DEFLATED,
+    ) as archive:
+        for key, frame in tables.items():
+            export_frame = frame.copy()
+            if "Nama File" in export_frame.columns:
+                export_frame["Nama File"] = export_frame["Nama File"].map(
+                    lambda value: (
+                        f"'{value}"
+                        if isinstance(value, str)
+                        and value.lstrip(" \t\r\n")[:1] in {"=", "+", "-", "@"}
+                        else value
+                    )
+                )
+            archive.writestr(
+                EXPORT_CSV_FILENAMES[key],
+                export_frame.to_csv(index=False).encode("utf-8-sig"),
+            )
+    return output.getvalue()
 
 
 # -------------------------- Batch Processing -------------------------
@@ -1179,7 +1487,12 @@ def make_row(panels, filename, status, color, size=320):
 
 def heat_row_for(image, r, keras_model, filename):
     from grad_cam import make_gradcam_heatmap
-    hm = make_gradcam_heatmap(r["input"], keras_model, "top_activation")
+    hm = make_gradcam_heatmap(
+        r["input"],
+        keras_model,
+        "top_activation",
+        pred_index=r.get("gradcam_class_index"),
+    )
     col = (239, 68, 68) if r["label"] == "Disleksia" else (34, 197, 94)
     return make_row(make_heat_panels(image, hm), filename,
                     f"{r['label']} {r['confidence'] * 100:.1f}%", col)
@@ -1333,6 +1646,8 @@ with st.container():
                 for image_name, image_bytes in camera_images
             ] + list(camera_fallback or [])
 
+        wide_images = images_over_width(batch_files, WIDE_IMAGE_WARNING_WIDTH)
+
         if st.session_state.get("batch_mode") in {
             "Statistik Variasi Tinggi (CV)",
             "Tampilkan Heatmap + Grid PNG",
@@ -1346,6 +1661,54 @@ with st.container():
             key="batch_mode",
             format_func=tr,
         )
+        can_split_wide_images = (
+            bool(wide_images)
+            and run_effnet
+            and batch_mode == BATCH_FULL
+            and os.path.exists(KERAS_PATH)
+        )
+        if wide_images:
+            image_list = "\n".join(
+                f"- `{filename}`: {width} × {height} px"
+                for _, filename, width, height, _ in wide_images
+            )
+            warning_intro = tr(
+                "Gambar berikut memiliki lebar lebih dari {threshold} piksel. "
+                "Input model diubah menjadi 224 × 224 piksel, sehingga detail "
+                "tulisan mungkin sulit terlihat:"
+            ).format(threshold=WIDE_IMAGE_WARNING_WIDTH)
+            warning_guidance = tr(
+                "Gambar lebar yang tercantum direkomendasikan untuk dibagi "
+                "otomatis dengan pengaturan di bawah."
+                if can_split_wide_images
+                else "Pembagian per gambar hanya tersedia pada Analisis Lengkap "
+                "saat model Grad-CAM EfficientNet tersedia."
+            )
+            st.warning(f"{warning_intro}\n\n{image_list}\n\n{warning_guidance}")
+
+        split_wide_file_indices: set[int] = set()
+        if can_split_wide_images:
+            batch_images_key = hashlib.sha256(
+                "|".join(
+                    f"{file_index}:{uploaded_image_fingerprint(uploaded_file)}"
+                    for file_index, uploaded_file in enumerate(batch_files)
+                ).encode("utf-8")
+            ).hexdigest()[:16]
+            split_recommended_wide_images = st.checkbox(
+                tr("Disarankan: bagi otomatis semua gambar lebar untuk Grad-CAM"),
+                value=True,
+                key=f"split_wide_gradcam_{batch_images_key}",
+                help=tr(
+                    "Semua gambar lebar yang tercantum akan dibagi otomatis "
+                    "untuk Grad-CAM. Matikan centang ini jika ingin memprosesnya "
+                    "tanpa pembagian."
+                ),
+            )
+            if split_recommended_wide_images:
+                split_wide_file_indices = {
+                    file_index
+                    for file_index, _, _, _, _ in wide_images
+                }
         generate_batch = False
         if batch_files:
             generate_batch = st.button(
@@ -1364,6 +1727,7 @@ with st.container():
             threshold,
             min_component_area,
             enhance_image_contrast,
+            tuple(sorted(split_wide_file_indices)),
             CROP_AGGREGATION_VERSION,
         )
         if batch_files
@@ -1406,12 +1770,122 @@ with st.container():
                     crop_previews = []
                     crop_summary = None
                     crop_error = None
+                    gradcam_part_results = []
                     if model_name == MODEL_EFFNET:
-                        r = predict_efficientnet(model, analysis_image, threshold)
+                        r = None
+                        if batch_mode == BATCH_FULL:
+                            if not gradcam_load_attempted:
+                                keras_model = load_keras_model()
+                                gradcam_load_attempted = True
+                                if keras_model is None:
+                                    st.warning(
+                                        tr("Model .h5 tidak tersedia, heatmap dilewati.")
+                                    )
+                        if (
+                            i in split_wide_file_indices
+                            and w > WIDE_IMAGE_WARNING_WIDTH
+                            and keras_model is not None
+                        ):
+                            try:
+                                image_parts = split_image_into_equal_width_parts(
+                                    analysis_image,
+                                    WIDE_IMAGE_WARNING_WIDTH,
+                                )
+                                gradcam_rows = []
+                                part_score_rows = []
+                                part_predictions = []
+                                part_areas = []
+                                for part_index, image_part in enumerate(
+                                    image_parts,
+                                    start=1,
+                                ):
+                                    part_result = predict_efficientnet(
+                                        model,
+                                        image_part,
+                                        threshold,
+                                    )
+                                    part_result["gradcam_class_index"] = (
+                                        CLASS_NAMES.index(part_result["label"])
+                                    )
+                                    part_predictions.append(part_result)
+                                    part_areas.append(
+                                        image_part.width * image_part.height
+                                    )
+                                    part_score_rows.append({
+                                        "Bagian": f"{part_index}/{len(image_parts)}",
+                                        "Prediksi": part_result["label"],
+                                        "Tingkat Kepercayaan": (
+                                            f"{part_result['confidence'] * 100:.2f}%"
+                                        ),
+                                        "Raw Score (Disleksia)": (
+                                            f"{part_result['raw']:.6f}"
+                                        ),
+                                        "Ukuran Gambar": (
+                                            f"{image_part.width}x{image_part.height}"
+                                        ),
+                                        "Inference Time (s)": (
+                                            f"{part_result['time']:.4f}"
+                                        ),
+                                    })
+                                    part_name = tr(
+                                        "Bagian {index}/{count} - {filename}"
+                                    ).format(
+                                        index=part_index,
+                                        count=len(image_parts),
+                                        filename=bf.name,
+                                    )
+                                    gradcam_rows.append(
+                                        heat_row_for(
+                                            image_part,
+                                            part_result,
+                                            keras_model,
+                                            part_name,
+                                        )
+                                    )
+                                r = aggregate_efficientnet_predictions(
+                                    part_predictions,
+                                    part_areas,
+                                    threshold,
+                                )
+                                gradcam_part_results = part_score_rows
+                                batch_visual = np.vstack(gradcam_rows)
+                                tiles.extend(gradcam_rows)
+                            except Exception as e:
+                                st.warning(
+                                    tr("Heatmap gagal untuk {filename}: {error}").format(
+                                        filename=bf.name,
+                                        error=e,
+                                    )
+                                )
+
+                        if r is None:
+                            r = predict_efficientnet(
+                                model,
+                                analysis_image,
+                                threshold,
+                            )
+                            if batch_mode == BATCH_FULL and keras_model is not None:
+                                try:
+                                    batch_visual = heat_row_for(
+                                        analysis_image, r, keras_model, bf.name
+                                    )
+                                    tiles.append(batch_visual)
+                                except Exception as e:
+                                    st.warning(
+                                        tr("Heatmap gagal untuk {filename}: {error}").format(
+                                            filename=bf.name,
+                                            error=e,
+                                        )
+                                    )
                         lvl, _ = confidence_level(r["confidence"])
                         results.append({
                             "Nama File": bf.name,
                             "Model": model_name,
+                            "Metode Prediksi": (
+                                "Rata-rata tertimbang skor per bagian"
+                                if gradcam_part_results
+                                else "Gambar utuh"
+                            ),
                             "Status": "🔴" if r["label"] == "Disleksia" else "🟢",
                             "Prediksi": r["label"],
                             "Tingkat Kepercayaan": f"{r['confidence'] * 100:.2f}%",
@@ -1425,27 +1899,6 @@ with st.container():
                             "label": r["label"],
                             "confidence": r["confidence"],
                         }
-                        if batch_mode == BATCH_FULL:
-                            if not gradcam_load_attempted:
-                                keras_model = load_keras_model()
-                                gradcam_load_attempted = True
-                                if keras_model is None:
-                                    st.warning(
-                                        tr("Model .h5 tidak tersedia, heatmap dilewati.")
-                                    )
-                            if keras_model is not None:
-                                try:
-                                    batch_visual = heat_row_for(
-                                        analysis_image, r, keras_model, bf.name
-                                    )
-                                    tiles.append(batch_visual)
-                                except Exception as e:
-                                    st.warning(
-                                        tr("Heatmap gagal untuk {filename}: {error}").format(
-                                            filename=bf.name,
-                                            error=e,
-                                        )
-                                    )
                     else:
                         _, overlay, measurements = measure_connected_regions(
                             analysis_image,
@@ -1520,6 +1973,7 @@ with st.container():
                         "analysis": model_name,
                         "filename": bf.name,
                         "caption_data": caption_data,
+                        "gradcam_part_results": gradcam_part_results,
                         "image": encoded_image.tobytes(),
                         "is_measurement": component_measurements is not None,
                         "measurements": (
@@ -1579,44 +2033,28 @@ with st.container():
             for output in batch_result["views"]
             if output["analysis"] == MODEL_MEASUREMENT
         ]
-        comparison_images = [
-            (
-                f"EfficientNet/{os.path.splitext(output['filename'])[0]}_hasil.png",
-                output["image"],
-            )
-            for output in effnet_views
-        ] + [
-            (
-                f"OpenCV/{os.path.splitext(output['filename'])[0]}_komponen.png",
-                output["image"],
-            )
-            for output in opencv_views
-        ]
         effnet_results_df = pd.DataFrame(batch_result["results"])
         opencv_summary_df = pd.DataFrame(batch_result["opencv_results"])
         crop_summary_df = pd.DataFrame(batch_result["opencv_crop_summaries"])
-        if (
-            show_batch_comparison
-            and batch_result["grid_png"] is not None
-            and batch_mode == BATCH_FULL
-        ):
-            st.markdown(f"#### {tr('Grid panel hasil gabungan')}")
-            st.image(
-                batch_result["grid_png"],
-                caption=tr("Panel gabungan hasil EfficientNet dan Grad-CAM"),
-                use_container_width=True,
-            )
         if analysis_mode == ANALYSIS_BOTH and show_batch_comparison:
             st.markdown(
                 f"## {tr('Hasil Perbandingan Model EfficientNet dan OpenCV')}"
             )
-            st.dataframe(
+            st.table(
                 translate_dataframe(comparison_df),
-                use_container_width=True,
                 hide_index=True,
             )
             st.caption(
                 tr(
+                    "Perbandingan menampilkan prediksi EfficientNet per gambar dan "
+                    "proporsi label crop OpenCV. Untuk gambar lebar yang dibagi "
+                    "otomatis, "
+                    "prediksi EfficientNet adalah rata-rata tertimbang skor Disleksia "
+                    "tiap bagian. Persentase crop OpenCV adalah proporsi label, bukan "
+                    "kemungkinan diagnosis."
+                )
+                if split_wide_file_indices
+                else tr(
                     "Perbandingan ini menampilkan klasifikasi EfficientNet pada gambar "
                     "utuh dan proporsi label Disleksia/Normal dari crop OpenCV yang "
                     "diklasifikasikan EfficientNet. Persentase crop adalah proporsi "
@@ -1624,19 +2062,11 @@ with st.container():
                     "belum tentu memotong huruf secara tepat."
                 )
             )
-            comparison_downloads = st.columns(2)
-            comparison_downloads[0].download_button(
-                tr("Unduh ringkasan perbandingan (CSV)"),
+            st.download_button(
+                tr("Unduh Tabel"),
                 translate_dataframe(comparison_df).to_csv(index=False).encode("utf-8"),
                 file_name="ringkasan_perbandingan_efficientnet_opencv.csv",
                 mime="text/csv",
-                on_click="ignore",
-            )
-            comparison_downloads[1].download_button(
-                tr("Unduh gambar kedua alur (ZIP)"),
-                build_comparison_images_zip(comparison_images),
-                file_name="gambar_perbandingan_efficientnet_opencv.zip",
-                mime="application/zip",
                 on_click="ignore",
             )
 
@@ -1679,10 +2109,17 @@ with st.container():
                 effnet_rows = translate_dataframe(
                     effnet_rows_by_file.get(filename, pd.DataFrame())
                 )
-                st.dataframe(
+                st.table(
                     effnet_rows,
-                    use_container_width=True,
                     hide_index=True,
+                )
+                st.download_button(
+                    tr("Unduh Tabel - {filename}").format(filename=file_stem),
+                    effnet_rows.to_csv(index=False).encode("utf-8"),
+                    file_name=f"{file_stem}_hasil_efficientnet.csv",
+                    mime="text/csv",
+                    key=f"download_effnet_{filename}",
+                    on_click="ignore",
                 )
                 if batch_mode == BATCH_FULL and effnet_output is not None:
                     st.markdown(f"#### {tr('Grid heatmap dan panel hasil')}")
@@ -1691,28 +2128,43 @@ with st.container():
                         caption=localized_result_caption(effnet_output),
                         use_container_width=True,
                     )
-                effnet_downloads = st.columns(2)
-                effnet_downloads[0].download_button(
-                    tr("Unduh hasil EfficientNet — {filename} (CSV)").format(
-                        filename=filename
-                    ),
-                    effnet_rows.to_csv(index=False).encode("utf-8"),
-                    file_name=f"{file_stem}_hasil_efficientnet.csv",
-                    mime="text/csv",
-                    key=f"download_effnet_{filename}",
-                    on_click="ignore",
-                )
-                if batch_mode == BATCH_FULL and effnet_output is not None:
-                    effnet_downloads[1].download_button(
-                        tr("Unduh grid panel — {filename} (PNG)").format(
-                            filename=filename
-                        ),
+                    st.download_button(
+                        tr("Unduh Gambar"),
                         effnet_output["image"],
                         file_name=f"{file_stem}_grid_panel.png",
                         mime="image/png",
                         key=f"download_effnet_grid_{filename}",
                         on_click="ignore",
                     )
+                    gradcam_part_frame = pd.DataFrame(
+                        effnet_output.get("gradcam_part_results", [])
+                    )
+                    if not gradcam_part_frame.empty:
+                        st.markdown(
+                            f"#### {tr('Skor Klasifikasi per Bagian Grad-CAM')}"
+                        )
+                        st.caption(
+                            tr(
+                                "Setiap bagian diklasifikasikan secara mandiri. "
+                                "Prediksi gambar pada tabel di atas adalah rata-rata "
+                                "tertimbang skor Disleksia dari seluruh bagian."
+                            )
+                        )
+                        gradcam_part_frame = translate_dataframe(
+                            gradcam_part_frame
+                        )
+                        st.table(
+                            gradcam_part_frame,
+                            hide_index=True,
+                        )
+                        st.download_button(
+                            tr("Unduh Tabel"),
+                            gradcam_part_frame.to_csv(index=False).encode("utf-8"),
+                            file_name=f"{file_stem}_skor_gradcam_per_bagian.csv",
+                            mime="text/csv",
+                            key=f"download_gradcam_parts_{filename}",
+                            on_click="ignore",
+                        )
 
             opencv_output = next(
                 (
@@ -1736,16 +2188,31 @@ with st.container():
                 crop_summary_frame = translate_dataframe(
                     crop_summary_by_file.get(filename, pd.DataFrame())
                 )
-                st.dataframe(
+                st.table(
                     crop_summary_frame,
-                    use_container_width=True,
                     hide_index=True,
+                )
+                st.download_button(
+                    tr("Unduh Tabel"),
+                    crop_summary_frame.to_csv(index=False).encode("utf-8"),
+                    file_name=f"{file_stem}_ringkasan_crop.csv",
+                    mime="text/csv",
+                    key=f"download_crop_summary_{filename}",
+                    on_click="ignore",
                 )
                 st.markdown(f"#### {tr('Komponen terdeteksi')}")
                 st.image(
                     opencv_output["image"],
                     caption=localized_result_caption(opencv_output),
                     use_container_width=True,
+                )
+                st.download_button(
+                    tr("Unduh Gambar"),
+                    opencv_output["image"],
+                    file_name=f"{file_stem}_komponen_opencv.png",
+                    mime="image/png",
+                    key=f"download_opencv_image_{filename}",
+                    on_click="ignore",
                 )
                 if opencv_output["crop_error"]:
                     st.warning(opencv_output["crop_error"])
@@ -1755,10 +2222,17 @@ with st.container():
                 )
                 st.markdown(f"#### {tr('Rincian prediksi per huruf')}")
                 crop_details_display = translate_dataframe(file_crop_details)
-                st.dataframe(
+                st.table(
                     crop_details_display,
-                    use_container_width=True,
                     hide_index=True,
+                )
+                st.download_button(
+                    tr("Unduh Tabel"),
+                    crop_details_display.to_csv(index=False).encode("utf-8"),
+                    file_name=f"{file_stem}_rincian_prediksi_crop.csv",
+                    mime="text/csv",
+                    key=f"download_crop_details_{filename}",
+                    on_click="ignore",
                 )
                 file_measurements = pd.DataFrame(
                     opencv_output["measurements"] or []
@@ -1771,97 +2245,185 @@ with st.container():
                     value=False,
                     key=f"show_component_scale_v2_{filename}",
                 ):
-                    st.dataframe(
+                    st.table(
                         translate_dataframe(file_measurements),
-                        use_container_width=True,
                         hide_index=True,
                     )
+                    st.download_button(
+                        tr("Unduh Tabel"),
+                        translate_dataframe(file_measurements).to_csv(
+                            index=False
+                        ).encode("utf-8"),
+                        file_name=f"{file_stem}_skala_komponen.csv",
+                        mime="text/csv",
+                        key=f"download_component_scale_{filename}",
+                        on_click="ignore",
+                    )
                     st.markdown(f"#### {tr('Hasil pengukuran gambar')}")
-                    st.dataframe(
+                    st.table(
                         translate_dataframe(
                             opencv_rows_by_file.get(filename, pd.DataFrame())
                         ),
-                        use_container_width=True,
                         hide_index=True,
                     )
+                    st.download_button(
+                        tr("Unduh Tabel"),
+                        translate_dataframe(
+                            opencv_rows_by_file.get(filename, pd.DataFrame())
+                        ).to_csv(index=False).encode("utf-8"),
+                        file_name=f"{file_stem}_hasil_pengukuran.csv",
+                        mime="text/csv",
+                        key=f"download_opencv_summary_{filename}",
+                        on_click="ignore",
+                    )
                     st.markdown(f"#### {tr('Variasi per baris')}")
-                    st.dataframe(
+                    st.table(
                         translate_dataframe(
                             file_line_variability.fillna("Data kurang")
                         ),
-                        use_container_width=True,
                         hide_index=True,
                     )
-
-                file_crops_zip = build_comparison_images_zip(
-                    [
-                        (f"crop_{crop['Komponen']}.png", crop["image"])
-                        for crop in opencv_output["crop_previews"]
-                    ]
-                )
-                opencv_downloads = st.columns(6)
-                opencv_downloads[0].download_button(
-                    tr("Rincian crop (CSV)"),
-                    crop_details_display.to_csv(index=False).encode("utf-8"),
-                    file_name=f"{file_stem}_rincian_prediksi_crop.csv",
-                    mime="text/csv",
-                    key=f"download_crop_details_{filename}",
-                    on_click="ignore",
-                )
-                opencv_downloads[1].download_button(
-                    tr("Skala komponen (CSV)"),
-                    translate_dataframe(file_measurements).to_csv(
-                        index=False
-                    ).encode("utf-8"),
-                    file_name=f"{file_stem}_skala_komponen.csv",
-                    mime="text/csv",
-                    key=f"download_component_scale_{filename}",
-                    on_click="ignore",
-                )
-                opencv_downloads[2].download_button(
-                    tr("Variasi per baris (CSV)"),
-                    translate_dataframe(file_line_variability).to_csv(
-                        index=False
-                    ).encode("utf-8"),
-                    file_name=f"{file_stem}_variasi_per_baris.csv",
-                    mime="text/csv",
-                    key=f"download_line_variability_{filename}",
-                    on_click="ignore",
-                )
-                opencv_downloads[3].download_button(
-                    tr("Pengukuran gambar (CSV)"),
-                    translate_dataframe(
-                        opencv_rows_by_file.get(filename, pd.DataFrame())
-                    ).to_csv(index=False).encode("utf-8"),
-                    file_name=f"{file_stem}_hasil_pengukuran.csv",
-                    mime="text/csv",
-                    key=f"download_opencv_summary_{filename}",
-                    on_click="ignore",
-                )
-                opencv_downloads[4].download_button(
-                    tr("Ringkasan crop (CSV)"),
-                    crop_summary_frame.to_csv(index=False).encode("utf-8"),
-                    file_name=f"{file_stem}_ringkasan_crop.csv",
-                    mime="text/csv",
-                    key=f"download_crop_summary_{filename}",
-                    on_click="ignore",
-                )
-                opencv_downloads[5].download_button(
-                    "Gambar komponen (PNG)",
-                    opencv_output["image"],
-                    file_name=f"{file_stem}_komponen_opencv.png",
-                    mime="image/png",
-                    key=f"download_opencv_image_{filename}",
-                    on_click="ignore",
-                )
-                if opencv_output["crop_previews"]:
                     st.download_button(
-                        tr("Unduh semua crop — {filename} (ZIP)").format(
-                            filename=filename
-                        ),
-                        file_crops_zip,
-                        file_name=f"{file_stem}_crop_opencv.zip",
-                        mime="application/zip",
-                        key=f"download_opencv_crops_{filename}",
+                        tr("Unduh Tabel"),
+                        translate_dataframe(file_line_variability).to_csv(
+                            index=False
+                        ).encode("utf-8"),
+                        file_name=f"{file_stem}_variasi_per_baris.csv",
+                        mime="text/csv",
+                        key=f"download_line_variability_{filename}",
                         on_click="ignore",
+                    )
+
+        export_tables = build_export_tables(batch_result, comparison_df)
+        combined_grid_available = (
+            show_batch_comparison
+            and batch_result["grid_png"] is not None
+            and batch_mode == BATCH_FULL
+        )
+        if export_tables or combined_grid_available:
+            st.markdown(f"### {tr('Unduh Data Pilihan')}")
+            export_selection_id = hashlib.sha256(
+                repr(batch_result["signature"]).encode("utf-8")
+            ).hexdigest()[:12]
+            with st.expander(tr("Pilih tabel dan format")):
+                selected_export_keys = []
+                if export_tables:
+                    export_format = st.radio(
+                        tr("Format unduhan"),
+                        ["Excel (beberapa sheet)", "ZIP (CSV per tabel)"],
+                        horizontal=True,
+                        key=f"batch_export_format_{export_selection_id}",
+                        format_func=tr,
+                    )
+                    export_scope_options = [None] + list(
+                        dict.fromkeys(batch_file.name for batch_file in batch_files)
+                    )
+                    selected_export_filename = st.selectbox(
+                        tr("Cakupan data"),
+                        export_scope_options,
+                        format_func=lambda filename: (
+                            tr("Semua gambar")
+                            if filename is None
+                            else filename
+                        ),
+                        key=f"batch_export_scope_{export_selection_id}",
+                    )
+                    st.caption(
+                        tr("Cakupan ini berlaku untuk semua tabel yang dipilih.")
+                    )
+                    export_columns = st.columns(2)
+                    with export_columns[0]:
+                        st.markdown(f"#### {tr('EfficientNet')}")
+                        for key in ("effnet_summary", "gradcam_parts"):
+                            if key in export_tables and st.checkbox(
+                                tr(EXPORT_DATASET_LABELS[key]),
+                                value=False,
+                                key=f"batch_export_{export_selection_id}_{key}",
+                            ):
+                                selected_export_keys.append(key)
+                    with export_columns[1]:
+                        st.markdown(f"#### {tr('OpenCV')}")
+                        for key in (
+                            "opencv_summary",
+                            "opencv_crop_summary",
+                            "opencv_crop_details",
+                            "opencv_component_scale",
+                            "opencv_line_variation",
+                        ):
+                            if key in export_tables and st.checkbox(
+                                tr(EXPORT_DATASET_LABELS[key]),
+                                value=False,
+                                key=f"batch_export_{export_selection_id}_{key}",
+                            ):
+                                selected_export_keys.append(key)
+                    if "comparison" in export_tables:
+                        st.markdown(f"#### {tr('Keseluruhan')}")
+                        if st.checkbox(
+                            tr(EXPORT_DATASET_LABELS["comparison"]),
+                            value=False,
+                            key=f"batch_export_{export_selection_id}_comparison",
+                        ):
+                            selected_export_keys.append("comparison")
+
+                include_combined_grid = False
+                if combined_grid_available:
+                    st.markdown(f"#### {tr('Gambar perbandingan')}")
+                    include_combined_grid = st.checkbox(
+                        tr("Grid panel hasil gabungan"),
+                        value=False,
+                        key=f"batch_export_{export_selection_id}_combined_grid",
+                    )
+                    if (
+                        export_tables
+                        and selected_export_filename is not None
+                    ):
+                        st.caption(
+                            tr("Grid panel gabungan selalu mencakup semua gambar.")
+                        )
+
+                if selected_export_keys:
+                    selected_tables = {}
+                    for key in selected_export_keys:
+                        frame = export_tables[key]
+                        if (
+                            selected_export_filename is not None
+                            and "Nama File" in frame.columns
+                        ):
+                            frame = frame[
+                                frame["Nama File"] == selected_export_filename
+                            ]
+                        selected_tables[key] = translate_dataframe(frame)
+                    if export_format == "Excel (beberapa sheet)":
+                        export_data = build_excel_export(selected_tables)
+                        export_filename = "hasil_analisis_pilihan.xlsx"
+                        export_mime = (
+                            "application/vnd.openxmlformats-officedocument."
+                            "spreadsheetml.sheet"
+                        )
+                        download_label = tr("Unduh Excel")
+                    else:
+                        export_data = build_csv_export_zip(selected_tables)
+                        export_filename = "hasil_analisis_pilihan.zip"
+                        export_mime = "application/zip"
+                        download_label = tr("Unduh ZIP")
+                    st.download_button(
+                        download_label,
+                        export_data,
+                        file_name=export_filename,
+                        mime=export_mime,
+                        key=f"download_selected_tables_{export_selection_id}",
+                        on_click="ignore",
+                    )
+                if include_combined_grid:
+                    st.download_button(
+                        tr("Unduh Grid Panel Gabungan"),
+                        batch_result["grid_png"],
+                        file_name="grid_panel_hasil_gabungan.png",
+                        mime="image/png",
+                        key=f"download_combined_grid_{export_selection_id}",
+                        on_click="ignore",
+                    )
+                if not selected_export_keys and not include_combined_grid:
+                    st.caption(
+                        tr("Pilih minimal satu data atau grid panel untuk diunduh.")
                     )
