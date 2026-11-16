@@ -19,6 +19,7 @@ from handwriting_measurement import (
 )
 
 ENGLISH_TRANSLATIONS = {
+    "Alat Deteksi Dysgraphia": "Dysgraphia Detection Tool",
     "Alat Deteksi Dysgraphia & Dyseleksia": "Dysgraphia & Dyslexia Detection Tool",
     "Model EfficientNet-B0 & OpenCV": "EfficientNet-B0 & OpenCV Models",
     "EfficientNet-B0 (Klasifikasi)": "EfficientNet-B0 (Classification)",
@@ -1884,7 +1885,7 @@ if show_refresh_splash and len(logos) >= 4:
 </div>
 </div>
 </div>
-<div class="ai-splash-title">{tr("Alat Deteksi Dysgraphia & Dyseleksia")}</div>
+<div class="ai-splash-title">{tr("Alat Deteksi Dysgraphia")}</div>
 <div class="ai-splash-subtitle">{tr("Program Studi Statistika • Universitas Singaperbangsa Karawang")}</div>
 <div class="ai-splash-track"><div class="ai-splash-fill"></div></div>
 </div>
@@ -1922,7 +1923,7 @@ st.markdown(f"""
 <div class="hero-container">
 {logo_container}
 <div class="hero-title">
-{tr("Alat Deteksi Dysgraphia & Dyseleksia")} <br>
+{tr("Alat Deteksi Dysgraphia")} <br>
 <span>{tr("Model EfficientNet-B0 & OpenCV")}</span>
 </div>
 <div class="hero-subtitle">
@@ -1965,7 +1966,7 @@ def render_research_footer() -> None:
     st.markdown(
         f"""
 <div class="simple-research-footer">
-<div class="simple-footer-title"><span>Dyslev AI</span> — {tr("Alat Deteksi Dysgraphia & Dyseleksia")}</div>
+<div class="simple-footer-title"><span>Dyslev AI</span> — {tr("Alat Deteksi Dysgraphia")}</div>
 <div class="simple-footer-sub">{tr("EfficientNet-B0 (TFLite & Grad-CAM) | OpenCV Component Analysis | Fast & Efficient")}</div>
 <div class="simple-footer-cols">
 <div class="simple-footer-col">
