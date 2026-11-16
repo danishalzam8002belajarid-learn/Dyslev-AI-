@@ -1976,7 +1976,7 @@ def render_research_footer() -> None:
 <div class="simple-footer-col">
 <div class="simple-footer-heading"><span class="ai-scanner-dot"></span><span>{tr("Team Members")}</span></div>
 <p class="simple-footer-person"><strong>Danish Alzam</strong><span>Universitas Singaperbangsa Karawang</span></p>
-<p class="simple-footer-person"><strong>Nurul Syifa Azzahra</strong><span>Universitas Singaperbangsa Karawang</span></p>
+<p class="simple-footer-person"><strong>Nurul Syifa Az Zahra</strong><span>Universitas Singaperbangsa Karawang</span></p>
 <p class="simple-footer-person"><strong>Galih Rizkia Syahlani</strong><span>Universitas Singaperbangsa Karawang</span></p>
 <p class="simple-footer-person"><strong>Daffa Najwa Saputra</strong><span>Universitas Singaperbangsa Karawang</span></p>
 </div>
