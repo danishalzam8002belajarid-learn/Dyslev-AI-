@@ -367,6 +367,45 @@ ENGLISH_TRANSLATIONS = {
     "Pemindaian AI Aktif": "AI Scan Active",
     "Analisis Selesai": "Analysis Complete",
     "Gambar {current}/{total}": "Image {current}/{total}",
+    "Sampel {current}/{total}": "Sample {current}/{total}",
+    "Memproses sampel {current} dari {total} pada seluruh model aktif...": (
+        "Processing sample {current} of {total} across all active models..."
+    ),
+    "Alur Aktif: EfficientNet-B0 & OpenCV": "Active Workflow: EfficientNet-B0 & OpenCV",
+    "Alur Aktif: EfficientNet-B0 (Klasifikasi & Grad-CAM)": (
+        "Active Workflow: EfficientNet-B0 (Classification & Grad-CAM)"
+    ),
+    "Alur Aktif: OpenCV Crop & EfficientNet-B0": (
+        "Active Workflow: OpenCV Crop & EfficientNet-B0"
+    ),
+    "Daftar & Filter Sampel Hasil Analisis": "Analysis Sample List & Filter",
+    "Menampilkan menu daftar sampel karena jumlah gambar lebih dari 10 ({count} sampel). Gunakan pencarian nama gambar dan filter kategori di bawah untuk melihat detail setiap sampel.": (
+        "Showing the sample list menu because more than 10 images were analyzed ({count} samples). Use the filename search and category filter below to inspect each sample."
+    ),
+    "Total Sampel": "Total Samples",
+    "Sampel Disleksia": "Dyslexia Samples",
+    "Sampel Non-Disleksia": "Non-Dyslexia Samples",
+    "Filter kategori sampel": "Filter sample category",
+    "Semua Sampel": "All Samples",
+    "Disleksia": "Dyslexia",
+    "Non-Disleksia": "Non-Dyslexia",
+    "Cari berdasarkan nama gambar": "Search by image filename",
+    "Ketik nama gambar...": "Type image filename...",
+    "Pilih sampel dari daftar ({count} hasil cocok)": (
+        "Select a sample from the list ({count} matching results)"
+    ),
+    "Lihat tabel daftar sampel terfilter ({count} sampel)": (
+        "View filtered sample list table ({count} samples)"
+    ),
+    "Lihat tabel ringkasan perbandingan seluruh sampel ({count} sampel)": (
+        "View full comparison summary table ({count} samples)"
+    ),
+    "Unduh Tabel Terfilter": "Download Filtered Table",
+    "Tidak ada sampel yang cocok dengan pencarian atau filter yang dipilih.": (
+        "No samples match the selected search query or filter."
+    ),
+    "Kategori": "Category",
+    "Ringkasan Skor": "Score Summary",
     "1. Prapemrosesan & Kontras": "1. Preprocessing & Contrast",
     "2. EfficientNet-B0 & Grad-CAM": "2. EfficientNet-B0 & Grad-CAM",
     "3. Deteksi & Crop OpenCV": "3. OpenCV Detection & Crops",
@@ -451,11 +490,34 @@ def localized_result_caption(output: dict[str, Any]) -> str:
     )
 
 
-def uploaded_image_fingerprint(uploaded_file: Any) -> str:
-    content_hash = hashlib.sha256(uploaded_file.getvalue()).hexdigest()
-    return hashlib.sha256(
+def _get_uploaded_file_meta(uploaded_file: Any) -> tuple[int, int, str, str]:
+    cache: dict[Any, tuple[int, int, str, str]] = st.session_state.setdefault(
+        "_uploaded_file_meta_cache", {}
+    )
+    raw_bytes = uploaded_file.getvalue()
+    cache_key = (
+        uploaded_file.name,
+        len(raw_bytes),
+        getattr(uploaded_file, "file_id", None),
+        raw_bytes[:64],
+        raw_bytes[-64:],
+    )
+    cached = cache.get(cache_key)
+    if cached is not None:
+        return cached
+    content_hash = hashlib.sha256(raw_bytes).hexdigest()
+    fingerprint = hashlib.sha256(
         f"{uploaded_file.name}:{content_hash}".encode("utf-8")
     ).hexdigest()[:16]
+    with Image.open(io.BytesIO(raw_bytes)) as image:
+        width, height = image.size
+    meta = (width, height, content_hash, fingerprint)
+    cache[cache_key] = meta
+    return meta
+
+
+def uploaded_image_fingerprint(uploaded_file: Any) -> str:
+    return _get_uploaded_file_meta(uploaded_file)[3]
 
 
 def images_over_width(
@@ -464,8 +526,7 @@ def images_over_width(
 ) -> list[tuple[int, str, int, int, str]]:
     oversized = []
     for file_index, uploaded_file in enumerate(files):
-        with Image.open(io.BytesIO(uploaded_file.getvalue())) as image:
-            width, height = image.size
+        width, height, _, fingerprint = _get_uploaded_file_meta(uploaded_file)
         if width > max_width:
             oversized.append(
                 (
@@ -473,7 +534,7 @@ def images_over_width(
                     uploaded_file.name,
                     width,
                     height,
-                    uploaded_image_fingerprint(uploaded_file),
+                    fingerprint,
                 )
             )
     return oversized
@@ -928,6 +989,45 @@ st.markdown("""
         flex-direction: column;
         gap: 0.42rem;
         margin-bottom: 0.75rem;
+        max-height: 210px;
+        overflow-y: auto;
+        padding-right: 4px;
+    }
+    .sample-explorer-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-bottom: 0.85rem;
+    }
+    .sample-stat-pills {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.55rem;
+    }
+    .sample-stat-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 4px 12px;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: #e2e8f0;
+    }
+    .sample-stat-pill.is-dyslexia {
+        background: rgba(239, 68, 68, 0.14);
+        border-color: rgba(239, 68, 68, 0.36);
+        color: #fca5a5;
+    }
+    .sample-stat-pill.is-normal {
+        background: rgba(0, 223, 154, 0.14);
+        border-color: rgba(0, 223, 154, 0.36);
+        color: #00df9a;
     }
     .wide-image-item {
         display: flex;
@@ -2789,7 +2889,7 @@ with st.container():
     batch_signature = (
         (
             tuple(
-                (bf.name, hashlib.sha256(bf.getvalue()).hexdigest())
+                (bf.name, _get_uploaded_file_meta(bf)[2])
                 for bf in batch_files
             ),
             analysis_mode,
@@ -2816,12 +2916,26 @@ with st.container():
             tiles = []
             output_views = []
             keras_model = None
-            gradcam_load_attempted = False
-            selected_operation_count = int(run_effnet) + int(run_opencv)
-            total_operations = max(1, len(batch_files) * selected_operation_count)
-            completed_operations = 0
             scan_start_time = time.time()
             last_ui_update = [0.0]
+
+            if run_effnet and batch_mode == BATCH_FULL:
+                keras_model = load_keras_model()
+                if keras_model is None:
+                    st.warning(
+                        tr("Model .h5 tidak tersedia, heatmap dilewati.")
+                    )
+
+            if run_effnet and run_opencv:
+                workflow_label = tr("Alur Aktif: EfficientNet-B0 & OpenCV")
+            elif run_effnet:
+                workflow_label = tr(
+                    "Alur Aktif: EfficientNet-B0 (Klasifikasi & Grad-CAM)"
+                )
+            else:
+                workflow_label = tr(
+                    "Alur Aktif: OpenCV Crop & EfficientNet-B0"
+                )
 
             scanner_tips = [
                 tr(
@@ -2845,9 +2959,8 @@ with st.container():
             def update_scanner_card(
                 progress_fraction: float,
                 filename: str,
-                image_idx: int,
-                total_images: int,
-                stage_index: int,
+                sample_idx: int,
+                total_samples: int,
                 detail_text: str,
                 tip_index: int = 0,
                 is_done: bool = False,
@@ -2857,7 +2970,7 @@ with st.container():
                 if (
                     not force
                     and not is_done
-                    and (now_ts - last_ui_update[0]) < 0.25
+                    and (now_ts - last_ui_update[0]) < 0.2
                 ):
                     return
                 last_ui_update[0] = now_ts
@@ -2875,31 +2988,17 @@ with st.container():
                     if is_done
                     else tr("Pemindaian AI Aktif")
                 )
-                counter_label = tr("Gambar {current}/{total}").format(
-                    current=image_idx,
-                    total=total_images,
+                counter_label = tr("Sampel {current}/{total}").format(
+                    current=sample_idx,
+                    total=total_samples,
                 )
-
-                step_defs = [
-                    (1, tr("1. Prapemrosesan & Kontras"), True),
-                    (2, tr("2. EfficientNet-B0 & Grad-CAM"), run_effnet),
-                    (3, tr("3. Deteksi & Crop OpenCV"), run_opencv),
-                ]
-                step_pills_html = []
-                for step_num, step_label, step_enabled in step_defs:
-                    if not step_enabled:
-                        state_cls = ""
-                    elif is_done or step_num < stage_index:
-                        state_cls = "is-done"
-                    elif step_num == stage_index:
-                        state_cls = "is-active"
-                    else:
-                        state_cls = ""
-                    step_pills_html.append(
-                        f'<div class="ai-step-pill {state_cls}">'
-                        f'<span class="ai-step-dot"></span><span>{_html.escape(step_label)}</span>'
-                        f'</div>'
-                    )
+                pill_state_cls = "is-done" if is_done else "is-active"
+                workflow_pill_html = (
+                    f'<div class="ai-step-pill {pill_state_cls}" style="grid-column: 1 / -1;">'
+                    f'<span class="ai-step-dot"></span>'
+                    f'<span>{_html.escape(workflow_label)} &bull; {_html.escape(counter_label)}</span>'
+                    f'</div>'
+                )
 
                 visual_cls = "ai-scanner-logos is-done" if is_done else "ai-scanner-logos"
                 unsika_uri = logos[2] if len(logos) >= 4 else ""
@@ -2940,7 +3039,7 @@ with st.container():
                     f'<div class="ai-scanner-track">'
                     f'<div class="ai-scanner-fill" style="width:{pct}%;"></div>'
                     f'</div>'
-                    f'<div class="ai-scanner-steps">{"".join(step_pills_html)}</div>'
+                    f'<div class="ai-scanner-steps">{workflow_pill_html}</div>'
                     f'<div class="ai-scanner-tip">'
                     f'<strong>{_html.escape(tr("Info AI"))}:</strong>'
                     f'<span>{tip_text}</span>'
@@ -2950,18 +3049,22 @@ with st.container():
                 scanner_placeholder.markdown(card_html, unsafe_allow_html=True)
 
             total_files = len(batch_files)
+            png_encode_params = [cv2.IMWRITE_PNG_COMPRESSION, 1]
             for i, bf in enumerate(batch_files):
-                base_progress = completed_operations / total_operations
+                sample_num = i + 1
                 update_scanner_card(
-                    base_progress + (0.08 / total_operations),
+                    (sample_num - 0.5) / total_files,
                     bf.name,
-                    i + 1,
+                    sample_num,
                     total_files,
-                    stage_index=1,
                     detail_text=tr(
-                        "Menyiapkan citra dan menyelaraskan kontras tulisan..."
+                        "Memproses sampel {current} dari {total} pada seluruh model aktif..."
+                    ).format(
+                        current=sample_num,
+                        total=total_files,
                     ),
-                    tip_index=i * 2,
+                    tip_index=i,
+                    force=(i == 0),
                 )
                 image = Image.open(bf).convert('RGB')
                 analysis_image = (
@@ -2976,7 +3079,6 @@ with st.container():
                         continue
                     if model_name == MODEL_MEASUREMENT and not run_opencv:
                         continue
-                    op_start_progress = completed_operations / total_operations
                     batch_visual = np.array(analysis_image)
                     component_measurements = None
                     line_variability_records = None
@@ -2987,25 +3089,6 @@ with st.container():
                     gradcam_part_results = []
                     if model_name == MODEL_EFFNET:
                         r = None
-                        if batch_mode == BATCH_FULL:
-                            if not gradcam_load_attempted:
-                                update_scanner_card(
-                                    op_start_progress + (0.2 / total_operations),
-                                    bf.name,
-                                    i + 1,
-                                    total_files,
-                                    stage_index=2,
-                                    detail_text=tr(
-                                        "Memuat model Grad-CAM untuk memetakan fokus jaringan saraf..."
-                                    ),
-                                    tip_index=1,
-                                )
-                                keras_model = load_keras_model()
-                                gradcam_load_attempted = True
-                                if keras_model is None:
-                                    st.warning(
-                                        tr("Model .h5 tidak tersedia, heatmap dilewati.")
-                                    )
                         if (
                             i in split_wide_file_indices
                             and w > WIDE_IMAGE_WARNING_WIDTH
@@ -3024,21 +3107,6 @@ with st.container():
                                     image_parts,
                                     start=1,
                                 ):
-                                    part_frac = (part_index - 0.5) / max(1, len(image_parts))
-                                    update_scanner_card(
-                                        op_start_progress + (part_frac * 0.85 / total_operations),
-                                        bf.name,
-                                        i + 1,
-                                        total_files,
-                                        stage_index=2,
-                                        detail_text=tr(
-                                            "Memindai bagian {part}/{total_parts} untuk Grad-CAM resolusi tinggi..."
-                                        ).format(
-                                            part=part_index,
-                                            total_parts=len(image_parts),
-                                        ),
-                                        tip_index=2,
-                                    )
                                     part_result = predict_efficientnet(
                                         model,
                                         image_part,
@@ -3099,17 +3167,6 @@ with st.container():
                                 )
 
                         if r is None:
-                            update_scanner_card(
-                                op_start_progress + (0.45 / total_operations),
-                                bf.name,
-                                i + 1,
-                                total_files,
-                                stage_index=2,
-                                detail_text=tr(
-                                    "Menjalankan inferensi EfficientNet-B0 & visualisasi Grad-CAM..."
-                                ),
-                                tip_index=1,
-                            )
                             r = predict_efficientnet(
                                 model,
                                 analysis_image,
@@ -3151,17 +3208,6 @@ with st.container():
                             "confidence": r["confidence"],
                         }
                     else:
-                        update_scanner_card(
-                            op_start_progress + (0.2 / total_operations),
-                            bf.name,
-                            i + 1,
-                            total_files,
-                            stage_index=3,
-                            detail_text=tr(
-                                "Mendeteksi komponen tinta & mengelompokkan baris tulisan..."
-                            ),
-                            tip_index=3,
-                        )
                         _, overlay, measurements = measure_connected_regions(
                             analysis_image,
                             min_area=min_component_area,
@@ -3179,36 +3225,13 @@ with st.container():
                                 "Komponen diprediksi Normal (%)": "Model tidak tersedia",
                             }
                         else:
-                            def _on_crop_step(
-                                current_crop: int,
-                                total_crops: int,
-                                _op_base: float = op_start_progress,
-                                _fname: str = bf.name,
-                                _img_idx: int = i + 1,
-                            ) -> None:
-                                crop_frac = current_crop / max(1, total_crops)
-                                update_scanner_card(
-                                    _op_base + ((0.25 + 0.65 * crop_frac) / total_operations),
-                                    _fname,
-                                    _img_idx,
-                                    total_files,
-                                    stage_index=3,
-                                    detail_text=tr(
-                                        "Mengklasifikasikan komponen tinta {current}/{total} dengan EfficientNet-B0..."
-                                    ).format(
-                                        current=current_crop,
-                                        total=total_crops,
-                                    ),
-                                    tip_index=3,
-                                )
-
                             component_predictions, crop_previews, crop_summary = (
                                 predict_component_crops(
                                     crop_model,
                                     analysis_image,
                                     measurements,
                                     threshold,
-                                    on_crop_progress=_on_crop_step,
+                                    on_crop_progress=None,
                                 )
                             )
                         opencv_crop_summaries.append(
@@ -3241,20 +3264,10 @@ with st.container():
                         component_measurements = measurements
                         caption_data = {"component_count": len(measurements)}
 
-                    completed_operations += 1
-                    update_scanner_card(
-                        completed_operations / total_operations,
-                        bf.name,
-                        i + 1,
-                        total_files,
-                        stage_index=2 if model_name == MODEL_EFFNET else 3,
-                        detail_text=f"{tr(model_name)}: {bf.name}",
-                        tip_index=(completed_operations % len(scanner_tips)),
-                        force=True,
-                    )
                     encoded_ok, encoded_image = cv2.imencode(
                         ".png",
                         cv2.cvtColor(batch_visual, cv2.COLOR_RGB2BGR),
+                        png_encode_params,
                     )
                     if not encoded_ok:
                         raise RuntimeError(
@@ -3280,28 +3293,33 @@ with st.container():
                         "crop_summary": crop_summary,
                         "crop_error": crop_error,
                     })
+
+                update_scanner_card(
+                    sample_num / total_files,
+                    bf.name,
+                    sample_num,
+                    total_files,
+                    detail_text=tr(
+                        "Memproses sampel {current} dari {total} pada seluruh model aktif..."
+                    ).format(
+                        current=sample_num,
+                        total=total_files,
+                    ),
+                    tip_index=i,
+                )
+
             update_scanner_card(
                 1.0,
                 batch_files[-1].name,
                 total_files,
                 total_files,
-                stage_index=3,
                 detail_text=tr(
                     "Seluruh tahapan analisis gambar telah selesai diproses."
                 ),
                 tip_index=0,
                 is_done=True,
+                force=True,
             )
-
-            grid_png = None
-            if tiles:
-                grid = np.vstack(tiles)
-                ok, png = cv2.imencode(".png", cv2.cvtColor(grid, cv2.COLOR_RGB2BGR))
-                if not ok:
-                    raise RuntimeError(
-                        tr("Gagal menyiapkan grid heatmap untuk diunduh.")
-                    )
-                grid_png = png.tobytes()
 
             st.session_state["batch_analysis_result"] = {
                 "signature": batch_signature,
@@ -3310,8 +3328,45 @@ with st.container():
                 "opencv_line_results": opencv_line_results,
                 "opencv_crop_summaries": opencv_crop_summaries,
                 "views": output_views,
-                "grid_png": grid_png,
+                "tiles": tiles,
+                "grid_png": None,
             }
+
+    def get_or_build_combined_grid_png(result_dict: dict[str, Any]) -> bytes | None:
+        if result_dict.get("grid_png") is not None:
+            return result_dict["grid_png"]
+        raw_tiles = result_dict.get("tiles") or []
+        if not raw_tiles:
+            return None
+        num_tiles = len(raw_tiles)
+        max_rows_per_col = 25
+        if num_tiles <= max_rows_per_col:
+            grid = np.vstack(raw_tiles)
+        else:
+            num_cols = (num_tiles + max_rows_per_col - 1) // max_rows_per_col
+            rows_per_col = (num_tiles + num_cols - 1) // num_cols
+            tile_h, tile_w = raw_tiles[0].shape[:2]
+            blank_tile = np.full((tile_h, tile_w, 3), 230, dtype=np.uint8)
+            col_strips = []
+            for col_idx in range(num_cols):
+                chunk = list(
+                    raw_tiles[col_idx * rows_per_col : (col_idx + 1) * rows_per_col]
+                )
+                while len(chunk) < rows_per_col:
+                    chunk.append(blank_tile)
+                col_strips.append(np.vstack(chunk))
+            grid = np.hstack(col_strips)
+        ok, png = cv2.imencode(
+            ".png",
+            cv2.cvtColor(grid, cv2.COLOR_RGB2BGR),
+            [cv2.IMWRITE_PNG_COMPRESSION, 1],
+        )
+        if not ok:
+            raise RuntimeError(
+                tr("Gagal menyiapkan grid heatmap untuk diunduh.")
+            )
+        result_dict["grid_png"] = png.tobytes()
+        return result_dict["grid_png"]
 
     batch_result = st.session_state.get("batch_analysis_result")
     if batch_files and batch_result and batch_result["signature"] == batch_signature:
@@ -3320,16 +3375,16 @@ with st.container():
             batch_result["results"],
             batch_result["opencv_crop_summaries"],
         )
-        effnet_views = [
-            output
+        effnet_views_by_file = {
+            output["filename"]: output
             for output in batch_result["views"]
             if output["analysis"] == MODEL_EFFNET
-        ]
-        opencv_views = [
-            output
+        }
+        opencv_views_by_file = {
+            output["filename"]: output
             for output in batch_result["views"]
             if output["analysis"] == MODEL_MEASUREMENT
-        ]
+        }
         effnet_results_df = pd.DataFrame(batch_result["results"])
         opencv_summary_df = pd.DataFrame(batch_result["opencv_results"])
         crop_summary_df = pd.DataFrame(batch_result["opencv_crop_summaries"])
@@ -3337,10 +3392,23 @@ with st.container():
             st.markdown(
                 f"## {tr('Hasil Perbandingan Model EfficientNet dan OpenCV')}"
             )
-            st.table(
-                translate_dataframe(comparison_df),
-                hide_index=True,
-            )
+            translated_comparison_df = translate_dataframe(comparison_df)
+            if len(batch_files) > 10:
+                with st.expander(
+                    tr(
+                        "Lihat tabel ringkasan perbandingan seluruh sampel ({count} sampel)"
+                    ).format(count=len(batch_files)),
+                    expanded=False,
+                ):
+                    st.table(
+                        translated_comparison_df,
+                        hide_index=True,
+                    )
+            else:
+                st.table(
+                    translated_comparison_df,
+                    hide_index=True,
+                )
             st.caption(
                 tr(
                     "Perbandingan menampilkan prediksi EfficientNet per gambar dan "
@@ -3361,7 +3429,7 @@ with st.container():
             )
             st.download_button(
                 tr("Unduh Tabel"),
-                translate_dataframe(comparison_df).to_csv(index=False).encode("utf-8"),
+                translated_comparison_df.to_csv(index=False).encode("utf-8"),
                 file_name="ringkasan_perbandingan_efficientnet_opencv.csv",
                 mime="text/csv",
                 on_click="ignore",
@@ -3386,23 +3454,15 @@ with st.container():
             for filename in crop_summary_df["Nama File"].unique()
         } if not crop_summary_df.empty else {}
 
-        for batch_file in batch_files:
-            filename = batch_file.name
+        def render_sample_detail_view(filename: str) -> None:
             file_stem = os.path.splitext(filename)[0]
             st.markdown(
-                tr("Hasil gambar — {filename}").format(filename=filename)
+                f"### {tr('Hasil gambar — {filename}').format(filename=filename)}"
             )
 
-            effnet_output = next(
-                (
-                    output
-                    for output in effnet_views
-                    if output["filename"] == filename
-                ),
-                None,
-            )
+            effnet_output = effnet_views_by_file.get(filename)
             if run_effnet:
-                st.markdown(f"### {tr('Model EfficientNet-B0')}")
+                st.markdown(f"#### {tr('Model EfficientNet-B0')}")
                 effnet_rows = translate_dataframe(
                     effnet_rows_by_file.get(filename, pd.DataFrame())
                 )
@@ -3463,17 +3523,10 @@ with st.container():
                             on_click="ignore",
                         )
 
-            opencv_output = next(
-                (
-                    output
-                    for output in opencv_views
-                    if output["filename"] == filename
-                ),
-                None,
-            )
+            opencv_output = opencv_views_by_file.get(filename)
             if run_opencv and opencv_output is not None:
-                st.markdown(f"### {tr('Deteksi OpenCV')}")
-                st.markdown(f"#### {tr('Model Crop Komponen + EfficientNet')}")
+                st.markdown(f"#### {tr('Deteksi OpenCV')}")
+                st.markdown(f"##### {tr('Model Crop Komponen + EfficientNet')}")
                 st.caption(
                     tr(
                         "Persentase merupakan proporsi crop yang diprediksi Disleksia "
@@ -3497,7 +3550,7 @@ with st.container():
                     key=f"download_crop_summary_{filename}",
                     on_click="ignore",
                 )
-                st.markdown(f"#### {tr('Komponen terdeteksi')}")
+                st.markdown(f"##### {tr('Komponen terdeteksi')}")
                 st.image(
                     opencv_output["image"],
                     caption=localized_result_caption(opencv_output),
@@ -3517,7 +3570,7 @@ with st.container():
                 file_crop_details = pd.DataFrame(
                     opencv_output["crop_predictions"]
                 )
-                st.markdown(f"#### {tr('Rincian prediksi per huruf')}")
+                st.markdown(f"##### {tr('Rincian prediksi per huruf')}")
                 crop_details_display = translate_dataframe(file_crop_details)
                 st.table(
                     crop_details_display,
@@ -3556,7 +3609,7 @@ with st.container():
                         key=f"download_component_scale_{filename}",
                         on_click="ignore",
                     )
-                    st.markdown(f"#### {tr('Hasil pengukuran gambar')}")
+                    st.markdown(f"##### {tr('Hasil pengukuran gambar')}")
                     st.table(
                         translate_dataframe(
                             opencv_rows_by_file.get(filename, pd.DataFrame())
@@ -3573,7 +3626,7 @@ with st.container():
                         key=f"download_opencv_summary_{filename}",
                         on_click="ignore",
                     )
-                    st.markdown(f"#### {tr('Variasi per baris')}")
+                    st.markdown(f"##### {tr('Variasi per baris')}")
                     st.table(
                         translate_dataframe(
                             file_line_variability.fillna("Data kurang")
@@ -3591,10 +3644,188 @@ with st.container():
                         on_click="ignore",
                     )
 
+        def classify_sample_entry(filename: str) -> tuple[str, str]:
+            """Return (category_key, score_summary) where category_key is 'Disleksia' or 'Non-Disleksia'."""
+            eff_df = effnet_rows_by_file.get(filename)
+            if run_effnet and eff_df is not None and not eff_df.empty:
+                pred_val = str(eff_df.iloc[0]["Prediksi"])
+                conf_val = str(eff_df.iloc[0]["Tingkat Kepercayaan"])
+                category = "Disleksia" if pred_val == "Disleksia" else "Non-Disleksia"
+                summary_str = f"EfficientNet: {tr(pred_val)} ({conf_val})"
+                if run_opencv:
+                    c_df = crop_summary_by_file.get(filename)
+                    if c_df is not None and not c_df.empty:
+                        dys_crop_pct = str(
+                            c_df.iloc[0]["Komponen diprediksi Disleksia (%)"]
+                        )
+                        summary_str += f" | Crop Disleksia: {dys_crop_pct}"
+                return category, summary_str
+
+            ocv_view = opencv_views_by_file.get(filename)
+            if ocv_view is not None:
+                crop_preds = ocv_view.get("crop_predictions") or []
+                total_c = len(crop_preds)
+                dys_c = sum(
+                    1
+                    for cp in crop_preds
+                    if cp.get("Prediksi eksperimen") == "Disleksia"
+                )
+                dys_ratio = (dys_c / total_c) if total_c > 0 else 0.0
+                category = "Disleksia" if dys_ratio >= 0.5 else "Non-Disleksia"
+                return (
+                    category,
+                    f"OpenCV Crop Disleksia: {dys_ratio * 100:.2f}% ({dys_c}/{total_c})",
+                )
+            return "Non-Disleksia", "-"
+
+        if len(batch_files) <= 10:
+            for batch_file in batch_files:
+                render_sample_detail_view(batch_file.name)
+        else:
+            all_filenames = list(
+                dict.fromkeys(batch_file.name for batch_file in batch_files)
+            )
+            sample_entries = []
+            for idx, fname in enumerate(all_filenames, start=1):
+                cat_key, score_info = classify_sample_entry(fname)
+                sample_entries.append(
+                    {
+                        "index": idx,
+                        "filename": fname,
+                        "category": cat_key,
+                        "score_info": score_info,
+                    }
+                )
+
+            total_samples_count = len(sample_entries)
+            dyslexia_samples_count = sum(
+                1 for item in sample_entries if item["category"] == "Disleksia"
+            )
+            non_dyslexia_samples_count = (
+                total_samples_count - dyslexia_samples_count
+            )
+
+            st.markdown(f"## {tr('Daftar & Filter Sampel Hasil Analisis')}")
+            with st.container(border=True):
+                st.caption(
+                    tr(
+                        "Menampilkan menu daftar sampel karena jumlah gambar lebih dari 10 ({count} sampel). Gunakan pencarian nama gambar dan filter kategori di bawah untuk melihat detail setiap sampel."
+                    ).format(count=total_samples_count)
+                )
+                st.markdown(
+                    f'<div class="sample-explorer-header">'
+                    f'<div class="sample-stat-pills">'
+                    f'<span class="sample-stat-pill">'
+                    f'{tr("Total Sampel")}: {total_samples_count}</span>'
+                    f'<span class="sample-stat-pill is-dyslexia">'
+                    f'{tr("Sampel Disleksia")}: {dyslexia_samples_count}</span>'
+                    f'<span class="sample-stat-pill is-normal">'
+                    f'{tr("Sampel Non-Disleksia")}: {non_dyslexia_samples_count}</span>'
+                    f'</div>'
+                    f'</div>',
+                    unsafe_allow_html=True,
+                )
+
+                filter_col, search_col = st.columns([1.25, 1], gap="medium")
+                with filter_col:
+                    filter_options = ["Semua Sampel", "Disleksia", "Non-Disleksia"]
+                    filter_counts = {
+                        "Semua Sampel": total_samples_count,
+                        "Disleksia": dyslexia_samples_count,
+                        "Non-Disleksia": non_dyslexia_samples_count,
+                    }
+                    selected_category_filter = st.radio(
+                        tr("Filter kategori sampel"),
+                        filter_options,
+                        horizontal=True,
+                        key="sample_explorer_category_filter",
+                        format_func=lambda opt: (
+                            f"{tr(opt)} ({filter_counts.get(opt, 0)})"
+                        ),
+                    )
+                with search_col:
+                    search_filename_query = st.text_input(
+                        tr("Cari berdasarkan nama gambar"),
+                        value="",
+                        placeholder=tr("Ketik nama gambar..."),
+                        key="sample_explorer_search_query",
+                    ).strip()
+
+                filtered_entries = [
+                    item
+                    for item in sample_entries
+                    if (
+                        selected_category_filter == "Semua Sampel"
+                        or item["category"] == selected_category_filter
+                    )
+                    and (
+                        not search_filename_query
+                        or search_filename_query.lower()
+                        in item["filename"].lower()
+                    )
+                ]
+
+                if not filtered_entries:
+                    st.info(
+                        tr(
+                            "Tidak ada sampel yang cocok dengan pencarian atau filter yang dipilih."
+                        )
+                    )
+                else:
+                    filtered_summary_records = [
+                        {
+                            "No": item["index"],
+                            "Nama File": item["filename"],
+                            "Kategori": tr(item["category"]),
+                            "Ringkasan Skor": item["score_info"],
+                        }
+                        for item in filtered_entries
+                    ]
+                    filtered_summary_df = pd.DataFrame(filtered_summary_records)
+                    with st.expander(
+                        tr(
+                            "Lihat tabel daftar sampel terfilter ({count} sampel)"
+                        ).format(count=len(filtered_entries)),
+                        expanded=False,
+                    ):
+                        st.table(
+                            translate_dataframe(filtered_summary_df),
+                            hide_index=True,
+                        )
+                        st.download_button(
+                            tr("Unduh Tabel Terfilter"),
+                            translate_dataframe(filtered_summary_df)
+                            .to_csv(index=False)
+                            .encode("utf-8"),
+                            file_name="daftar_sampel_terfilter.csv",
+                            mime="text/csv",
+                            key="download_filtered_sample_list_csv",
+                            on_click="ignore",
+                        )
+
+                    entry_by_filename = {
+                        item["filename"]: item for item in filtered_entries
+                    }
+                    selected_sample_filename = st.selectbox(
+                        tr(
+                            "Pilih sampel dari daftar ({count} hasil cocok)"
+                        ).format(count=len(filtered_entries)),
+                        options=[item["filename"] for item in filtered_entries],
+                        format_func=lambda fname: (
+                            f"{entry_by_filename[fname]['index']}. {fname} — "
+                            f"[{tr(entry_by_filename[fname]['category'])}] "
+                            f"{entry_by_filename[fname]['score_info']}"
+                        ),
+                        key="sample_explorer_selected_filename",
+                    )
+                    st.markdown("---")
+                    if selected_sample_filename:
+                        render_sample_detail_view(selected_sample_filename)
+
         export_tables = build_export_tables(batch_result, comparison_df)
         combined_grid_available = (
             show_batch_comparison
-            and batch_result["grid_png"] is not None
+            and bool(batch_result.get("tiles") or batch_result.get("grid_png"))
             and batch_mode == BATCH_FULL
         )
         if export_tables or combined_grid_available:
@@ -3712,14 +3943,18 @@ with st.container():
                         on_click="ignore",
                     )
                 if include_combined_grid:
-                    st.download_button(
-                        tr("Unduh Grid Panel Gabungan"),
-                        batch_result["grid_png"],
-                        file_name="grid_panel_hasil_gabungan.png",
-                        mime="image/png",
-                        key=f"download_combined_grid_{export_selection_id}",
-                        on_click="ignore",
+                    combined_grid_bytes = get_or_build_combined_grid_png(
+                        batch_result
                     )
+                    if combined_grid_bytes is not None:
+                        st.download_button(
+                            tr("Unduh Grid Panel Gabungan"),
+                            combined_grid_bytes,
+                            file_name="grid_panel_hasil_gabungan.png",
+                            mime="image/png",
+                            key=f"download_combined_grid_{export_selection_id}",
+                            on_click="ignore",
+                        )
                 if not selected_export_keys and not include_combined_grid:
                     st.caption(
                         tr("Pilih minimal satu data atau grid panel untuk diunduh.")

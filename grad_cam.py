@@ -6,16 +6,28 @@ def make_gradcam_heatmap(img_array, model, last_conv_layer_name, pred_index=None
     """
     Menghasilkan heatmap Grad-CAM untuk gambar.
     """
-    # Buat model yang memetakan gambar input ke aktivasi layer konvolusi terakhir 
-    # serta ke prediksi akhir
-    grad_model = tf.keras.models.Model(
-        model.inputs, 
-        [model.get_layer(last_conv_layer_name).output, model.output]
-    )
+    # Gunakan grad_model yang sudah di-cache pada model agar tidak membangun
+    # ulang graph Keras ratusan kali pada pemrosesan batch besar.
+    cached_models = getattr(model, "_cached_grad_models", None)
+    if cached_models is None:
+        cached_models = {}
+        try:
+            setattr(model, "_cached_grad_models", cached_models)
+        except Exception:
+            pass
+    grad_model = cached_models.get(last_conv_layer_name)
+    if grad_model is None:
+        grad_model = tf.keras.models.Model(
+            model.inputs,
+            [model.get_layer(last_conv_layer_name).output, model.output],
+        )
+        cached_models[last_conv_layer_name] = grad_model
+
+    img_tensor = tf.convert_to_tensor(img_array, dtype=tf.float32)
 
     # Hitung gradien top predicted class terhadap aktivasi layer konvolusi terakhir
     with tf.GradientTape() as tape:
-        last_conv_layer_output, preds = grad_model(img_array)
+        last_conv_layer_output, preds = grad_model(img_tensor)
         if pred_index is None:
             pred_index = tf.argmax(preds[0])
         class_channel = preds[:, pred_index]
