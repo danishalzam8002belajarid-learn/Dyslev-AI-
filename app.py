@@ -2,11 +2,13 @@ import base64
 import hashlib
 import io
 import os
+import textwrap
 import time
 import zipfile
 from datetime import datetime
 from typing import Any
 
+import matplotlib.pyplot as plt
 import streamlit as st
 import numpy as np
 from PIL import Image
@@ -19,6 +21,11 @@ from handwriting_measurement import (
 )
 
 ENGLISH_TRANSLATIONS = {
+    "Unduh CSV": "Download CSV",
+    "Unduh Gambar (PNG)": "Download Image (PNG)",
+    "ZIP (Gambar PNG per tabel)": "ZIP (PNG Images per Table)",
+    "Unduh ZIP (Gambar PNG)": "Download ZIP (PNG Images)",
+    "Unduh ZIP (CSV)": "Download ZIP (CSV)",
     "Alat Deteksi Dysgraphia": "Dysgraphia Detection Tool",
     "Alat Deteksi Dysgraphia & Dyseleksia": "Dysgraphia & Dyslexia Detection Tool",
     "Model EfficientNet-B0 & OpenCV": "EfficientNet-B0 & OpenCV Models",
@@ -2547,6 +2554,250 @@ def build_csv_export_zip(tables: dict[str, pd.DataFrame]) -> bytes:
     return output.getvalue()
 
 
+@st.cache_data(show_spinner=False)
+def dataframe_to_styled_png(
+    df: pd.DataFrame, title: str = "", subtitle: str = ""
+) -> bytes:
+    if df is None or df.empty:
+        fig, ax = plt.subplots(figsize=(6, 2), dpi=200)
+        ax.text(0.5, 0.5, "Tabel Kosong", ha="center", va="center", fontsize=12)
+        ax.axis("off")
+        buf = io.BytesIO()
+        fig.savefig(buf, format="png", bbox_inches="tight")
+        plt.close(fig)
+        return buf.getvalue()
+
+    display_df = df.copy()
+    for col in display_df.columns:
+        display_df[col] = display_df[col].apply(
+            lambda v: "" if pd.isna(v) else str(v)
+        )
+
+    n_rows, n_cols = display_df.shape
+    headers = [str(h) for h in display_df.columns]
+
+    wrapped_headers = [
+        textwrap.fill(h, width=18) if len(h) > 20 and " " in h else h
+        for h in headers
+    ]
+
+    raw_data = display_df.values.tolist()
+    wrapped_data = []
+    row_line_counts = []
+
+    for row in raw_data:
+        new_row = []
+        max_lines_in_row = 1
+        for val in row:
+            s_val = str(val)
+            if len(s_val) > 28 and " " in s_val:
+                wrapped = textwrap.fill(s_val, width=26)
+                lines = wrapped.count("\n") + 1
+            else:
+                wrapped = s_val
+                lines = wrapped.count("\n") + 1
+            if lines > max_lines_in_row:
+                max_lines_in_row = lines
+            new_row.append(wrapped)
+        wrapped_data.append(new_row)
+        row_line_counts.append(max_lines_in_row)
+
+    col_max_lens = []
+    col_is_text = []
+    for c_idx, col in enumerate(wrapped_headers):
+        header_len = max(len(l) for l in col.split("\n"))
+        cell_lens = [
+            max(len(l) for l in str(wrapped_data[r_idx][c_idx]).split("\n"))
+            for r_idx in range(n_rows)
+        ]
+        m_len = max([header_len] + cell_lens)
+        col_max_lens.append(m_len)
+
+        sample_vals = [
+            str(wrapped_data[r_idx][c_idx]) for r_idx in range(min(5, n_rows))
+        ]
+        is_txt = any(
+            len(v) > 12 or (" " in v and not v.replace(".", "").replace("%", "").isdigit())
+            for v in sample_vals
+        )
+        col_is_text.append(is_txt)
+
+    total_len = max(sum(col_max_lens), 1)
+    col_widths = [max(0.06, l / total_len) for l in col_max_lens]
+    sum_w = sum(col_widths)
+    col_widths = [w / sum_w for w in col_widths]
+
+    base_font_size = 9.0 if (n_cols > 7 or n_rows > 30) else 10.0
+    char_width_inch = 0.15 if base_font_size >= 10.0 else 0.13
+    fig_width = max(8.0, min(24.0, total_len * char_width_inch + 2.5))
+
+    has_title = bool(title or subtitle)
+    title_height = 0.85 if has_title else 0.25
+    header_lines = max((h.count("\n") + 1) for h in wrapped_headers)
+    header_height = 0.38 + (header_lines * 0.18)
+
+    line_h = 0.16 if base_font_size < 10.0 else 0.18
+    base_r_h = 0.26 if base_font_size < 10.0 else 0.28
+    row_heights = [
+        base_r_h + (line_count * line_h) for line_count in row_line_counts
+    ]
+    content_height = sum(row_heights)
+    footer_height = 0.45
+    total_height = (
+        title_height + header_height + content_height + footer_height
+    )
+
+    fig = plt.figure(figsize=(fig_width, total_height), dpi=250)
+    fig.patch.set_facecolor("#ffffff")
+
+    ax = fig.add_axes([0.03, 0.08, 0.94, 0.82])
+    ax.axis("off")
+
+    if title:
+        fig.text(
+            0.035,
+            0.94,
+            title,
+            fontsize=13,
+            fontweight="bold",
+            color="#0f172a",
+            ha="left",
+        )
+    sub = (
+        subtitle
+        if subtitle
+        else "Dyslev AI — Research Vision Analysis & Handwriting Evaluation"
+    )
+    fig.text(
+        0.035,
+        0.90 if title else 0.94,
+        sub,
+        fontsize=8.8,
+        color="#64748b",
+        ha="left",
+    )
+
+    table = ax.table(
+        cellText=wrapped_data,
+        colLabels=wrapped_headers,
+        colWidths=col_widths,
+        loc="center",
+        cellLoc="center",
+    )
+
+    table.auto_set_font_size(False)
+    table.set_fontsize(base_font_size)
+
+    header_color = "#1e293b"
+    header_text_color = "#ffffff"
+    zebra_even = "#ffffff"
+    zebra_odd = "#f8fafc"
+    border_color = "#cbd5e1"
+
+    rel_header_h = header_height / total_height
+
+    for (row, col), cell in table.get_celld().items():
+        cell.set_edgecolor(border_color)
+        cell.set_linewidth(0.75)
+
+        is_col_txt = col_is_text[col]
+
+        if row == 0:
+            cell.set_facecolor(header_color)
+            cell.set_text_props(
+                weight="bold",
+                color=header_text_color,
+                ha="left" if is_col_txt else "center",
+            )
+            cell.set_height(rel_header_h)
+        else:
+            bg = zebra_odd if row % 2 == 1 else zebra_even
+            cell.set_facecolor(bg)
+            cell.set_text_props(
+                color="#1e293b",
+                ha="left" if is_col_txt else "center",
+            )
+            rel_row_h = row_heights[row - 1] / total_height
+            cell.set_height(rel_row_h)
+
+    fig.text(
+        0.035,
+        0.02,
+        "Program Studi Statistika • Universitas Singaperbangsa Karawang | Anova Outlier 4",
+        fontsize=8.0,
+        color="#94a3b8",
+        ha="left",
+    )
+
+    buf = io.BytesIO()
+    fig.savefig(
+        buf,
+        format="png",
+        dpi=250,
+        facecolor=fig.get_facecolor(),
+        edgecolor="none",
+        bbox_inches="tight",
+        pad_inches=0.18,
+    )
+    plt.close(fig)
+    return buf.getvalue()
+
+
+def build_png_export_zip(tables: dict[str, pd.DataFrame]) -> bytes:
+    output = io.BytesIO()
+    with zipfile.ZipFile(
+        output,
+        mode="w",
+        compression=zipfile.ZIP_DEFLATED,
+    ) as archive:
+        for key, frame in tables.items():
+            title = tr(EXPORT_DATASET_LABELS.get(key, key))
+            png_bytes = dataframe_to_styled_png(frame, title=title)
+            filename = EXPORT_CSV_FILENAMES.get(
+                key, f"{key}.csv"
+            ).replace(".csv", ".png")
+            archive.writestr(filename, png_bytes)
+    return output.getvalue()
+
+
+def render_table_download_row(
+    df: pd.DataFrame,
+    file_stem: str,
+    base_name: str,
+    title: str = "",
+    key: str = "",
+) -> None:
+    if df is None or df.empty:
+        return
+    col_csv, col_png = st.columns(2)
+    csv_filename = (
+        f"{file_stem}_{base_name}.csv" if file_stem else f"{base_name}.csv"
+    )
+    png_filename = (
+        f"{file_stem}_{base_name}.png" if file_stem else f"{base_name}.png"
+    )
+
+    with col_csv:
+        st.download_button(
+            tr("Unduh CSV"),
+            df.to_csv(index=False).encode("utf-8"),
+            file_name=csv_filename,
+            mime="text/csv",
+            key=f"dl_csv_{key or base_name}",
+            on_click="ignore",
+        )
+    with col_png:
+        png_bytes = dataframe_to_styled_png(df, title=title)
+        st.download_button(
+            tr("Unduh Gambar (PNG)"),
+            png_bytes,
+            file_name=png_filename,
+            mime="image/png",
+            key=f"dl_png_{key or base_name}",
+            on_click="ignore",
+        )
+
+
 # -------------------------- Batch Processing -------------------------
 BATCH_FULL = "Analisis Lengkap"
 BATCH_TABLE = "Hanya Tabel Ringkasan"
@@ -3427,12 +3678,12 @@ with st.container():
                     "belum tentu memotong huruf secara tepat."
                 )
             )
-            st.download_button(
-                tr("Unduh Tabel"),
-                translated_comparison_df.to_csv(index=False).encode("utf-8"),
-                file_name="ringkasan_perbandingan_efficientnet_opencv.csv",
-                mime="text/csv",
-                on_click="ignore",
+            render_table_download_row(
+                translated_comparison_df,
+                file_stem="",
+                base_name="ringkasan_perbandingan_efficientnet_opencv",
+                title=tr("Hasil Perbandingan Model EfficientNet dan OpenCV"),
+                key="comparison_summary",
             )
 
         effnet_rows_by_file = {
@@ -3470,13 +3721,12 @@ with st.container():
                     effnet_rows,
                     hide_index=True,
                 )
-                st.download_button(
-                    tr("Unduh Tabel - {filename}").format(filename=file_stem),
-                    effnet_rows.to_csv(index=False).encode("utf-8"),
-                    file_name=f"{file_stem}_hasil_efficientnet.csv",
-                    mime="text/csv",
-                    key=f"download_effnet_{filename}",
-                    on_click="ignore",
+                render_table_download_row(
+                    effnet_rows,
+                    file_stem=file_stem,
+                    base_name="hasil_efficientnet",
+                    title=f"{tr('Model EfficientNet-B0')} — {filename}",
+                    key=f"effnet_{filename}",
                 )
                 if batch_mode == BATCH_FULL and effnet_output is not None:
                     st.markdown(f"#### {tr('Grid heatmap dan panel hasil')}")
@@ -3514,13 +3764,12 @@ with st.container():
                             gradcam_part_frame,
                             hide_index=True,
                         )
-                        st.download_button(
-                            tr("Unduh Tabel"),
-                            gradcam_part_frame.to_csv(index=False).encode("utf-8"),
-                            file_name=f"{file_stem}_skor_gradcam_per_bagian.csv",
-                            mime="text/csv",
-                            key=f"download_gradcam_parts_{filename}",
-                            on_click="ignore",
+                        render_table_download_row(
+                            gradcam_part_frame,
+                            file_stem=file_stem,
+                            base_name="skor_gradcam_per_bagian",
+                            title=f"{tr('Skor Klasifikasi per Bagian Grad-CAM')} — {filename}",
+                            key=f"gradcam_parts_{filename}",
                         )
 
             opencv_output = opencv_views_by_file.get(filename)
@@ -3542,13 +3791,12 @@ with st.container():
                     crop_summary_frame,
                     hide_index=True,
                 )
-                st.download_button(
-                    tr("Unduh Tabel"),
-                    crop_summary_frame.to_csv(index=False).encode("utf-8"),
-                    file_name=f"{file_stem}_ringkasan_crop.csv",
-                    mime="text/csv",
-                    key=f"download_crop_summary_{filename}",
-                    on_click="ignore",
+                render_table_download_row(
+                    crop_summary_frame,
+                    file_stem=file_stem,
+                    base_name="ringkasan_crop",
+                    title=f"{tr('Ringkasan Crop Komponen OpenCV')} — {filename}",
+                    key=f"crop_summary_{filename}",
                 )
                 st.markdown(f"##### {tr('Komponen terdeteksi')}")
                 st.image(
@@ -3576,13 +3824,12 @@ with st.container():
                     crop_details_display,
                     hide_index=True,
                 )
-                st.download_button(
-                    tr("Unduh Tabel"),
-                    crop_details_display.to_csv(index=False).encode("utf-8"),
-                    file_name=f"{file_stem}_rincian_prediksi_crop.csv",
-                    mime="text/csv",
-                    key=f"download_crop_details_{filename}",
-                    on_click="ignore",
+                render_table_download_row(
+                    crop_details_display,
+                    file_stem=file_stem,
+                    base_name="rincian_prediksi_crop",
+                    title=f"{tr('Rincian Prediksi per Huruf')} — {filename}",
+                    key=f"crop_details_{filename}",
                 )
                 file_measurements = pd.DataFrame(
                     opencv_output["measurements"] or []
@@ -3599,15 +3846,12 @@ with st.container():
                         translate_dataframe(file_measurements),
                         hide_index=True,
                     )
-                    st.download_button(
-                        tr("Unduh Tabel"),
-                        translate_dataframe(file_measurements).to_csv(
-                            index=False
-                        ).encode("utf-8"),
-                        file_name=f"{file_stem}_skala_komponen.csv",
-                        mime="text/csv",
-                        key=f"download_component_scale_{filename}",
-                        on_click="ignore",
+                    render_table_download_row(
+                        translate_dataframe(file_measurements),
+                        file_stem=file_stem,
+                        base_name="skala_komponen",
+                        title=f"{tr('Skala Komponen & Variasi Huruf')} — {filename}",
+                        key=f"component_scale_{filename}",
                     )
                     st.markdown(f"##### {tr('Hasil pengukuran gambar')}")
                     st.table(
@@ -3616,15 +3860,14 @@ with st.container():
                         ),
                         hide_index=True,
                     )
-                    st.download_button(
-                        tr("Unduh Tabel"),
+                    render_table_download_row(
                         translate_dataframe(
                             opencv_rows_by_file.get(filename, pd.DataFrame())
-                        ).to_csv(index=False).encode("utf-8"),
-                        file_name=f"{file_stem}_hasil_pengukuran.csv",
-                        mime="text/csv",
-                        key=f"download_opencv_summary_{filename}",
-                        on_click="ignore",
+                        ),
+                        file_stem=file_stem,
+                        base_name="hasil_pengukuran",
+                        title=f"{tr('Hasil Pengukuran Gambar OpenCV')} — {filename}",
+                        key=f"opencv_summary_{filename}",
                     )
                     st.markdown(f"##### {tr('Variasi per baris')}")
                     st.table(
@@ -3633,15 +3876,14 @@ with st.container():
                         ),
                         hide_index=True,
                     )
-                    st.download_button(
-                        tr("Unduh Tabel"),
-                        translate_dataframe(file_line_variability).to_csv(
-                            index=False
-                        ).encode("utf-8"),
-                        file_name=f"{file_stem}_variasi_per_baris.csv",
-                        mime="text/csv",
-                        key=f"download_line_variability_{filename}",
-                        on_click="ignore",
+                    render_table_download_row(
+                        translate_dataframe(
+                            file_line_variability.fillna("Data kurang")
+                        ),
+                        file_stem=file_stem,
+                        base_name="variasi_per_baris",
+                        title=f"{tr('Variasi per Baris')} — {filename}",
+                        key=f"line_variability_{filename}",
                     )
 
         def classify_sample_entry(filename: str) -> tuple[str, str]:
@@ -3792,15 +4034,12 @@ with st.container():
                             translate_dataframe(filtered_summary_df),
                             hide_index=True,
                         )
-                        st.download_button(
-                            tr("Unduh Tabel Terfilter"),
-                            translate_dataframe(filtered_summary_df)
-                            .to_csv(index=False)
-                            .encode("utf-8"),
-                            file_name="daftar_sampel_terfilter.csv",
-                            mime="text/csv",
-                            key="download_filtered_sample_list_csv",
-                            on_click="ignore",
+                        render_table_download_row(
+                            translate_dataframe(filtered_summary_df),
+                            file_stem="",
+                            base_name="daftar_sampel_terfilter",
+                            title=tr("Daftar Sampel Terfilter"),
+                            key="filtered_sample_list",
                         )
 
                     entry_by_filename = {
@@ -3838,7 +4077,11 @@ with st.container():
                 if export_tables:
                     export_format = st.radio(
                         tr("Format unduhan"),
-                        ["Excel (beberapa sheet)", "ZIP (CSV per tabel)"],
+                        [
+                            "Excel (beberapa sheet)",
+                            "ZIP (CSV per tabel)",
+                            "ZIP (Gambar PNG per tabel)",
+                        ],
                         horizontal=True,
                         key=f"batch_export_format_{export_selection_id}",
                         format_func=tr,
@@ -3929,11 +4172,16 @@ with st.container():
                             "spreadsheetml.sheet"
                         )
                         download_label = tr("Unduh Excel")
+                    elif export_format == "ZIP (Gambar PNG per tabel)":
+                        export_data = build_png_export_zip(selected_tables)
+                        export_filename = "tabel_gambar_pilihan.zip"
+                        export_mime = "application/zip"
+                        download_label = tr("Unduh ZIP (Gambar PNG)")
                     else:
                         export_data = build_csv_export_zip(selected_tables)
                         export_filename = "hasil_analisis_pilihan.zip"
                         export_mime = "application/zip"
-                        download_label = tr("Unduh ZIP")
+                        download_label = tr("Unduh ZIP (CSV)")
                     st.download_button(
                         download_label,
                         export_data,
