@@ -8,6 +8,8 @@ import zipfile
 from datetime import datetime
 from typing import Any
 
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import streamlit as st
 import numpy as np
