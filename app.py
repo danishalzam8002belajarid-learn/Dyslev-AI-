@@ -1,6 +1,7 @@
 import base64
 import hashlib
 import io
+import math
 import os
 import textwrap
 import time
@@ -23,6 +24,15 @@ from handwriting_measurement import (
 )
 
 ENGLISH_TRANSLATIONS = {
+    "DISCLAIMER PENELITIAN • ALAT BANTU SKRINING": "RESEARCH DISCLAIMER • SCREENING ASSISTANT",
+    "Alat Bantu Deteksi Dini Disgrafia & Disleksia": "Early Screening Tool for Dysgraphia & Dyslexia",
+    "Khusus Anak Usia 4 – 7 Tahun": "Designed for Children Aged 4 – 7 Years",
+    "Berbasis Indikator Tulisan Tangan (EfficientNet-B0 & OpenCV)": "Based on Handwriting Indicators (EfficientNet-B0 & OpenCV)",
+    "Aplikasi ini hanya berfungsi sebagai alat bantu skrining awal (prototipe penelitian) berdasarkan pola visual tulisan tangan, bukan alat diagnosis medis atau klinis final.": "This application serves strictly as an early screening assistant (research prototype) based on handwriting visual patterns, not a final medical or clinical diagnosis.",
+    "Model dioptimalkan dan dievaluasi untuk karakteristik tulisan tangan anak pada rentang usia 4–7 tahun.": "The model is optimized and evaluated for handwriting characteristics of children aged 4–7 years.",
+    "Hasil prediksi dan tingkat keyakinan (confidence) tetap perlu dikonsultasikan dengan psikolog, terapis okupasi, atau tenaga profesional terkait.": "Prediction results and confidence levels should always be consulted with a psychologist, occupational therapist, or relevant specialist.",
+    "Saya Mengerti & Lanjutkan": "I Understand & Continue",
+    "Sasaran Usia 4–7 Tahun • Alat Bantu Skrining Indikator Tulisan Tangan (Bukan Diagnosis Klinis)": "Target Age 4–7 Years • Handwriting Indicator Screening Assistant (Not a Clinical Diagnosis)",
     "Unduh CSV": "Download CSV",
     "Unduh Gambar (PNG)": "Download Image (PNG)",
     "ZIP (Gambar PNG per tabel)": "ZIP (PNG Images per Table)",
@@ -566,6 +576,23 @@ def split_image_into_equal_width_parts(
     return parts
 
 
+def calibrate_prediction_confidence(
+    raw_prob: float,
+    threshold: float,
+    temperature: float = 2.8,
+    max_cap: float = 0.92,
+) -> float:
+    """Calibrate sigmoid confidence via threshold-centered temperature scaling
+    to prevent overconfidence on ambiguous or misclassified samples."""
+    p = min(max(float(raw_prob), 1e-5), 1.0 - 1e-5)
+    t_c = min(max(float(threshold), 1e-5), 1.0 - 1e-5)
+    logit_p = math.log(p / (1.0 - p))
+    logit_t = math.log(t_c / (1.0 - t_c))
+    cal_prob = 1.0 / (1.0 + math.exp(-(logit_p - logit_t) / temperature))
+    conf = cal_prob if raw_prob > threshold else (1.0 - cal_prob)
+    return min(conf, max_cap)
+
+
 def aggregate_efficientnet_predictions(
     predictions: list[dict[str, Any]],
     areas: list[int],
@@ -582,9 +609,7 @@ def aggregate_efficientnet_predictions(
         for prediction, area in zip(predictions, areas)
     ) / total_area
     label = "Disleksia" if dyslexia_score > threshold else "Normal"
-    confidence = (
-        dyslexia_score if label == "Disleksia" else 1.0 - dyslexia_score
-    )
+    confidence = calibrate_prediction_confidence(dyslexia_score, threshold)
     return {
         "label": label,
         "confidence": confidence,
@@ -2009,6 +2034,195 @@ if show_refresh_splash and len(logos) >= 4:
         unsafe_allow_html=True,
     )
 
+if show_refresh_splash:
+    _disc_delay = "5.25s" if len(logos) >= 4 else "0.2s"
+    st.markdown(
+        f"""
+<style>
+@keyframes aiDisclaimerFadeIn {{
+    0% {{ opacity: 0; visibility: hidden; pointer-events: none; }}
+    1% {{ visibility: visible; pointer-events: auto; }}
+    100% {{ opacity: 1; visibility: visible; pointer-events: auto; }}
+}}
+@keyframes aiDisclaimerCardPop {{
+    0% {{ opacity: 0; transform: translateY(24px) scale(0.92); }}
+    60% {{ opacity: 1; transform: translateY(-4px) scale(1.015); }}
+    100% {{ opacity: 1; transform: translateY(0) scale(1); }}
+}}
+@keyframes aiPulseAge {{
+    0%, 100% {{ box-shadow: 0 0 0 0 rgba(0, 223, 154, 0.45); }}
+    50% {{ box-shadow: 0 0 0 8px rgba(0, 223, 154, 0); }}
+}}
+.ai-disclaimer-checkbox {{
+    display: none !important;
+}}
+.ai-disclaimer-overlay {{
+    position: fixed;
+    inset: 0;
+    z-index: 99998;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem;
+    background: rgba(4, 13, 18, 0.82);
+    backdrop-filter: blur(10px);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    animation: aiDisclaimerFadeIn 0.5s ease-out {_disc_delay} forwards;
+    transition: opacity 0.35s ease, visibility 0.35s ease;
+}}
+.ai-disclaimer-checkbox:checked ~ .ai-disclaimer-overlay {{
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    animation: none !important;
+}}
+.ai-disclaimer-card {{
+    position: relative;
+    width: min(100%, 560px);
+    background: linear-gradient(145deg, #071820 0%, #0d2733 55%, #071921 100%);
+    border: 1px solid rgba(0, 223, 154, 0.45);
+    border-radius: 22px;
+    padding: 2rem 1.85rem 1.75rem;
+    color: #e2e8f0;
+    box-shadow: 0 28px 60px -12px rgba(0, 0, 0, 0.88), 0 0 40px rgba(0, 223, 154, 0.14);
+    opacity: 0;
+    animation: aiDisclaimerCardPop 0.55s cubic-bezier(0.22, 1, 0.36, 1) {_disc_delay} forwards;
+}}
+.ai-disclaimer-x {{
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    color: #cbd5e1;
+    font-size: 1.35rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}}
+.ai-disclaimer-x:hover {{
+    background: rgba(239, 68, 68, 0.22);
+    border-color: rgba(239, 68, 68, 0.55);
+    color: #ffffff;
+    transform: rotate(90deg);
+}}
+.ai-disclaimer-badge {{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 13px;
+    border-radius: 999px;
+    background: rgba(245, 158, 11, 0.14);
+    border: 1px solid rgba(245, 158, 11, 0.42);
+    color: #fbbf24;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.9rem;
+}}
+.ai-disclaimer-title {{
+    font-size: clamp(1.25rem, 2.8vw, 1.5rem);
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1.25;
+    margin-bottom: 0.4rem;
+}}
+.ai-disclaimer-sub {{
+    font-size: 0.88rem;
+    color: #94a3b8;
+    margin-bottom: 1rem;
+}}
+.ai-age-pill {{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 12px;
+    background: linear-gradient(90deg, rgba(0, 223, 154, 0.18), rgba(14, 165, 233, 0.16));
+    border: 1px solid rgba(0, 223, 154, 0.52);
+    color: #6ee7b7;
+    font-size: 0.92rem;
+    font-weight: 700;
+    margin-bottom: 1.1rem;
+    animation: aiPulseAge 2.4s infinite;
+}}
+.ai-disclaimer-list {{
+    margin: 0 0 1.35rem 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: #cbd5e1;
+}}
+.ai-disclaimer-list li {{
+    position: relative;
+    padding-left: 1.3rem;
+}}
+.ai-disclaimer-list li::before {{
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.48rem;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #00df9a;
+    box-shadow: 0 0 8px rgba(0, 223, 154, 0.7);
+}}
+.ai-disclaimer-btn {{
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 0.78rem 1.25rem;
+    border-radius: 12px;
+    background: linear-gradient(90deg, #00df9a 0%, #0ea5e9 100%);
+    color: #04131a;
+    font-weight: 800;
+    font-size: 0.94rem;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    box-shadow: 0 10px 24px -6px rgba(0, 223, 154, 0.45);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    user-select: none;
+}}
+.ai-disclaimer-btn:hover {{
+    transform: translateY(-2px);
+    box-shadow: 0 14px 28px -6px rgba(0, 223, 154, 0.6);
+}}
+</style>
+<input type="checkbox" id="ai-disclaimer-close-toggle" class="ai-disclaimer-checkbox" />
+<div class="ai-disclaimer-overlay">
+<div class="ai-disclaimer-card" role="dialog" aria-modal="true" aria-labelledby="ai-disc-title">
+<label for="ai-disclaimer-close-toggle" class="ai-disclaimer-x" title="Close">&times;</label>
+<div class="ai-disclaimer-badge"><span class="ai-scanner-dot"></span><span>{tr("DISCLAIMER PENELITIAN • ALAT BANTU SKRINING")}</span></div>
+<div id="ai-disc-title" class="ai-disclaimer-title">{tr("Alat Bantu Deteksi Dini Disgrafia & Disleksia")}</div>
+<div class="ai-disclaimer-sub">{tr("Berbasis Indikator Tulisan Tangan (EfficientNet-B0 & OpenCV)")}</div>
+<div class="ai-age-pill">{tr("Khusus Anak Usia 4 – 7 Tahun")}</div>
+<ul class="ai-disclaimer-list">
+<li>{tr("Aplikasi ini hanya berfungsi sebagai alat bantu skrining awal (prototipe penelitian) berdasarkan pola visual tulisan tangan, bukan alat diagnosis medis atau klinis final.")}</li>
+<li>{tr("Model dioptimalkan dan dievaluasi untuk karakteristik tulisan tangan anak pada rentang usia 4–7 tahun.")}</li>
+<li>{tr("Hasil prediksi dan tingkat keyakinan (confidence) tetap perlu dikonsultasikan dengan psikolog, terapis okupasi, atau tenaga profesional terkait.")}</li>
+</ul>
+<label for="ai-disclaimer-close-toggle" class="ai-disclaimer-btn">{tr("Saya Mengerti & Lanjutkan")}</label>
+</div>
+</div>
+        """,
+        unsafe_allow_html=True,
+    )
+
 logo_tags = "".join(
     f'<img src="{logo}" alt="Logo mitra {index}" '
     'style="width:auto; max-width:150px; height:72px; object-fit:contain;">'
@@ -2043,6 +2257,9 @@ st.markdown(f"""
 <span class="feature-pill">{tr("Ekspor Hasil CSV")}</span>
 <span class="feature-pill">{tr("Visualisasi Grad-CAM")}</span>
 <span class="feature-pill">{tr("Eksperimen Crop OpenCV")}</span>
+</div>
+<div style="margin: 1.1rem auto 0; display: inline-flex; align-items: center; gap: 8px; padding: 8px 18px; border-radius: 999px; background: rgba(0, 223, 154, 0.14); border: 1px solid rgba(0, 223, 154, 0.42); color: #6ee7b7; font-size: 0.85rem; font-weight: 700;">
+{tr("Sasaran Usia 4–7 Tahun • Alat Bantu Skrining Indikator Tulisan Tangan (Bukan Diagnosis Klinis)")}
 </div>
 
 <div class="features-section">
@@ -2323,10 +2540,8 @@ def predict_efficientnet(interpreter, image: Image.Image, threshold: float):
     interpreter.invoke()
     preds = interpreter.get_tensor(out_idx)[0]
     raw = float(preds[0])  # indeks 0 = Disleksia
-    if raw > threshold:
-        label, conf = "Disleksia", raw
-    else:
-        label, conf = "Normal", float(preds[1]) if len(preds) > 1 else 1 - raw
+    label = "Disleksia" if raw > threshold else "Normal"
+    conf = calibrate_prediction_confidence(raw, threshold)
     normal_score = float(preds[1]) if len(preds) > 1 else 1 - raw
     return {
         "label": label, "confidence": conf, "raw": raw,
