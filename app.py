@@ -33,6 +33,20 @@ ENGLISH_TRANSLATIONS = {
     "Hasil prediksi dan tingkat keyakinan (confidence) tetap perlu dikonsultasikan dengan psikolog, terapis okupasi, atau tenaga profesional terkait.": "Prediction results and confidence levels should always be consulted with a psychologist, occupational therapist, or relevant specialist.",
     "Saya Mengerti & Lanjutkan": "I Understand & Continue",
     "Sasaran Usia 4–7 Tahun • Alat Bantu Skrining Indikator Tulisan Tangan (Bukan Diagnosis Klinis)": "Target Age 4–7 Years • Handwriting Indicator Screening Assistant (Not a Clinical Diagnosis)",
+    "Kesimpulan Akhir & Akumulasi Skor Hybrid (EfficientNet-B0 + OpenCV)": "Final Hybrid Conclusion & Accumulated Score (EfficientNet-B0 + OpenCV)",
+    "Akumulasi Skor Hybrid menggabungkan kedua model secara tertimbang (70% Skor EfficientNet-B0 + 30% Skor OpenCV Crop) menjadi satu keputusan akhir dengan kalibrasi confidence.": "The Hybrid Score combines both models with weighted fusion (70% EfficientNet-B0 Score + 30% OpenCV Crop Score) into one final calibrated conclusion.",
+    "Kesimpulan Hybrid (Gabungan 2 Model)": "Hybrid Conclusion (2-Model Fusion)",
+    "Skor EfficientNet-B0 (%)": "EfficientNet-B0 Score (%)",
+    "Skor OpenCV Crop (%)": "OpenCV Crop Score (%)",
+    "Akumulasi Skor Hybrid (%)": "Hybrid Accumulated Score (%)",
+    "Kesepakatan Model": "Model Agreement",
+    "Kesimpulan Akhir Hybrid": "Final Hybrid Conclusion",
+    "Confidence Hybrid": "Hybrid Confidence",
+    "Sepakat (Kedua Model)": "Agreed (Both Models)",
+    "Berbeda (Perlu Tinjauan)": "Divergent (Needs Review)",
+    "Hanya EfficientNet-B0": "EfficientNet-B0 Only",
+    "Hanya OpenCV Crop": "OpenCV Crop Only",
+    "Lihat tabel kesimpulan hybrid seluruh sampel ({count} sampel)": "View full hybrid conclusion table ({count} samples)",
     "Unduh CSV": "Download CSV",
     "Unduh Gambar (PNG)": "Download Image (PNG)",
     "ZIP (Gambar PNG per tabel)": "ZIP (PNG Images per Table)",
@@ -2667,7 +2681,88 @@ def build_comparison_summary(
     return effnet.merge(crops, on="Nama File", how="outer")
 
 
+def _parse_pct(value: Any) -> float | None:
+    if value is None:
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+    text = str(value).strip().replace("%", "")
+    try:
+        return float(text)
+    except ValueError:
+        return None
+
+
+def build_hybrid_conclusion_summary(
+    effnet_results: list[dict[str, Any]],
+    crop_summaries: list[dict[str, Any]],
+    threshold: float,
+) -> pd.DataFrame:
+    """Gabungkan skor EfficientNet-B0 (global) dan OpenCV Crop menjadi satu kesimpulan hybrid."""
+    eff_by_name = {
+        row["Nama File"]: row for row in effnet_results if "Nama File" in row
+    }
+    crop_by_name = {
+        row["Nama File"]: row for row in crop_summaries if "Nama File" in row
+    }
+    all_names = list(dict.fromkeys([*eff_by_name.keys(), *crop_by_name.keys()]))
+
+    records: list[dict[str, Any]] = []
+    for fname in all_names:
+        eff_row = eff_by_name.get(fname)
+        crop_row = crop_by_name.get(fname)
+
+        eff_raw_pct: float | None = None
+        if eff_row is not None and "Raw Score (Disleksia)" in eff_row:
+            try:
+                eff_raw_pct = float(eff_row["Raw Score (Disleksia)"]) * 100.0
+            except (TypeError, ValueError):
+                eff_raw_pct = None
+
+        crop_dys_pct = (
+            _parse_pct(crop_row.get("Komponen diprediksi Disleksia (%)"))
+            if crop_row is not None
+            else None
+        )
+
+        if eff_raw_pct is not None and crop_dys_pct is not None:
+            hybrid_pct = 0.70 * eff_raw_pct + 0.30 * crop_dys_pct
+            eff_pred = "Disleksia" if eff_raw_pct > (threshold * 100.0) else "Normal"
+            crop_pred = "Disleksia" if crop_dys_pct > (threshold * 100.0) else "Normal"
+            agreement = (
+                "Sepakat (Kedua Model)"
+                if eff_pred == crop_pred
+                else "Berbeda (Perlu Tinjauan)"
+            )
+        elif eff_raw_pct is not None:
+            hybrid_pct = eff_raw_pct
+            agreement = "Hanya EfficientNet-B0"
+        elif crop_dys_pct is not None:
+            hybrid_pct = crop_dys_pct
+            agreement = "Hanya OpenCV Crop"
+        else:
+            continue
+
+        hybrid_raw = hybrid_pct / 100.0
+        final_label = "Disleksia" if hybrid_raw > threshold else "Normal"
+        final_conf = calibrate_prediction_confidence(hybrid_raw, threshold)
+        conf_lvl, _ = confidence_level(final_conf)
+
+        records.append({
+            "Nama File": fname,
+            "Skor EfficientNet-B0 (%)": f"{eff_raw_pct:.2f}%" if eff_raw_pct is not None else "-",
+            "Skor OpenCV Crop (%)": f"{crop_dys_pct:.2f}%" if crop_dys_pct is not None else "-",
+            "Akumulasi Skor Hybrid (%)": f"{hybrid_pct:.2f}%",
+            "Kesepakatan Model": agreement,
+            "Kesimpulan Akhir Hybrid": final_label,
+            "Confidence Hybrid": f"{final_conf * 100:.2f}% ({conf_lvl})",
+        })
+
+    return pd.DataFrame(records)
+
+
 EXPORT_DATASET_LABELS = {
+    "hybrid_conclusion": "Kesimpulan Hybrid (Gabungan 2 Model)",
     "effnet_summary": "Ringkasan EfficientNet",
     "gradcam_parts": "Skor per Bagian Grad-CAM",
     "comparison": "Ringkasan Perbandingan",
@@ -2679,6 +2774,7 @@ EXPORT_DATASET_LABELS = {
 }
 
 EXPORT_CSV_FILENAMES = {
+    "hybrid_conclusion": "kesimpulan_hybrid_gabungan.csv",
     "effnet_summary": "ringkasan_efficientnet.csv",
     "gradcam_parts": "skor_gradcam_per_bagian.csv",
     "comparison": "ringkasan_perbandingan.csv",
@@ -2693,9 +2789,11 @@ EXPORT_CSV_FILENAMES = {
 def build_export_tables(
     batch_result: dict[str, Any],
     comparison_df: pd.DataFrame,
+    hybrid_df: pd.DataFrame | None = None,
 ) -> dict[str, pd.DataFrame]:
     tables: dict[str, pd.DataFrame] = {}
     record_tables = (
+        ("hybrid_conclusion", hybrid_df.to_dict("records") if hybrid_df is not None else []),
         ("effnet_summary", batch_result.get("results", [])),
         ("comparison", comparison_df.to_dict("records")),
         ("opencv_summary", batch_result.get("opencv_results", [])),
@@ -3839,6 +3937,46 @@ with st.container():
     batch_result = st.session_state.get("batch_analysis_result")
     if batch_files and batch_result and batch_result["signature"] == batch_signature:
         show_batch_comparison = len(batch_files) > 1
+        hybrid_df = build_hybrid_conclusion_summary(
+            batch_result["results"],
+            batch_result["opencv_crop_summaries"],
+            threshold,
+        )
+        if not hybrid_df.empty:
+            st.markdown(
+                f"## {tr('Kesimpulan Akhir & Akumulasi Skor Hybrid (EfficientNet-B0 + OpenCV)')}"
+            )
+            st.caption(
+                tr(
+                    "Akumulasi Skor Hybrid menggabungkan kedua model secara tertimbang "
+                    "(70% Skor EfficientNet-B0 + 30% Skor OpenCV Crop) menjadi satu "
+                    "keputusan akhir dengan kalibrasi confidence."
+                )
+            )
+            translated_hybrid_df = translate_dataframe(hybrid_df)
+            if len(batch_files) > 10:
+                with st.expander(
+                    tr(
+                        "Lihat tabel kesimpulan hybrid seluruh sampel ({count} sampel)"
+                    ).format(count=len(batch_files)),
+                    expanded=True,
+                ):
+                    st.table(
+                        translated_hybrid_df,
+                        hide_index=True,
+                    )
+            else:
+                st.table(
+                    translated_hybrid_df,
+                    hide_index=True,
+                )
+            render_table_download_row(
+                translated_hybrid_df,
+                file_stem="",
+                base_name="kesimpulan_hybrid_gabungan",
+                title=tr("Kesimpulan Akhir & Akumulasi Skor Hybrid (EfficientNet-B0 + OpenCV)"),
+                key="hybrid_conclusion_top",
+            )
         comparison_df = build_comparison_summary(
             batch_result["results"],
             batch_result["opencv_crop_summaries"],
@@ -4278,7 +4416,7 @@ with st.container():
                     if selected_sample_filename:
                         render_sample_detail_view(selected_sample_filename)
 
-        export_tables = build_export_tables(batch_result, comparison_df)
+        export_tables = build_export_tables(batch_result, comparison_df, hybrid_df)
         combined_grid_available = (
             show_batch_comparison
             and bool(batch_result.get("tiles") or batch_result.get("grid_png"))
@@ -4344,14 +4482,15 @@ with st.container():
                                 key=f"batch_export_{export_selection_id}_{key}",
                             ):
                                 selected_export_keys.append(key)
-                    if "comparison" in export_tables:
+                    if "hybrid_conclusion" in export_tables or "comparison" in export_tables:
                         st.markdown(f"#### {tr('Keseluruhan')}")
-                        if st.checkbox(
-                            tr(EXPORT_DATASET_LABELS["comparison"]),
-                            value=False,
-                            key=f"batch_export_{export_selection_id}_comparison",
-                        ):
-                            selected_export_keys.append("comparison")
+                        for key in ("hybrid_conclusion", "comparison"):
+                            if key in export_tables and st.checkbox(
+                                tr(EXPORT_DATASET_LABELS[key]),
+                                value=False,
+                                key=f"batch_export_{export_selection_id}_{key}",
+                            ):
+                                selected_export_keys.append(key)
 
                 include_combined_grid = False
                 if combined_grid_available:
