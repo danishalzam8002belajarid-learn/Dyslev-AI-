@@ -8,6 +8,29 @@ import pandas as pd
 from PIL import Image
 
 
+def remove_horizontal_ruled_lines(mask: np.ndarray) -> np.ndarray:
+    """Detect and remove long thin horizontal guide lines without breaking vertical letter strokes."""
+    _, width = mask.shape
+    horiz_w = max(35, width // 10)
+    horiz_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (horiz_w, 1))
+    detected_lines = cv2.morphologyEx(mask, cv2.MORPH_OPEN, horiz_kernel, iterations=1)
+    if not np.any(detected_lines):
+        return mask
+    lines_dilated = cv2.dilate(
+        detected_lines,
+        cv2.getStructuringElement(cv2.MORPH_RECT, (1, 3)),
+        iterations=1,
+    )
+    cleaned = cv2.subtract(mask, lines_dilated)
+    repaired = cv2.morphologyEx(
+        cleaned,
+        cv2.MORPH_CLOSE,
+        cv2.getStructuringElement(cv2.MORPH_RECT, (1, 3)),
+        iterations=1,
+    )
+    return np.where(lines_dilated > 0, repaired, cleaned)
+
+
 def measure_connected_regions(
     image: Image.Image,
     min_area: int = 12,
@@ -28,6 +51,7 @@ def measure_connected_regions(
     )
     if np.mean(mask) > 127:
         mask = cv2.bitwise_not(mask)
+    mask = remove_horizontal_ruled_lines(mask)
 
     count, _, stats, _ = cv2.connectedComponentsWithStats(mask, connectivity=8)
     regions: list[dict[str, int | float]] = []
