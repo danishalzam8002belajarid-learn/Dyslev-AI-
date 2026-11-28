@@ -560,7 +560,8 @@ def images_over_width(
     oversized = []
     for file_index, uploaded_file in enumerate(files):
         width, height, _, fingerprint = _get_uploaded_file_meta(uploaded_file)
-        if width > max_width:
+        aspect_ratio = width / max(height, 1)
+        if width > max_width and aspect_ratio > 1.6:
             oversized.append(
                 (
                     file_index,
@@ -577,10 +578,12 @@ def split_image_into_equal_width_parts(
     image: Image.Image,
     max_width: int,
 ) -> list[Image.Image]:
+    """Bagi gambar lebar menyesuaikan rasio terdekat 1:1 (square) agar tidak gepeng di EfficientNet-B0."""
     width, height = image.size
-    part_count = (width + max_width - 1) // max_width
-    if part_count <= 1:
+    aspect_ratio = width / max(height, 1)
+    if width <= max_width or aspect_ratio <= 1.6:
         return [image]
+    part_count = max(2, min(12, int(round(aspect_ratio))))
     base_width, remainder = divmod(width, part_count)
     parts = []
     for part_index in range(part_count):
@@ -3771,6 +3774,7 @@ with st.container():
                         if (
                             i in split_wide_file_indices
                             and w > WIDE_IMAGE_WARNING_WIDTH
+                            and (w / max(h, 1)) > 1.6
                             and keras_model is not None
                         ):
                             try:
