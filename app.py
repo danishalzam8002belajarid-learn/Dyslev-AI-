@@ -2575,6 +2575,7 @@ def predict_component_crops(
     threshold: float,
     on_crop_progress: Any = None,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, Any]]:
+    crop_start = time.time()
     predictions = []
     crop_previews: list[dict[str, Any]] = []
     cropped_regions = crop_connected_regions(image, measurements)
@@ -2598,13 +2599,27 @@ def predict_component_crops(
                 "Skor kelas terpilih (%)": f"{result['confidence'] * 100:.2f}%",
             }
         )
+    crop_elapsed = time.time() - crop_start
     total_crops = len(predictions)
     dyslexia_count = sum(
         prediction["Prediksi eksperimen"] == "Disleksia"
         for prediction in predictions
     )
     normal_count = total_crops - dyslexia_count
+    if total_crops > 0:
+        dys_ratio = dyslexia_count / total_crops
+        crop_pred = "Disleksia" if dys_ratio > threshold else "Normal"
+        crop_conf = calibrate_prediction_confidence(dys_ratio, threshold)
+        crop_lvl, _ = confidence_level(crop_conf)
+        conf_str = f"{crop_conf * 100:.2f}%"
+    else:
+        crop_pred = "Data kurang"
+        conf_str = "-"
+        crop_lvl = "-"
     summary = {
+        "Prediksi": crop_pred,
+        "Tingkat Kepercayaan": conf_str,
+        "Level Confidence": crop_lvl,
         "Jumlah crop dianalisis": total_crops,
         "Komponen diprediksi Disleksia (%)": (
             f"{dyslexia_count / total_crops * 100:.2f}%"
@@ -2616,6 +2631,7 @@ def predict_component_crops(
             if total_crops
             else "Data kurang"
         ),
+        "Inference Time (s)": f"{crop_elapsed:.4f}",
     }
     return predictions, crop_previews, summary
 
@@ -2732,7 +2748,7 @@ def build_hybrid_conclusion_summary(
             agreement = (
                 "Sepakat (Kedua Model)"
                 if eff_pred == crop_pred
-                else "Berbeda (Perlu Tinjauan)"
+                else "Berbeda"
             )
         elif eff_raw_pct is not None:
             hybrid_pct = eff_raw_pct
@@ -3056,6 +3072,103 @@ def dataframe_to_styled_png(
     )
     plt.close(fig)
     return buf.getvalue()
+
+
+COLLECTED_SAMPLES_DIR = os.path.join(BASE_DIR, "collected_samples")
+
+
+def auto_save_dyslexia_sample(filename: str, raw_bytes: bytes) -> bool:
+    """Simpan otomatis salinan gambar yang terdeteksi Disleksia untuk bank sampel."""
+    if not raw_bytes:
+        return False
+    auto_dir = os.path.join(COLLECTED_SAMPLES_DIR, "auto_disleksia")
+    os.makedirs(auto_dir, exist_ok=True)
+    digest = hashlib.sha256(raw_bytes).hexdigest()[:10]
+    stem = os.path.splitext(os.path.basename(filename))[0]
+    ext = os.path.splitext(filename)[1].lower() or ".png"
+    target_path = os.path.join(auto_dir, f"{stem}_{digest}{ext}")
+    if os.path.exists(target_path):
+        return False
+    with open(target_path, "wb") as f:
+        f.write(raw_bytes)
+    return True
+
+
+def save_manual_verified_sample(
+    filename: str,
+    raw_bytes: bytes,
+    label: str,
+    verifier_name: str,
+    notes: str,
+) -> str:
+    """Simpan sampel terverifikasi manual 2-langkah beserta log metadata.csv."""
+    label_folder = "Disleksia" if label == "Disleksia" else "Normal"
+    target_dir = os.path.join(COLLECTED_SAMPLES_DIR, "manual_verified", label_folder)
+    os.makedirs(target_dir, exist_ok=True)
+    digest = hashlib.sha256(raw_bytes).hexdigest()[:10]
+    stem = os.path.splitext(os.path.basename(filename))[0]
+    ext = os.path.splitext(filename)[1].lower() or ".png"
+    saved_name = f"{stem}_{digest}{ext}"
+    saved_path = os.path.join(target_dir, saved_name)
+    with open(saved_path, "wb") as f:
+        f.write(raw_bytes)
+
+    meta_path = os.path.join(COLLECTED_SAMPLES_DIR, "manual_verified", "metadata.csv")
+    row = pd.DataFrame([{
+        "Waktu": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "Nama File": saved_name,
+        "Label Validasi": label_folder,
+        "Verifikator": verifier_name.strip(),
+        "Catatan Observasi": notes.strip(),
+    }])
+    row.to_csv(meta_path, mode="a", header=not os.path.exists(meta_path), index=False)
+    return saved_path
+
+
+def build_collected_samples_zip() -> bytes:
+    """Kemas seluruh sampel terkumpul (auto & manual) ke dalam file ZIP."""
+    output = io.BytesIO()
+    with zipfile.ZipFile(output, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
+        if os.path.exists(COLLECTED_SAMPLES_DIR):
+            for root_dir, _, files in os.walk(COLLECTED_SAMPLES_DIR):
+                for fn in files:
+                    full_p = os.path.join(root_dir, fn)
+                    rel_p = os.path.relpath(full_p, COLLECTED_SAMPLES_DIR)
+                    zf.write(full_p, arcname=rel_p)
+    return output.getvalue()
+
+
+@st.cache_data(show_spinner=False)
+def combine_image_with_table_png(
+    image_bytes: bytes,
+    df: pd.DataFrame,
+    table_title: str = "",
+) -> bytes:
+    """Gabungkan gambar hasil visualisasi dengan tabel ringkasan model di bagian bawahnya."""
+    if df is None or df.empty:
+        return image_bytes
+    with Image.open(io.BytesIO(image_bytes)) as top_im:
+        top_rgb = top_im.convert("RGB")
+    table_png = dataframe_to_styled_png(df, title=table_title)
+    with Image.open(io.BytesIO(table_png)) as bot_im:
+        bot_rgb = bot_im.convert("RGB")
+
+    target_w = max(top_rgb.width, 960)
+    if top_rgb.width != target_w:
+        top_h = int(round(top_rgb.height * (target_w / top_rgb.width)))
+        top_rgb = top_rgb.resize((target_w, top_h), Image.Resampling.LANCZOS)
+
+    bot_h = int(round(bot_rgb.height * (target_w / bot_rgb.width)))
+    bot_rgb = bot_rgb.resize((target_w, bot_h), Image.Resampling.LANCZOS)
+
+    gap = 18
+    combined = Image.new("RGB", (target_w, top_rgb.height + gap + bot_rgb.height), (255, 255, 255))
+    combined.paste(top_rgb, (0, 0))
+    combined.paste(bot_rgb, (0, top_rgb.height + gap))
+
+    out = io.BytesIO()
+    combined.save(out, format="PNG", dpi=(250, 250))
+    return out.getvalue()
 
 
 def build_png_export_zip(tables: dict[str, pd.DataFrame]) -> bytes:
@@ -3760,7 +3873,6 @@ with st.container():
                                 if gradcam_part_results
                                 else "Gambar utuh"
                             ),
-                            "Status": "Terindikasi" if r["label"] == "Disleksia" else "Normal",
                             "Prediksi": r["label"],
                             "Tingkat Kepercayaan": f"{r['confidence'] * 100:.2f}%",
                             "Level Confidence": lvl,
@@ -3769,6 +3881,11 @@ with st.container():
                             "Inference Time (s)": f"{r['time']:.4f}",
                             "Waktu Analisis": now,
                         })
+                        if r["label"] == "Disleksia":
+                            try:
+                                auto_save_dyslexia_sample(bf.name, bf.getvalue())
+                            except Exception:
+                                pass
                         caption_data = {
                             "label": r["label"],
                             "confidence": r["confidence"],
@@ -3953,7 +4070,186 @@ with st.container():
                     "keputusan akhir dengan kalibrasi confidence."
                 )
             )
+            st.markdown(
+                """
+<style>
+@keyframes hybPulseRed {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.55); transform: scale(1); }
+    50% { box-shadow: 0 0 0 9px rgba(239, 68, 68, 0); transform: scale(1.12); }
+}
+@keyframes hybPulseGreen {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.55); transform: scale(1); }
+    50% { box-shadow: 0 0 0 9px rgba(16, 185, 129, 0); transform: scale(1.12); }
+}
+.hyb-hero-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+    gap: 14px;
+    margin: 0.5rem 0 1.25rem;
+}
+.hyb-hero-card {
+    position: relative;
+    border-radius: 16px;
+    padding: 1.05rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border: 1px solid;
+    backdrop-filter: blur(8px);
+}
+.hyb-hero-card.dys {
+    background: linear-gradient(135deg, rgba(127, 29, 29, 0.42), rgba(153, 27, 27, 0.22));
+    border-color: rgba(248, 113, 113, 0.55);
+}
+.hyb-hero-card.norm {
+    background: linear-gradient(135deg, rgba(6, 78, 59, 0.42), rgba(4, 120, 87, 0.22));
+    border-color: rgba(52, 211, 153, 0.55);
+}
+.hyb-shape-orb {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 1.15rem;
+}
+.hyb-hero-card.dys .hyb-shape-orb {
+    background: rgba(239, 68, 68, 0.25);
+    border: 2px solid #f87171;
+    color: #fecaca;
+    animation: hybPulseRed 2.1s infinite;
+}
+.hyb-hero-card.norm .hyb-shape-orb {
+    background: rgba(16, 185, 129, 0.25);
+    border: 2px solid #34d399;
+    color: #a7f3d0;
+    animation: hybPulseGreen 2.4s infinite;
+}
+.hyb-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    border-radius: 14px;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    background: rgba(15, 23, 42, 0.55);
+    margin-bottom: 0.75rem;
+}
+.hyb-styled-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+}
+.hyb-styled-table th {
+    background: rgba(30, 41, 59, 0.9);
+    color: #e2e8f0;
+    font-weight: 700;
+    text-align: left;
+    padding: 11px 14px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+    white-space: nowrap;
+}
+.hyb-styled-table td {
+    padding: 10px 14px;
+    color: #f1f5f9;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+    vertical-align: middle;
+}
+.hyb-styled-table tr:last-child td {
+    border-bottom: none;
+}
+.hyb-row-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 11px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.82rem;
+    white-space: nowrap;
+}
+.hyb-row-pill.dys {
+    background: rgba(239, 68, 68, 0.18);
+    border: 1px solid rgba(248, 113, 113, 0.5);
+    color: #fca5a5;
+}
+.hyb-row-pill.norm {
+    background: rgba(16, 185, 129, 0.18);
+    border: 1px solid rgba(52, 211, 153, 0.5);
+    color: #6ee7b7;
+}
+.hyb-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    display: inline-block;
+}
+.hyb-dot.dys {
+    background: #ef4444;
+    animation: hybPulseRed 1.8s infinite;
+}
+.hyb-dot.norm {
+    background: #10b981;
+    animation: hybPulseGreen 2.2s infinite;
+}
+</style>
+                """,
+                unsafe_allow_html=True,
+            )
+
+            # Shape khusus di atas tabel hybrid jika gambar <= 10 (bukan mode list besar)
+            if len(batch_files) <= 10:
+                cards_html = ['<div class="hyb-hero-grid">']
+                for _, hrow in hybrid_df.iterrows():
+                    is_dys = hrow["Kesimpulan Akhir Hybrid"] == "Disleksia"
+                    cls_mod = "dys" if is_dys else "norm"
+                    orb_sym = "!" if is_dys else "✓"
+                    title_lbl = tr("Disleksia") if is_dys else tr("Normal")
+                    cards_html.append(
+                        f'<div class="hyb-hero-card {cls_mod}">'
+                        f'<div class="hyb-shape-orb">{orb_sym}</div>'
+                        f'<div style="min-width:0;">'
+                        f'<div style="font-size:0.76rem; color:#94a3b8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{hrow["Nama File"]}</div>'
+                        f'<div style="font-size:1.08rem; font-weight:800; color:#ffffff; margin:2px 0;">{title_lbl} &bull; {hrow["Akumulasi Skor Hybrid (%)"]}</div>'
+                        f'<div style="font-size:0.78rem; color:#cbd5e1;">EffNet: {hrow["Skor EfficientNet-B0 (%)"]} | OpenCV: {hrow["Skor OpenCV Crop (%)"]} | {tr(hrow["Kesepakatan Model"])}</div>'
+                        f'</div></div>'
+                    )
+                cards_html.append('</div>')
+                st.markdown("".join(cards_html), unsafe_allow_html=True)
+
             translated_hybrid_df = translate_dataframe(hybrid_df)
+
+            def _build_animated_hybrid_html(df_in: pd.DataFrame) -> str:
+                rows_html = [
+                    '<div class="hyb-table-wrap"><table class="hyb-styled-table"><thead><tr>',
+                    f'<th>{tr("Kesimpulan Akhir Hybrid")}</th>',
+                    f'<th>{tr("Nama File")}</th>',
+                    f'<th>{tr("Skor EfficientNet-B0 (%)")}</th>',
+                    f'<th>{tr("Skor OpenCV Crop (%)")}</th>',
+                    f'<th>{tr("Akumulasi Skor Hybrid (%)")}</th>',
+                    f'<th>{tr("Kesepakatan Model")}</th>',
+                    f'<th>{tr("Confidence Hybrid")}</th>',
+                    '</tr></thead><tbody>',
+                ]
+                for _, r_in in df_in.iterrows():
+                    raw_pred = str(r_in["Kesimpulan Akhir Hybrid"])
+                    is_dys = raw_pred in ("Disleksia", "Dyslexic")
+                    c_cls = "dys" if is_dys else "norm"
+                    rows_html.append(
+                        f'<tr>'
+                        f'<td><span class="hyb-row-pill {c_cls}"><span class="hyb-dot {c_cls}"></span>{raw_pred}</span></td>'
+                        f'<td style="font-weight:600;">{r_in["Nama File"]}</td>'
+                        f'<td>{r_in["Skor EfficientNet-B0 (%)"]}</td>'
+                        f'<td>{r_in["Skor OpenCV Crop (%)"]}</td>'
+                        f'<td style="font-weight:700; color:#38bdf8;">{r_in["Akumulasi Skor Hybrid (%)"]}</td>'
+                        f'<td>{r_in["Kesepakatan Model"]}</td>'
+                        f'<td>{r_in["Confidence Hybrid"]}</td>'
+                        f'</tr>'
+                    )
+                rows_html.append('</tbody></table></div>')
+                return "".join(rows_html)
+
             if len(batch_files) > 10:
                 with st.expander(
                     tr(
@@ -3961,14 +4257,14 @@ with st.container():
                     ).format(count=len(batch_files)),
                     expanded=True,
                 ):
-                    st.table(
-                        translated_hybrid_df,
-                        hide_index=True,
+                    st.markdown(
+                        _build_animated_hybrid_html(translated_hybrid_df),
+                        unsafe_allow_html=True,
                     )
             else:
-                st.table(
-                    translated_hybrid_df,
-                    hide_index=True,
+                st.markdown(
+                    _build_animated_hybrid_html(translated_hybrid_df),
+                    unsafe_allow_html=True,
                 )
             render_table_download_row(
                 translated_hybrid_df,
@@ -3996,7 +4292,13 @@ with st.container():
         crop_summary_df = pd.DataFrame(batch_result["opencv_crop_summaries"])
         if analysis_mode == ANALYSIS_BOTH and show_batch_comparison:
             st.markdown(
-                f"## {tr('Hasil Perbandingan Model EfficientNet dan OpenCV')}"
+                f"""
+<div style="margin: 1.5rem 0 0.75rem; padding: 0.9rem 1.2rem; border-radius: 14px; background: linear-gradient(90deg, rgba(30, 58, 138, 0.35), rgba(15, 23, 42, 0.6)); border-left: 4px solid #60a5fa;">
+<div style="font-size: 1.15rem; font-weight: 800; color: #f8fafc;">{tr('Hasil Perbandingan Model EfficientNet dan OpenCV')}</div>
+<div style="font-size: 0.82rem; color: #cbd5e1; margin-top: 2px;">{tr('Komparasi metrik mentah antar gambar antara klasifikasi EfficientNet-B0 utuh dan segmentasi komponen OpenCV.')}</div>
+</div>
+                """,
+                unsafe_allow_html=True,
             )
             translated_comparison_df = translate_dataframe(comparison_df)
             if len(batch_files) > 10:
@@ -4015,24 +4317,6 @@ with st.container():
                     translated_comparison_df,
                     hide_index=True,
                 )
-            st.caption(
-                tr(
-                    "Perbandingan menampilkan prediksi EfficientNet per gambar dan "
-                    "proporsi label crop OpenCV. Untuk gambar lebar yang dibagi "
-                    "otomatis, "
-                    "prediksi EfficientNet adalah rata-rata tertimbang skor Disleksia "
-                    "tiap bagian. Persentase crop OpenCV adalah proporsi label, bukan "
-                    "kemungkinan diagnosis."
-                )
-                if split_wide_file_indices
-                else tr(
-                    "Perbandingan ini menampilkan klasifikasi EfficientNet pada gambar "
-                    "utuh dan proporsi label Disleksia/Normal dari crop OpenCV yang "
-                    "diklasifikasikan EfficientNet. Persentase crop adalah proporsi "
-                    "label komponen, bukan kemungkinan diagnosis; segmentasi komponen "
-                    "belum tentu memotong huruf secara tepat."
-                )
-            )
             render_table_download_row(
                 translated_comparison_df,
                 file_stem="",
@@ -4076,13 +4360,6 @@ with st.container():
                     effnet_rows,
                     hide_index=True,
                 )
-                render_table_download_row(
-                    effnet_rows,
-                    file_stem=file_stem,
-                    base_name="hasil_efficientnet",
-                    title=f"{tr('Model EfficientNet-B0')} — {filename}",
-                    key=f"effnet_{filename}",
-                )
                 if batch_mode == BATCH_FULL and effnet_output is not None:
                     st.markdown(f"#### {tr('Grid heatmap dan panel hasil')}")
                     st.image(
@@ -4090,10 +4367,15 @@ with st.container():
                         caption=localized_result_caption(effnet_output),
                         use_container_width=True,
                     )
-                    st.download_button(
-                        tr("Unduh Gambar"),
+                    effnet_img_with_table = combine_image_with_table_png(
                         effnet_output["image"],
-                        file_name=f"{file_stem}_grid_panel.png",
+                        effnet_rows,
+                        table_title=f"{tr('Model EfficientNet-B0')} — {filename}",
+                    )
+                    st.download_button(
+                        tr("Unduh Gambar + Tabel Hasil"),
+                        effnet_img_with_table,
+                        file_name=f"{file_stem}_grid_panel_hasil.png",
                         mime="image/png",
                         key=f"download_effnet_grid_{filename}",
                         on_click="ignore",
@@ -4131,14 +4413,6 @@ with st.container():
             if run_opencv and opencv_output is not None:
                 st.markdown(f"#### {tr('Deteksi OpenCV')}")
                 st.markdown(f"##### {tr('Model Crop Komponen + EfficientNet')}")
-                st.caption(
-                    tr(
-                        "Persentase merupakan proporsi crop yang diprediksi Disleksia "
-                        "atau Normal pada gambar ini, bukan peluang diagnosis. Crop "
-                        "belum tentu satu huruf; model EfficientNet dilatih untuk gambar "
-                        "utuh sehingga hasil crop masih eksperimen."
-                    )
-                )
                 crop_summary_frame = translate_dataframe(
                     crop_summary_by_file.get(filename, pd.DataFrame())
                 )
@@ -4146,23 +4420,21 @@ with st.container():
                     crop_summary_frame,
                     hide_index=True,
                 )
-                render_table_download_row(
-                    crop_summary_frame,
-                    file_stem=file_stem,
-                    base_name="ringkasan_crop",
-                    title=f"{tr('Ringkasan Crop Komponen OpenCV')} — {filename}",
-                    key=f"crop_summary_{filename}",
-                )
                 st.markdown(f"##### {tr('Komponen terdeteksi')}")
                 st.image(
                     opencv_output["image"],
                     caption=localized_result_caption(opencv_output),
                     use_container_width=True,
                 )
-                st.download_button(
-                    tr("Unduh Gambar"),
+                opencv_img_with_table = combine_image_with_table_png(
                     opencv_output["image"],
-                    file_name=f"{file_stem}_komponen_opencv.png",
+                    crop_summary_frame,
+                    table_title=f"{tr('Deteksi OpenCV')} — {filename}",
+                )
+                st.download_button(
+                    tr("Unduh Gambar + Tabel Hasil"),
+                    opencv_img_with_table,
+                    file_name=f"{file_stem}_komponen_opencv_hasil.png",
                     mime="image/png",
                     key=f"download_opencv_image_{filename}",
                     on_click="ignore",
@@ -4563,5 +4835,155 @@ with st.container():
                     st.caption(
                         tr("Pilih minimal satu data atau grid panel untuk diunduh.")
                     )
+
+        st.markdown("---")
+        st.markdown(f"### {tr('Bank Sampel & Kontribusi Dataset (Keberagaman Model)')}")
+        auto_dir = os.path.join(COLLECTED_SAMPLES_DIR, "auto_disleksia")
+        man_dys_dir = os.path.join(COLLECTED_SAMPLES_DIR, "manual_verified", "Disleksia")
+        man_norm_dir = os.path.join(COLLECTED_SAMPLES_DIR, "manual_verified", "Normal")
+        auto_cnt = len(os.listdir(auto_dir)) if os.path.exists(auto_dir) else 0
+        man_cnt = (
+            (len(os.listdir(man_dys_dir)) if os.path.exists(man_dys_dir) else 0)
+            + (len(os.listdir(man_norm_dir)) if os.path.exists(man_norm_dir) else 0)
+        )
+        col_stat1, col_stat2 = st.columns(2)
+        col_stat1.metric(tr("Auto-Collect (Terdeteksi Disleksia)"), f"{auto_cnt} {tr('gambar')}")
+        col_stat2.metric(tr("Input Manual (Terverifikasi 2 Langkah)"), f"{man_cnt} {tr('gambar')}")
+
+        if auto_cnt + man_cnt > 0:
+            st.download_button(
+                tr("Unduh Seluruh Bank Sampel (.zip)"),
+                build_collected_samples_zip(),
+                file_name="bank_sampel_dyslev_ai.zip",
+                mime="application/zip",
+                key="download_collected_samples_zip",
+                on_click="ignore",
+            )
+
+        with st.expander(tr("Tambah Sampel Manual (Verifikasi 2 Langkah)"), expanded=False):
+            if "manual_sample_step" not in st.session_state:
+                st.session_state["manual_sample_step"] = 1
+            if "sample_verify_code" not in st.session_state:
+                st.session_state["sample_verify_code"] = hashlib.sha256(
+                    str(time.time()).encode("utf-8")
+                ).hexdigest()[:6].upper()
+            if "sample_math_pair" not in st.session_state:
+                st.session_state["sample_math_pair"] = (7, 5)
+
+            if st.session_state["manual_sample_step"] == 1:
+                st.markdown(f"#### {tr('Langkah 1: Validasi Identitas & Kelayakan Sampel')}")
+                batch_name_map = {bf.name: bf for bf in batch_files}
+                selected_src_name = st.selectbox(
+                    tr("Pilih gambar dari hasil analisis saat ini"),
+                    options=list(batch_name_map.keys()),
+                    key="manual_sample_src_select",
+                )
+                manual_extra_upload = st.file_uploader(
+                    tr("Atau unggah gambar sampel baru secara terpisah (opsional)"),
+                    type=["png", "jpg", "jpeg"],
+                    key="manual_sample_extra_upload",
+                )
+                target_label = st.radio(
+                    tr("Label Validasi Sampel"),
+                    ["Disleksia", "Normal"],
+                    horizontal=True,
+                    key="manual_sample_label",
+                )
+                chk_age = st.checkbox(
+                    tr("Saya memastikan sampel ini adalah tulisan tangan anak usia 4–7 tahun."),
+                    key="manual_sample_chk_age",
+                )
+                chk_quality = st.checkbox(
+                    tr("Saya memastikan gambar jelas, tidak terpotong, dan layak untuk pelatihan model."),
+                    key="manual_sample_chk_quality",
+                )
+                verifier_name = st.text_input(
+                    tr("Nama Lengkap Verifikator / Peneliti (min. 3 karakter)"),
+                    key="manual_sample_verifier",
+                )
+                obs_notes = st.text_area(
+                    tr("Catatan Observasi Visual / Klinis (min. 10 karakter)"),
+                    placeholder=tr("Contoh: Terdapat huruf b/d terbalik dan spasi antar kata tidak konsisten..."),
+                    key="manual_sample_notes",
+                )
+
+                if st.button(tr("Lanjut ke Verifikasi Langkah 2"), type="primary", key="btn_sample_step1"):
+                    if not (chk_age and chk_quality):
+                        st.error(tr("Harap centang kedua pernyataan kelayakan sampel (usia 4–7 tahun & kualitas gambar)."))
+                    elif len(verifier_name.strip()) < 3:
+                        st.error(tr("Nama verifikator minimal 3 karakter."))
+                    elif len(obs_notes.strip()) < 10:
+                        st.error(tr("Catatan observasi minimal 10 karakter."))
+                    else:
+                        chosen_file = manual_extra_upload if manual_extra_upload is not None else batch_name_map[selected_src_name]
+                        st.session_state["manual_sample_payload"] = {
+                            "filename": chosen_file.name,
+                            "bytes": chosen_file.getvalue(),
+                            "label": target_label,
+                            "verifier": verifier_name.strip(),
+                            "notes": obs_notes.strip(),
+                        }
+                        st.session_state["sample_verify_code"] = hashlib.sha256(
+                            f"{time.time()}_{chosen_file.name}".encode("utf-8")
+                        ).hexdigest()[:6].upper()
+                        a = (int(time.time() * 100) % 8) + 2
+                        b = (int(time.time() * 10) % 7) + 3
+                        st.session_state["sample_math_pair"] = (a, b)
+                        st.session_state["manual_sample_step"] = 2
+                        st.rerun()
+
+            else:
+                payload = st.session_state.get("manual_sample_payload", {})
+                if not payload:
+                    st.session_state["manual_sample_step"] = 1
+                    st.rerun()
+                st.markdown(f"#### {tr('Langkah 2: Verifikasi Keamanan & Konfirmasi Akhir')}")
+                prev_col, info_col = st.columns([1, 2])
+                with prev_col:
+                    st.image(payload["bytes"], caption=payload["filename"], use_container_width=True)
+                with info_col:
+                    st.markdown(f"- **File:** `{payload['filename']}`")
+                    st.markdown(f"- **Label Validasi:** `{payload['label']}`")
+                    st.markdown(f"- **Verifikator:** `{payload['verifier']}`")
+                    st.markdown(f"- **Observasi:** {payload['notes']}")
+
+                v_code = st.session_state["sample_verify_code"]
+                ma, mb = st.session_state["sample_math_pair"]
+                st.info(tr("Kode Verifikasi Keamanan: **{code}** | Tantangan Hitung: **{a} + {b} = ?**").format(code=v_code, a=ma, b=mb))
+
+                c1, c2 = st.columns(2)
+                with c1:
+                    inp_code = st.text_input(tr("Masukkan Kode Verifikasi (6 karakter)"), key="manual_sample_inp_code")
+                with c2:
+                    inp_math = st.text_input(tr("Jawaban Tantangan Hitung"), key="manual_sample_inp_math")
+                inp_phrase = st.text_input(
+                    tr("Ketik tepat kata berikut untuk konfirmasi akhir: KONFIRMASI SAMPEL"),
+                    key="manual_sample_inp_phrase",
+                )
+
+                b_col1, b_col2 = st.columns(2)
+                with b_col1:
+                    if st.button(tr("Kembali ke Langkah 1"), key="btn_sample_back"):
+                        st.session_state["manual_sample_step"] = 1
+                        st.rerun()
+                with b_col2:
+                    if st.button(tr("Simpan Sampel Terverifikasi"), type="primary", key="btn_sample_save"):
+                        if inp_code.strip().upper() != v_code:
+                            st.error(tr("Kode verifikasi 6 karakter tidak sesuai."))
+                        elif inp_math.strip() != str(ma + mb):
+                            st.error(tr("Jawaban tantangan hitung salah."))
+                        elif inp_phrase.strip().upper() != "KONFIRMASI SAMPEL":
+                            st.error(tr("Frasa konfirmasi harus persis: KONFIRMASI SAMPEL"))
+                        else:
+                            saved_p = save_manual_verified_sample(
+                                payload["filename"],
+                                payload["bytes"],
+                                payload["label"],
+                                payload["verifier"],
+                                payload["notes"],
+                            )
+                            st.session_state["manual_sample_step"] = 1
+                            st.session_state.pop("manual_sample_payload", None)
+                            st.success(tr("Sampel berhasil diverifikasi 2 langkah dan disimpan ke bank dataset: {name}").format(name=os.path.basename(saved_p)))
 
 render_research_footer()
